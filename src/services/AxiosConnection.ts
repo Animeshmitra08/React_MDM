@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 // import { API_BASE } from "@env";
 
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE || "https://aonapps.in:7080/amsdevapi/api";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://aonapps.in:7089/api";
 var headers = '';
 
 const axiosCon = {
@@ -25,9 +25,8 @@ const axiosCon = {
     return response.data;
   },
 
-  postWithHeaders: async (
+  getWithHeaders: async (
     endpoint: string,
-    data: any,
     headers: Record<string, string> = {}
   ) => {
     try {
@@ -35,7 +34,27 @@ const axiosCon = {
         method: 'get',
         url: `${API_BASE}${endpoint}`,
         headers,
+        maxBodyLength: Infinity,
+      };
+      const response = await axios.request(config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in request to ${endpoint}:`, error);
+      throw error;
+    }
+  },
+
+  postWithHeaders: async (
+    endpoint: string,
+    data: any,
+    headers: Record<string, string> = {}
+  ) => {
+    try {
+      const config: AxiosRequestConfig = {
+        method: 'post',
+        url: `${API_BASE}${endpoint}`,
         data,
+        headers,
         maxBodyLength: Infinity,
       };
       const response = await axios.request(config);

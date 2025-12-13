@@ -33,8 +33,8 @@ export function buildNavigation(items: NavItem[]) {
       title: item.DisplayName || item.Name,
       path: item.Path || "/",
       icon: item.Icon || "home",
-      dashboardName: item.DashboardName,   // 👈 add this
-      dashboardId: item.DashboardId,       // 👈 add this
-      rawItem: item,                       // 👈 optional: keep full NavItem
+      dashboardName: item.DashboardName,
+      dashboardId: item.DashboardId,
+      rawItem: item,
     }));
 }

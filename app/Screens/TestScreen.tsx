@@ -1,22 +1,23 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
+import { dashboardAPI } from "@/src/services/Api";
+import { useData } from "@/Services/dataProvider";
 
 const TestScreen = () => {
   const theme = useTheme();
 
+  const { currentUser } = useData();
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={theme.dark ? "light" : "dark"} />
-
-      <Text style={[styles.title, { color: theme.colors.primary }]}>
-        TEST SCREEN
-      </Text>
-
-      <Text style={[styles.subtitle, { color: theme.colors.onBackground }]}>
-        Make changes to this screen from app/Screens/TestScreen.tsx
-      </Text>
+      <ScrollView style={{flex:1}}>
+        <Text>
+          {currentUser?.name}
+        </Text>
+      </ScrollView>
     </View>
   );
 };

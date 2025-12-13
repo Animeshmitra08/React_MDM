@@ -1,13 +1,13 @@
 import axiosCon from "./AxiosConnection";
 
-const ApplicationID = process.env.EXPO_PUBLIC_APP_ID || 'https://aonapps.in:7080/amsdevapi/api';
+const ApplicationID = process.env.EXPO_PUBLIC_APP_ID;
 
 // Navigation API
 export const navigationAPI = {
   getAll: async () => {
     try {
-      const response = await axiosCon.postWithHeaders('/Navigation', {},{
-        appid: ApplicationID
+      const response = await axiosCon.getWithHeaders('/Navigation', {
+        appid: ApplicationID ?? ''
       });
       return response;
     } catch (error) {
@@ -85,12 +85,12 @@ export const navigationAPI = {
 export const dashboardAPI = {
   getAll: async () => {
     try {
-      const response = await axiosCon.postWithHeaders('/Dashboard', {},{
-        appid: ApplicationID
+      const response = await axiosCon.getWithHeaders('/Dashboard',{
+        appid: ApplicationID ?? ''
       });
       return response;
     } catch (error) {
-      console.error('Error fetching navigations:', error);
+      console.error('Error fetching dashboard:', error);
       throw error;
     }
   },
@@ -135,3 +135,50 @@ export const dashboardAPI = {
     }
   },
 };
+
+
+// Login Api------
+export const LoginApi = {
+  post: async (data : any) =>{
+    try {
+      const response = await axiosCon.postWithHeaders('/Login', data,{
+        appid: ApplicationID ?? ''
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching Login:', error);
+      throw error;
+    }
+  }
+}
+
+
+// Navigation Api
+export const NavigationApi = {
+  getAll: async () =>{
+    try {
+      const res = await axiosCon.getWithHeaders("/Navigation", {
+        appid : ApplicationID ?? ''
+      });
+      return res;
+    } catch (error) {
+      console.error('Error fetching Navigation', error);
+      throw error;
+    }
+  }
+}
+
+//Navigation config for role based
+export const NavigationConfig = {
+  getAll: async (roleId: string) => {
+    try {
+      const res = await axiosCon.getWithHeaders(`/NavigationConfig/${roleId}`,{
+        appid : ApplicationID ?? ''
+      });
+      return res;
+    } catch (error) {
+      console.log("Error fetching Navigation Config", error);
+      throw error;
+    }
+  }
+}
