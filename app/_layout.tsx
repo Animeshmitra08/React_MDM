@@ -1,3 +1,4 @@
+import { AlertProvider } from '@/Services/AlertContext';
 import { DataProvider } from '@/Services/dataProvider';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -8,6 +9,7 @@ export default function RootLayout() {
 
   return (
     <>
+    <AlertProvider>
     <DataProvider>
       <ThemeProvider value={DefaultTheme}>
         <Stack>
@@ -15,6 +17,7 @@ export default function RootLayout() {
         </Stack>
       </ThemeProvider>
     </DataProvider>
+    </AlertProvider>
     </>
   );
 }

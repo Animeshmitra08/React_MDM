@@ -14,6 +14,8 @@ import { Alert } from "react-native";
 import { LoginApi, NavigationApi, NavigationConfig } from "@/src/services/Api";
 import { LoginPayload, LoginResponse } from "@/src/types/Login";
 import { Navigation, NavigationConfigType } from "@/src/types/Navigation";
+import { extractMessages } from "@/utils/errorHandler";
+import { useAlert } from "./AlertContext";
 
 
 interface DataContextType {
@@ -49,6 +51,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [navigationList, setNavigationList] = useState<Navigation[]>([]);
   const [navigationConfigList, setNavigationConfigList] = useState<NavigationConfigType[]>([])
 
+  const { showAlert } = useAlert();
+
   // ✅ Get device ID consistently
   const MobileDeviceId =
     Device.osInternalBuildId ??
@@ -60,6 +64,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const ip = await Network.getIpAddressAsync();
     setIpAdd(ip);
   }
+
+  const handleApiError = (error: any) => {
+    const messages = extractMessages(error);
+    messages.forEach(msg => showAlert(msg, "error"));
+  };
+
 
   
 
@@ -84,8 +94,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setCurrentUser(response);
       }
       return data;
-    } catch (err) {
-      console.error("❌ Login error:", err);
+    } catch (err : any) {
+      // console.error("❌ Login error:", err);
+      handleApiError(err);
       throw err;
     }
   };
@@ -94,8 +105,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await NavigationApi.getAll();
       setNavigationList(res);
-    } catch (error) {
+    } catch (error : any) {
       console.log("navigation list error", error);
+      handleApiError(error);
       throw error;
     }
   };
@@ -104,8 +116,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await NavigationConfig.getAll(roleId);
       setNavigationConfigList(res);
-    } catch (error) {
+    } catch (error : any) {
       console.log("navigation config list error", error);
+      handleApiError(error);
       throw error;
     }
   }
