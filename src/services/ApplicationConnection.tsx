@@ -1,9 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
-// import { API_BASE } from "@env";
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://aonapps.in:7089/api";
+const API_BASE = process.env.EXPO_PUBLIC_APP_API_URL;
 
-const axiosCon = {
+const appAxiosCon = {
   
   get: async (endpoint: string) => {
     const response = await axios.get(`${API_BASE}${endpoint}`);
@@ -65,4 +64,4 @@ const axiosCon = {
   }
 };
 
-export default axiosCon;
+export default appAxiosCon;

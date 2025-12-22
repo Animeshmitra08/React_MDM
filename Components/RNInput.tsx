@@ -5,11 +5,12 @@ import { Icon, useTheme } from 'react-native-paper';
 interface RNInputProps {
   label: string;
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText?: (text: string) => void;
   icon?: string;
   secure?: boolean;
   error?: string;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  disabled?: boolean;
 }
 
 const RNInput: React.FC<RNInputProps> = ({
@@ -19,13 +20,16 @@ const RNInput: React.FC<RNInputProps> = ({
   icon,
   secure = false,
   error,
-  autoCapitalize = "none"
+  autoCapitalize = "none",
+  disabled = false,
 }) => {
   const { colors } = useTheme();
   const [isFocused, setFocused] = useState(false);
 
   // 👇 Add password visibility toggle
   const [hidePassword, setHidePassword] = useState(secure);
+
+  const isFloating = isFocused || !!value;
 
   return (
     <View style={styles.container}>
@@ -46,17 +50,44 @@ const RNInput: React.FC<RNInputProps> = ({
           </View>
         )}
 
+        <Text
+          style={[
+            styles.floatingLabel,
+            {
+              color: error
+                ? "#ff5252"
+                : disabled
+                ? "#888"
+                : isFocused
+                ? colors.primary
+                : "#999",
+              backgroundColor: disabled ? "#ffffffff" : "#fff",
+              top: isFloating ? -8 : 12,
+              fontSize: isFloating ? 12 : 16,
+              paddingHorizontal: isFloating ? 4 : 0,
+              marginLeft: icon ? 36 : 12,
+            },
+          ]}
+        >
+          {label}
+        </Text>
+
         {/* TextInput */}
         <TextInput
           value={value}
+          editable={!disabled}
+          selectTextOnFocus={!disabled}
           secureTextEntry={secure ? hidePassword : false}
-          placeholder={label}
+          // placeholder={label}
           placeholderTextColor="#999"
           onChangeText={onChangeText}
-          onFocus={() => setFocused(true)}
+          onFocus={() => !disabled && setFocused(true)}
           onBlur={() => setFocused(false)}
           autoCapitalize={autoCapitalize}
-          style={styles.input}
+          style={[
+            styles.input,
+            { color: disabled ? "#888" : "#000" },
+          ]}
         />
 
         {/* 👁 Right Eye Toggle (Only for secure fields) */}
@@ -97,12 +128,18 @@ const styles = StyleSheet.create({
     height: 46,
     fontSize: 16,
     color: "#000",
+    paddingTop: 10,
   },
   errorText: {
     color: "#ff5252",
     marginTop: 4,
     marginLeft: 4,
     fontSize: 13,
+  },
+  floatingLabel: {
+    position: "absolute",
+    left: 0,
+    zIndex: 10,
   },
 });
 
