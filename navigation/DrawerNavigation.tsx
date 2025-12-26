@@ -7,6 +7,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { Navigation } from "@/src/types/Navigation";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { useRoute } from "@react-navigation/native";
+import Approval1 from "@/app/Screens/Request Approval/Approval1";
 
 const { width } = Dimensions.get("window");
 
@@ -21,11 +22,7 @@ type CustomDrawerProps = DrawerContentComponentProps & {
 
 
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
-  sopmaster: HomeScreen,
-  samplereversal: HomeScreen,
-  uommaster: HomeScreen,
-  maintenancelog: HomeScreen,
-  materialmaster: HomeScreen,
+  requestapproval: Approval1,
 };
 
 function FallbackScreen() {
@@ -151,9 +148,6 @@ export default function DrawerNavigator() {
       return true; // ✅ first occurrence
     });
   }, [orderedNavigationList]);
-
-  console.log(navigationList);
-  
 
   // ----------------------- orderedNavigationList derivation -----------------------
   const groupedNavigation = useMemo<Record<string, Navigation[]>>(() => {
