@@ -1,46 +1,102 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import DateTimeComponent from "../DateTimeComponent";
+import EDropdown from "../EDropdown";
+import { Button } from "react-native-paper";
 
-function Filter1() {
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+type Filter1Props = {
+  fromDate: Date | null;
+  toDate: Date | null;
+  today: Date;
 
-  const today = useMemo(() => new Date(), []);
+  onFromDateChange: (date: Date) => void;
+  onToDateChange: (date: Date) => void;
 
-  useEffect(() => {
-    const firstDayOfMonth = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      1
-    );
+  plant: string;
+  onPlantChange: (value: string) => void;
 
-    setFromDate(firstDayOfMonth);
-    setToDate(today); // optional but sensible default
-  }, [today]);
+  onApply: () => void;
+};
 
+function Filter1({
+  fromDate,
+  toDate,
+  today,
+  onFromDateChange,
+  onToDateChange,
+  plant,
+  onPlantChange,
+  onApply,
+}: Filter1Props) {
   return (
-    <>
-      {/* From Date */}
-      <DateTimeComponent
-        label="From Date"
-        date={fromDate}
-        type="date"
-        setDate={setFromDate}
-        maximumDate={today}
-      />
+    <View style={styles.container}>
+      <View style={styles.grid}>
+        <View style={styles.cell}>
+          <DateTimeComponent
+            label="From Date"
+            date={fromDate}
+            type="date"
+            setDate={onFromDateChange}
+            maximumDate={today}
+          />
+        </View>
 
-      {/* To Date */}
-      <DateTimeComponent
-        label="To Date"
-        date={toDate}
-        type="date"
-        setDate={setToDate}
-        disabled={!fromDate}
-        minimumDate={fromDate ?? undefined}
-        maximumDate={today}
-      />
-    </>
+        <View style={styles.cell}>
+          <DateTimeComponent
+            label="To Date"
+            date={toDate}
+            type="date"
+            setDate={onToDateChange}
+            disabled={!fromDate}
+            minimumDate={fromDate ?? undefined}
+            maximumDate={today}
+          />
+        </View>
+
+        <View style={styles.cell}>
+          <EDropdown
+            label="Plant"
+            data={[
+              { label: "All", value: "all" },
+              { label: "Pending", value: "pending" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ]}
+            value={plant}
+            onChange={onPlantChange}
+          />
+        </View>
+      </View>
+
+      <Button
+        mode="contained"
+        onPress={onApply}
+        disabled={!fromDate || !toDate}
+        style={styles.button}
+      >
+        Filter
+      </Button>
+    </View>
   );
 }
 
 export default Filter1;
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 12,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6,
+  },
+  cell: {
+    width: "50%",
+    paddingHorizontal: 6,
+    marginBottom: 12,
+  },
+  button: {
+    marginTop: 8,
+  },
+});
