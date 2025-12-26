@@ -1,191 +1,230 @@
-import Filter1 from '@/Components/DashboardFilterComponent/Filter1'
-import RDatatable from '@/Components/Datatable/RDatatable';
-import React, { useEffect, useMemo, useState } from 'react'
-import { Avatar } from 'react-native-paper';
+import Filter1 from "@/Components/DashboardFilterComponent/Filter1";
+import RDatatable from "@/Components/Datatable/RDatatable";
+import DialogComponent from "@/Components/DialogComponent";
+import RNInput from "@/Components/RNInput";
+import {
+  Approval12Api,
+  Approval1Api,
+  PlantData,
+} from "@/src/services/MdmAPPApi";
+import React, { useEffect, useMemo, useState } from "react";
+import { Avatar } from "react-native-paper";
 
-export interface SampleTransactionProps {
-  sampleCode: string;
-  sampleName?: string;
-  sample_Name?: string;
-
-  plantName?: string;
-  plant_Name?: string;
-
-  deptName?: string;
-  dept_Name?: string;
-
-  subDeptName?: string;
-  subDpt_Name?: string;
-
-  analysisCode: string;
-  shift: string;
-
-  sampleCollectionDate: string; // ISO
-  sampleCollectionTime: string;
-
-  status: number; // 10 = Registered, 20 = Received
-}
-
-
-const SAMPLE_DATA: SampleTransactionProps[] = [
-    {
-        sampleCode: "SMP-1001",
-        sample_Name: "Raw Water Intake",
-        plant_Name: "Plant A",
-        dept_Name: "Quality",
-        subDpt_Name: "Water Testing",
-        analysisCode: "ANL-WT-01",
-        shift: "A",
-        sampleCollectionDate: "2025-09-01T08:30:00",
-        sampleCollectionTime: "08:30",
-        status: 10,
-    },
-    {
-        sampleCode: "SMP-1002",
-        sampleName: "Boiler Feed Water",
-        plantName: "Plant A",
-        deptName: "Utilities",
-        subDeptName: "Boiler",
-        analysisCode: "ANL-BL-02",
-        shift: "B",
-        sampleCollectionDate: "2025-09-01T14:15:00",
-        sampleCollectionTime: "14:15",
-        status: 20,
-    },
-    {
-        sampleCode: "SMP-1003",
-        sample_Name: "Cooling Tower Water",
-        plant_Name: "Plant B",
-        dept_Name: "Maintenance",
-        subDpt_Name: "Cooling Systems",
-        analysisCode: "ANL-CT-03",
-        shift: "C",
-        sampleCollectionDate: "2025-09-02T22:45:00",
-        sampleCollectionTime: "22:45",
-        status: 10,
-    },
-    {
-        sampleCode: "SMP-1004",
-        sampleName: "Process Effluent",
-        plantName: "Plant C",
-        deptName: "Production",
-        subDeptName: "Chemical Line",
-        analysisCode: "ANL-PE-04",
-        shift: "A",
-        sampleCollectionDate: "2025-09-03T09:10:00",
-        sampleCollectionTime: "09:10",
-        status: 20,
-    },
-    {
-        sampleCode: "SMP-1005",
-        sample_Name: "RO Permeate",
-        plant_Name: "Plant B",
-        dept_Name: "Quality",
-        subDpt_Name: "RO Plant",
-        analysisCode: "ANL-RO-05",
-        shift: "B",
-        sampleCollectionDate: "2025-09-03T16:50:00",
-        sampleCollectionTime: "16:50",
-        status: 10,
-    },
-    ];
+type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
 const Approval1 = () => {
   const today = useMemo(() => new Date(), []);
-
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [plant, setPlant] = useState("all");
+  const [plant, setPlant] = useState<any>();
+  const [plantApiData, setPlantApiData] = useState<any>();
 
-  
+  const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
+  const [selectedItem, setSelectedItem] = useState<any>();
+  const [actionType, setActionType] = useState<"Accepted" | "Rejected" | "">(
+    ""
+  );
+  const [remarks, setRemarks] = useState("");
+  const [ApiData, setApiData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const ApiDataFunc = async () => {
+    try {
+      setLoading(true);
+      const response = await Approval1Api.post({
+        fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
+        tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
+        plantIds: plant === "all" ? ["string"] : [plant],
+      });
+      setApiData(response);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching Approval1 data:", err);
+    }
+  };
+  const ApiDataPlant = async () => {
+    try {
+      const response = await PlantData.GetAll();
+      setPlantApiData(response);
+    } catch (error) {
+      console.error("Error fetching Approval1 data:", error);
+    }
+  };
+  useEffect(() => {
+    ApiDataPlant();
+    ApiDataFunc();
+  }, []);
 
   useEffect(() => {
-    const firstDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      1
-    );
-
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
     setToDate(today);
   }, [today]);
 
+  const closeDialog = () => {
+    setDialogStep("NONE");
+    setSelectedItem(null);
+    setActionType("");
+    setRemarks("");
+  };
+
+  const submitAction = async () => {
+    console.log({
+      item: selectedItem,
+      action: actionType,
+      remarks,
+    });
+    const req = await Approval12Api.post({
+      ...selectedItem,
+      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
+      appR1_REMARKS: remarks,
+      appR1_ON: new Date().toISOString(),
+      // appR1_BY: "CurrentUser",
+    });
+    console.log(req, "Response", "Api Fit");
+    closeDialog();
+  };
   return (
     <>
-    <Filter1
-      today={today}
-      fromDate={fromDate}
-      toDate={toDate}
-      plant={plant}
-      onFromDateChange={(d) => {
-        setFromDate(d);
-        if (toDate && d > toDate) setToDate(d);
-      }}
-      onToDateChange={setToDate}
-      onPlantChange={setPlant}
-      onApply={() => {
-        console.log({ fromDate, toDate, plant });
-      }}
-    />
+      <Filter1
+        today={today}
+        fromDate={fromDate}
+        toDate={toDate}
+        plant={plant}
+        plantData={plantApiData}
+        onFromDateChange={(d) => {
+          setFromDate(d);
+          if (toDate && d > toDate) setToDate(d);
+        }}
+        onToDateChange={setToDate}
+        onPlantChange={setPlant}
+        onApply={async () => ApiDataFunc()}
+      />
 
-    <RDatatable
-    data={SAMPLE_DATA}
-    actions={[
-    {
-      key: "view",
-      render: row => (
-        <Avatar.Icon
-          size={28}
-          icon="eye"
-          style={{ backgroundColor: "#2563eb" }}
-        />
-      ),
-      onPress: row => console.log("View", row),
-    },
-    {
-      key: "edit",
-      render: row => (
-        <Avatar.Icon
-          size={28}
-          icon="pencil"
-          style={{ backgroundColor: "#16a34a" }}
-        />
-      ),
-      onPress: row => console.log("Edit", row),
-    },
-  ]}
-    columns={[
-        {
-        key: "sampleCode",
-        title: "Sample Code",
-        width: 160,
-        },
-        {
-        key: "sampleName",
-        title: "Sample",
-        width: 240,
-        render: row => row.sample_Name || row.sampleName,
-        },
-        {
-        key: "plantName",
-        title: "Plant",
-        render: row => row.plant_Name || row.plantName,
-        },
-        {
-        key: "sampleCollectionDate",
-        title: "Sample Date",
-        render: row => row.sampleCollectionDate.split("T")[0],
-        },
-        {
-        key: "status",
-        title: "Status",
-        render: row =>
-            row.status === 10 ? "Registered" : "Received",
-        },
-    ]}
-    />
+      <RDatatable
+        loading={loading}
+        data={ApiData || []}
+        actions={[
+          {
+            key: "edit-accept",
+            render: () => (
+              <Avatar.Icon
+                size={28}
+                icon="thumb-up"
+                style={{ backgroundColor: "#16a34a" }}
+              />
+            ),
+            onPress: (row) => {
+              setSelectedItem(row);
+              setDialogStep("CHOOSE");
+              setActionType("Accepted");
+              setDialogStep("REMARKS");
+            },
+          },
+          {
+            key: "edit-reject",
+            render: () => (
+              <Avatar.Icon
+                size={28}
+                icon="thumb-down"
+                style={{ backgroundColor: "#16a34a" }}
+              />
+            ),
+            onPress: (row) => {
+              setSelectedItem(row);
+              setDialogStep("CHOOSE");
+              setActionType("Rejected");
+              setDialogStep("REMARKS");
+            },
+          },
+          {
+            key: "view",
+            render: () => (
+              <Avatar.Icon
+                size={28}
+                icon="eye"
+                style={{ backgroundColor: "#2563eb" }}
+              />
+            ),
+            onPress: (row) => {
+              setSelectedItem(row);
+            },
+          },
+        ]}
+        columns={[
+          {
+            key: "reQ_CODE",
+            title: "RequestCode",
+            render: (row) => row.reQ_CODE,
+            marginLeft: 20,
+          },
+          {
+            key: "PlantName&Code",
+            title: "Plant Code & Name",
+            width: 240,
+            render: (row) => `${row.plant_code} - ${row.plant}`,
+          },
+          {
+            key: "StorageCode&Name",
+            title: "Storage Code & Name",
+            render: (row) => `${row.storage_Code} - ${row.storage}`,
+            width: 170,
+          },
+          {
+            key: "materiaL_TYPE",
+            title: " Material Type",
+            render: (row) =>
+              `${row.materialType_Code} - ${row.materialTypeName}`,
+          },
+          {
+            key: "Created",
+            title: "Created",
+            render: (row) =>
+              `${row.entereD_BY} - ${row.entereD_ON?.split("T")[0]} - ${
+                row.entereD_ON?.split("T")[1].split(".")[0]
+              }`,
+          },
+        ]}
+        pagination={true}
+        searchable={true}
+        pageSize={5}
+        searchKeys={["plant"]}
+      />
+      <DialogComponent
+        visible={dialogStep !== "NONE"}
+        title={`${actionType} Confirmation`}
+        onDismiss={closeDialog}
+        actions={[
+          {
+            label: "Submit",
+            mode: "contained",
+            onPress: submitAction,
+          },
+          {
+            label: "Close",
+            onPress: closeDialog,
+          },
+        ]}
+      >
+        {dialogStep === "REMARKS" && selectedItem && (
+          <>
+            <RNInput
+              label="Request Number"
+              disabled
+              value={selectedItem.reQ_CODE}
+              icon="format-list-numbered"
+            />
+
+            <RNInput
+              label="Enter Remarks**"
+              value={remarks}
+              icon="grease-pencil"
+              onChangeText={setRemarks}
+            />
+          </>
+        )}
+      </DialogComponent>
     </>
   );
-}
+};
 
-export default Approval1
+export default Approval1;

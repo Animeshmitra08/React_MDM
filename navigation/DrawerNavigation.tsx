@@ -45,6 +45,7 @@ type CustomDrawerProps = DrawerContentComponentProps & {
 
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
   requestapproval: HomeScreen,
+  requestapprovalfinal: Approval1,
 };
 
 function FallbackScreen() {
@@ -99,7 +100,7 @@ function HomeScreen({ navigation }: any) {
         Go to Test Screen with Params
       </Button>
       <DialogComponent
-        visible={true}
+        visible={false}
         title="Approval Confirmation"
         onDismiss={() => {}}
         actions={[

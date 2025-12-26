@@ -3,6 +3,7 @@ export type TableColumn<T> = {
   title: string;
   width?: number;
   render?: (row: T) => React.ReactNode;
+  marginLeft?: number;
 };
 
 export type TableAction<T> = {

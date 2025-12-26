@@ -1,5 +1,5 @@
 import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
-import { gunmetal } from "./color";
+import { AppMDMThemeColors, gunmetal } from "./color";
 
 export const GunmetalLightTheme = {
   ...MD3LightTheme,
@@ -8,26 +8,26 @@ export const GunmetalLightTheme = {
     ...MD3LightTheme.colors,
 
     // BRAND / PRIMARY
-    primary: gunmetal[700],
+    primary: AppMDMThemeColors.primary,
     onPrimary: gunmetal[50],
     primaryContainer: gunmetal[200],
     onPrimaryContainer: gunmetal[900],
 
     // SECONDARY
-    secondary: gunmetal[500],
+    secondary: AppMDMThemeColors.white,
     onSecondary: gunmetal[50],
     secondaryContainer: gunmetal[200],
     onSecondaryContainer: gunmetal[800],
 
     // TERTIARY
-    tertiary: gunmetal[400],
+    tertiary: AppMDMThemeColors.approval,
     onTertiary: gunmetal[50],
     tertiaryContainer: gunmetal[300],
     onTertiaryContainer: gunmetal[900],
 
     // BACKGROUND
-    background: gunmetal[50],
-    onBackground: gunmetal[900],
+    background: AppMDMThemeColors.second,
+    onBackground: AppMDMThemeColors.second,
 
     // SURFACE
     surface: gunmetal[50],

@@ -1,6 +1,5 @@
 // theme/colors.ts
-export const gunmetal = 
-{
+export const gunmetal = {
   50: "#f3ebfa",
   100: "#e7d6f5",
   200: "#ceaeea",
@@ -11,7 +10,7 @@ export const gunmetal =
   700: "#501f7a",
   800: "#351551",
   900: "#1b0a29",
-  950: "#13071c"
+  950: "#13071c",
 };
 // {
 // 	50: "#fff4e5",
@@ -27,7 +26,10 @@ export const gunmetal =
 // 	950: "#241400"
 // };
 
-
-
-
-
+export const AppMDMThemeColors = {
+  primary: "#0CA79D",
+  second: "#EDA700",
+  approval: "#008000",
+  rejected: "#FF0000",
+  white: "#FFFFFF",
+};
