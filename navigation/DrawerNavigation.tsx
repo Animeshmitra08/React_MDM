@@ -1,6 +1,20 @@
 import React, { useEffect, useMemo } from "react";
-import { Alert, Dimensions, LayoutAnimation, Platform, Pressable, StyleSheet, UIManager, useColorScheme, View } from "react-native";
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+import {
+  Alert,
+  Dimensions,
+  LayoutAnimation,
+  Platform,
+  Pressable,
+  StyleSheet,
+  UIManager,
+  useColorScheme,
+  View,
+} from "react-native";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 import { Avatar, Button, Divider, Text, useTheme } from "react-native-paper";
 import { useData } from "@/Services/dataProvider";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -19,13 +33,13 @@ type CustomDrawerProps = DrawerContentComponentProps & {
   groupedNavigation: Record<string, Navigation[]>;
 };
 
-
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
   sopmaster: HomeScreen,
   samplereversal: HomeScreen,
   uommaster: HomeScreen,
   maintenancelog: HomeScreen,
   materialmaster: HomeScreen,
+  requestapproval: HomeScreen,
 };
 
 function FallbackScreen() {
@@ -53,12 +67,10 @@ const normalizeFaIcon = (iconClass?: string): string => {
   // Otherwise treat it as a Font Awesome class string
   const icon = iconClass
     .split(" ")
-    .find(cls => cls.startsWith("fa-") && !cls.startsWith("fa-solid"));
+    .find((cls) => cls.startsWith("fa-") && !cls.startsWith("fa-solid"));
 
   return icon ? icon.replace("fa-", "") : "circle";
 };
-
-
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
@@ -119,9 +131,7 @@ export default function DrawerNavigator() {
   /* -------------------- Build lookup map -------------------- */
   const configMap = useMemo(() => {
     if (!navigationConfigList?.length) return new Map();
-    return new Map(
-      navigationConfigList.map(cfg => [cfg.navigationID, cfg])
-    );
+    return new Map(navigationConfigList.map((cfg) => [cfg.navigationID, cfg]));
   }, [navigationConfigList]);
 
   /* -------------------- Filter + sort menu -------------------- */
@@ -129,7 +139,7 @@ export default function DrawerNavigator() {
     if (!navigationList?.length || !configMap.size) return [];
 
     return [...navigationList] // ⚠️ clone before sort
-      .filter(nav => configMap.get(nav.id)?.isGranted)
+      .filter((nav) => configMap.get(nav.id)?.isGranted)
       .sort((a, b) => {
         const orderA = configMap.get(a.id)?.pageOrder ?? 0;
         const orderB = configMap.get(b.id)?.pageOrder ?? 0;
@@ -140,7 +150,7 @@ export default function DrawerNavigator() {
   const uniqueNavigationList = useMemo(() => {
     const seen = new Set<string>();
 
-    return orderedNavigationList.filter(item => {
+    return orderedNavigationList.filter((item) => {
       const key = normalizeRouteKey(item.page);
 
       if (seen.has(key)) {
@@ -153,13 +163,12 @@ export default function DrawerNavigator() {
   }, [orderedNavigationList]);
 
   console.log(navigationList);
-  
 
   // ----------------------- orderedNavigationList derivation -----------------------
   const groupedNavigation = useMemo<Record<string, Navigation[]>>(() => {
     const map: Record<string, Navigation[]> = {};
 
-    orderedNavigationList.forEach(item => {
+    orderedNavigationList.forEach((item) => {
       const parentId = item.parentId ?? "root";
 
       if (!map[parentId]) {
@@ -207,43 +216,44 @@ export default function DrawerNavigator() {
         },
         headerTintColor: colors.onSurface,
       }}
-      drawerContent={(props) => <CustomDrawer {...props} groupedNavigation={groupedNavigation}/>}
+      drawerContent={(props) => (
+        <CustomDrawer {...props} groupedNavigation={groupedNavigation} />
+      )}
     >
       {uniqueNavigationList
-        .filter(item => !groupedNavigation[item.id])
-        .map(item => {
-        const routeKey = normalizeRouteKey(item.page);
-        const ScreenComponent =
-          ScreenRegistry[routeKey] ?? FallbackScreen;
+        .filter((item) => !groupedNavigation[item.id])
+        .map((item) => {
+          const routeKey = normalizeRouteKey(item.page);
+          const ScreenComponent = ScreenRegistry[routeKey] ?? FallbackScreen;
 
-        const drawerLabel =
-          typeof item.displayName === "string" && item.displayName.trim()
-            ? item.displayName
-            : item.page;
+          const drawerLabel =
+            typeof item.displayName === "string" && item.displayName.trim()
+              ? item.displayName
+              : item.page;
 
-        return (
-          <Drawer.Screen
-            key={item.id}
-            name={routeKey}
-            component={ScreenComponent}
-            options={{
-              drawerLabel,
-              headerTitleStyle: {
-                color: colors.secondary
-              },
-              headerTintColor: colors.primary,
-              headerTitle: item.dashboardName ?? drawerLabel,
-              drawerIcon: ({ color, size }) => (
-                <FontAwesome6
-                  name={normalizeFaIcon(item.iconClass)}
-                  size={size}
-                  color={color}
-                />
-              ),
-            }}
-          />
-        );
-      })}
+          return (
+            <Drawer.Screen
+              key={item.id}
+              name={routeKey}
+              component={ScreenComponent}
+              options={{
+                drawerLabel,
+                headerTitleStyle: {
+                  color: colors.secondary,
+                },
+                headerTintColor: colors.primary,
+                headerTitle: item.dashboardName ?? drawerLabel,
+                drawerIcon: ({ color, size }) => (
+                  <FontAwesome6
+                    name={normalizeFaIcon(item.iconClass)}
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+            />
+          );
+        })}
     </Drawer.Navigator>
   );
 }
@@ -255,10 +265,11 @@ const Centered = ({ children }: { children: React.ReactNode }) => (
   </View>
 );
 
-
 function CustomDrawer(props: CustomDrawerProps) {
   const { groupedNavigation } = props;
-  const [expandedParents, setExpandedParents] = React.useState<Record<string, boolean>>({});
+  const [expandedParents, setExpandedParents] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const route = props.state.routes[props.state.index];
   const activeRouteName = route?.name;
@@ -267,14 +278,13 @@ function CustomDrawer(props: CustomDrawerProps) {
     Object.entries(groupedNavigation).forEach(([parentId, children]) => {
       if (
         children?.some(
-          child => normalizeRouteKey(child.page) === activeRouteName
+          (child) => normalizeRouteKey(child.page) === activeRouteName
         )
       ) {
-        setExpandedParents(prev => ({ ...prev, [parentId]: true }));
+        setExpandedParents((prev) => ({ ...prev, [parentId]: true }));
       }
     });
   }, [activeRouteName]);
-
 
   if (Platform.OS === "android") {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -282,7 +292,7 @@ function CustomDrawer(props: CustomDrawerProps) {
 
   const toggleParent = (id: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpandedParents(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedParents((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const { colors } = useTheme();
@@ -292,10 +302,14 @@ function CustomDrawer(props: CustomDrawerProps) {
     await logout();
   };
 
-  const getInitials = (email: string) => (email ? email.substring(0, 1).toUpperCase() : "U");
+  const getInitials = (email: string) =>
+    email ? email.substring(0, 1).toUpperCase() : "U";
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.container}>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.profileContainer}>
         <Avatar.Text
           label={getInitials(currentUser?.email || "")}
@@ -303,7 +317,10 @@ function CustomDrawer(props: CustomDrawerProps) {
           style={{ backgroundColor: colors.onPrimary }}
         />
         <View style={{ marginLeft: 12 }}>
-          <Text variant="titleMedium" style={{ fontWeight: "700", color: colors.onPrimary }}>
+          <Text
+            variant="titleMedium"
+            style={{ fontWeight: "700", color: colors.onPrimary }}
+          >
             {currentUser?.name}
           </Text>
           <Text variant="bodySmall" style={{ color: colors.onPrimary }}>
@@ -322,12 +339,14 @@ function CustomDrawer(props: CustomDrawerProps) {
           const hasChildren = children.length > 0;
 
           const parentRouteKey = normalizeRouteKey(parent.page);
-            const isParentActive = parentRouteKey === activeRouteName;
+          const isParentActive = parentRouteKey === activeRouteName;
 
           // ✅ Use fallback values to ensure display
           const parentDisplayName =
             parent.displayName?.trim() || parent.page || "Menu";
-          const parentIcon = parent.iconClass ? normalizeFaIcon(parent.iconClass) : normalizeFaIcon(parent.icon);
+          const parentIcon = parent.iconClass
+            ? normalizeFaIcon(parent.iconClass)
+            : normalizeFaIcon(parent.icon);
 
           return (
             <View key={parent.id}>
@@ -340,10 +359,7 @@ function CustomDrawer(props: CustomDrawerProps) {
                     props.navigation.navigate(parentRouteKey);
                   }
                 }}
-                style={[
-                  styles.parentItem,
-                  isParentActive && styles.activeItem,
-                ]}
+                style={[styles.parentItem, isParentActive && styles.activeItem]}
               >
                 <View style={styles.parentLeft}>
                   {isParentActive && <View style={styles.activeIndicator} />}
@@ -394,9 +410,10 @@ function CustomDrawer(props: CustomDrawerProps) {
                       {isChildActive && <View style={styles.activeIndicator} />}
 
                       <FontAwesome6
-                        name={child.iconClass
-                          ? normalizeFaIcon(child.iconClass)
-                          : normalizeFaIcon(child.icon)
+                        name={
+                          child.iconClass
+                            ? normalizeFaIcon(child.iconClass)
+                            : normalizeFaIcon(child.icon)
                         }
                         size={14}
                         color={colors.onPrimary}
@@ -439,7 +456,9 @@ function CustomDrawer(props: CustomDrawerProps) {
       {/* Footer */}
       <Text style={[styles.footerText, { color: colors.onPrimary }]}>
         © {new Date().getFullYear()}{" "}
-        <Text style={{ fontWeight: "bold", color: colors.onPrimary }}>AON DIGICON LLP</Text>
+        <Text style={{ fontWeight: "bold", color: colors.onPrimary }}>
+          AON DIGICON LLP
+        </Text>
       </Text>
     </DrawerContentScrollView>
   );
