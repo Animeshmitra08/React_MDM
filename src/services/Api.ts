@@ -2,85 +2,6 @@ import axiosCon from "./AxiosConnection";
 
 const ApplicationID = process.env.EXPO_PUBLIC_APP_ID;
 
-// Navigation API
-export const navigationAPI = {
-  getAll: async () => {
-    try {
-      const response = await axiosCon.getWithHeaders('/Navigation', {
-        appid: ApplicationID ?? ''
-      });
-      return response;
-    } catch (error) {
-      console.error('Error fetching navigations:', error);
-      throw error;
-    }
-  },
-
-  create: async (navigation: {
-    ApplicationID: string;
-    ParentId: string | null;
-    DashboardId: string | null;
-    DisplayName: string | null;
-    DashboardName: string | null;
-    Icon: string | null;
-    IconClass: string | null;
-    Svg: string | null;
-    Path: string | null;
-    Order: number | null;
-    Level: number | null;
-    IsMobile: boolean;
-    Grant: string | null;
-    Type: string | null;
-    Value: string | null;
-    Name: string;
-  }) => {
-    try {
-      const response = await axiosCon.post('/Navigation', navigation);
-      return response;
-    } catch (error) {
-      console.error('Error creating navigation:', error);
-      throw error;
-    }
-  },
-
-  update: async (id: string, navigation: Partial<{
-    ApplicationID: string;
-    ParentId: string | null;
-    DashboardId: string | null;
-    DisplayName: string | null;
-    DashboardName: string | null;
-    Icon: string | null;
-    IconClass: string | null;
-    Svg: string | null;
-    Path: string | null;
-    Order: number | null;
-    Level: number | null;
-    IsMobile: boolean;
-    Grant: string | null;
-    Type: string | null;
-    Value: string | null;
-    Name: string;
-  }>) => {
-    try {
-      const response = await axiosCon.post(`/Navigation/${id}`, navigation);
-      return response;
-    } catch (error) {
-      console.error('Error updating navigation:', error);
-      throw error;
-    }
-  },
-
-  delete: async (id: string) => {
-    try {
-      const response = await axiosCon.post(`/Navigation/delete/${id}`, {});
-      return response;
-    } catch (error) {
-      console.error('Error deleting navigation:', error);
-      throw error;
-    }
-  },
-};
-
 // Dashboard API
 export const dashboardAPI = {
   getAll: async () => {
@@ -158,6 +79,17 @@ export const NavigationApi = {
   getAll: async () =>{
     try {
       const res = await axiosCon.getWithHeaders("/Navigation", {
+        appid : ApplicationID ?? ''
+      });
+      return res;
+    } catch (error) {
+      console.error('Error fetching Navigation', error);
+      throw error;
+    }
+  },
+  getMobileAll: async () =>{
+    try {
+      const res = await axiosCon.getWithHeaders("/Navigation/mob", {
         appid : ApplicationID ?? ''
       });
       return res;

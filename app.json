@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ReactAMS",
-    "slug": "ReactAMS",
+    "name": "MDM",
+    "slug": "MDM",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.aonDigicon.MDM"
     },
     "web": {
       "output": "static",
@@ -39,14 +40,18 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "50cbc699-5ad2-49f9-b682-05dfc30d15cf"
+      }
     }
   }
 }

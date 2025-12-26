@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo } from "react";
-import { Alert, Dimensions, StyleSheet, useColorScheme, View } from "react-native";
+import { Alert, Dimensions, LayoutAnimation, Platform, Pressable, StyleSheet, UIManager, useColorScheme, View } from "react-native";
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { Avatar, Button, Divider, Text, useTheme } from "react-native-paper";
 import { useData } from "@/Services/dataProvider";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { Navigation } from "@/src/types/Navigation";
+import type { DrawerContentComponentProps } from "@react-navigation/drawer";
+import { useRoute } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -12,19 +15,17 @@ export type DrawerParamList = {
   [key: string]: undefined;
 };
 
+type CustomDrawerProps = DrawerContentComponentProps & {
+  groupedNavigation: Record<string, Navigation[]>;
+};
+
+
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
-  documentstats: HomeScreen,
-  approveddocuments: HomeScreen,
-  chart: HomeScreen,
-  amsconfiguration: HomeScreen,
-  documentdeletelog: HomeScreen,
-  dashboard: HomeScreen,
-  sharedforme: HomeScreen,
-  documentupload: HomeScreen,
-  masterdata: HomeScreen,
-  alldocumentlist: HomeScreen,
-  documentapproval: HomeScreen,
-  newmenu: HomeScreen,
+  sopmaster: HomeScreen,
+  samplereversal: HomeScreen,
+  uommaster: HomeScreen,
+  maintenancelog: HomeScreen,
+  materialmaster: HomeScreen,
 };
 
 function FallbackScreen() {
@@ -44,10 +45,15 @@ const normalizeRouteKey = (page: string) =>
 const normalizeFaIcon = (iconClass?: string): string => {
   if (!iconClass) return "circle";
 
-  // Split by spaces → find the fa- icon → remove fa-
+  // If it's a single word (no spaces), assume it's already an icon name
+  if (!iconClass.includes(" ")) {
+    return iconClass;
+  }
+
+  // Otherwise treat it as a Font Awesome class string
   const icon = iconClass
     .split(" ")
-    .find(cls => cls.startsWith("fa-") && cls !== "fa-solid");
+    .find(cls => cls.startsWith("fa-") && !cls.startsWith("fa-solid"));
 
   return icon ? icon.replace("fa-", "") : "circle";
 };
@@ -131,6 +137,40 @@ export default function DrawerNavigator() {
       });
   }, [navigationList, configMap]);
 
+  const uniqueNavigationList = useMemo(() => {
+    const seen = new Set<string>();
+
+    return orderedNavigationList.filter(item => {
+      const key = normalizeRouteKey(item.page);
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true; // ✅ first occurrence
+    });
+  }, [orderedNavigationList]);
+
+  console.log(navigationList);
+  
+
+  // ----------------------- orderedNavigationList derivation -----------------------
+  const groupedNavigation = useMemo<Record<string, Navigation[]>>(() => {
+    const map: Record<string, Navigation[]> = {};
+
+    orderedNavigationList.forEach(item => {
+      const parentId = item.parentId ?? "root";
+
+      if (!map[parentId]) {
+        map[parentId] = [];
+      }
+      map[parentId].push(item);
+    });
+
+    return map;
+  }, [orderedNavigationList]);
+
   /* -------------------- Loading states -------------------- */
   if (!navigationList?.length) {
     return (
@@ -154,22 +194,24 @@ export default function DrawerNavigator() {
       screenOptions={{
         headerShown: true,
         drawerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.primary,
           width: width * 0.75,
         },
         drawerLabelStyle: {
           fontSize: 15,
           fontWeight: "600",
-          color: colors.onSurface,
+          color: colors.onPrimary,
         },
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.primaryContainer,
         },
         headerTintColor: colors.onSurface,
       }}
-      drawerContent={(props) => <CustomDrawer {...props} />}
+      drawerContent={(props) => <CustomDrawer {...props} groupedNavigation={groupedNavigation}/>}
     >
-      {orderedNavigationList.map(item => {
+      {uniqueNavigationList
+        .filter(item => !groupedNavigation[item.id])
+        .map(item => {
         const routeKey = normalizeRouteKey(item.page);
         const ScreenComponent =
           ScreenRegistry[routeKey] ?? FallbackScreen;
@@ -186,6 +228,10 @@ export default function DrawerNavigator() {
             component={ScreenComponent}
             options={{
               drawerLabel,
+              headerTitleStyle: {
+                color: colors.secondary
+              },
+              headerTintColor: colors.primary,
               headerTitle: item.dashboardName ?? drawerLabel,
               drawerIcon: ({ color, size }) => (
                 <FontAwesome6
@@ -210,14 +256,41 @@ const Centered = ({ children }: { children: React.ReactNode }) => (
 );
 
 
-function CustomDrawer(props: any) {
-  const { colors } = useTheme();
+function CustomDrawer(props: CustomDrawerProps) {
+  const { groupedNavigation } = props;
+  const [expandedParents, setExpandedParents] = React.useState<Record<string, boolean>>({});
 
+  const route = props.state.routes[props.state.index];
+  const activeRouteName = route?.name;
+
+  React.useEffect(() => {
+    Object.entries(groupedNavigation).forEach(([parentId, children]) => {
+      if (
+        children?.some(
+          child => normalizeRouteKey(child.page) === activeRouteName
+        )
+      ) {
+        setExpandedParents(prev => ({ ...prev, [parentId]: true }));
+      }
+    });
+  }, [activeRouteName]);
+
+
+  if (Platform.OS === "android") {
+    UIManager.setLayoutAnimationEnabledExperimental?.(true);
+  }
+
+  const toggleParent = (id: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedParents(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const { colors } = useTheme();
   const { currentUser, logout } = useData();
 
-  const onLogout = async () =>{
+  const onLogout = async () => {
     await logout();
-  }
+  };
 
   const getInitials = (email: string) => (email ? email.substring(0, 1).toUpperCase() : "U");
 
@@ -227,13 +300,13 @@ function CustomDrawer(props: any) {
         <Avatar.Text
           label={getInitials(currentUser?.email || "")}
           size={64}
-          style={{ backgroundColor: colors.primary }}
+          style={{ backgroundColor: colors.onPrimary }}
         />
         <View style={{ marginLeft: 12 }}>
-          <Text variant="titleMedium" style={{ fontWeight: "700" }}>
+          <Text variant="titleMedium" style={{ fontWeight: "700", color: colors.onPrimary }}>
             {currentUser?.name}
           </Text>
-          <Text variant="bodySmall" style={{ color: colors.onSurfaceVariant }}>
+          <Text variant="bodySmall" style={{ color: colors.onPrimary }}>
             {currentUser?.email}
           </Text>
         </View>
@@ -242,7 +315,112 @@ function CustomDrawer(props: any) {
       <Divider style={{ marginVertical: 12 }} />
 
       {/* Drawer Items */}
-      <DrawerItemList {...props} />
+      {groupedNavigation["root"]?.length > 0 ? (
+        groupedNavigation["root"].map((parent: Navigation) => {
+          const children = groupedNavigation[parent.id] || [];
+          const isExpanded = expandedParents[parent.id];
+          const hasChildren = children.length > 0;
+
+          const parentRouteKey = normalizeRouteKey(parent.page);
+            const isParentActive = parentRouteKey === activeRouteName;
+
+          // ✅ Use fallback values to ensure display
+          const parentDisplayName =
+            parent.displayName?.trim() || parent.page || "Menu";
+          const parentIcon = parent.iconClass ? normalizeFaIcon(parent.iconClass) : normalizeFaIcon(parent.icon);
+
+          return (
+            <View key={parent.id}>
+              {/* Parent Item */}
+              <Pressable
+                onPress={() => {
+                  if (hasChildren) {
+                    toggleParent(parent.id);
+                  } else {
+                    props.navigation.navigate(parentRouteKey);
+                  }
+                }}
+                style={[
+                  styles.parentItem,
+                  isParentActive && styles.activeItem,
+                ]}
+              >
+                <View style={styles.parentLeft}>
+                  {isParentActive && <View style={styles.activeIndicator} />}
+
+                  <FontAwesome6
+                    name={parentIcon}
+                    size={16}
+                    color={colors.onPrimary}
+                  />
+                  <Text
+                    style={[
+                      styles.parentText,
+                      { color: colors.onPrimary },
+                      isParentActive && styles.activeText,
+                    ]}
+                  >
+                    {parentDisplayName}
+                  </Text>
+                </View>
+
+                {hasChildren && (
+                  <FontAwesome6
+                    name={isExpanded ? "chevron-up" : "chevron-down"}
+                    size={14}
+                    color={colors.onPrimary}
+                  />
+                )}
+              </Pressable>
+
+              {/* Children */}
+              {isExpanded &&
+                children.map((child: Navigation) => {
+                  const isChildActive =
+                    normalizeRouteKey(child.page) === activeRouteName;
+                  const childRouteKey = normalizeRouteKey(child.page);
+                  const childDisplayName =
+                    child.displayName?.trim() || child.page || "Item";
+
+                  return (
+                    <Pressable
+                      key={child.id}
+                      onPress={() => props.navigation.navigate(childRouteKey)}
+                      style={[
+                        styles.childItem,
+                        isChildActive && styles.activeItem,
+                      ]}
+                    >
+                      {isChildActive && <View style={styles.activeIndicator} />}
+
+                      <FontAwesome6
+                        name={child.iconClass
+                          ? normalizeFaIcon(child.iconClass)
+                          : normalizeFaIcon(child.icon)
+                        }
+                        size={14}
+                        color={colors.onPrimary}
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text
+                        style={[
+                          { color: colors.onPrimary },
+                          isChildActive && styles.activeText,
+                        ]}
+                      >
+                        {childDisplayName}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+            </View>
+          );
+        })
+      ) : (
+        <Text style={{ color: colors.onPrimary, textAlign: "center" }}>
+          No menu items available
+        </Text>
+      )}
 
       <Divider style={{ marginVertical: 16 }} />
 
@@ -259,8 +437,9 @@ function CustomDrawer(props: any) {
       </Button>
 
       {/* Footer */}
-      <Text style={[styles.footerText, { color: colors.primary }]}>
-        © {new Date().getFullYear()} <Text style={{ fontWeight: "bold" }}>AON DIGICON LLP</Text>
+      <Text style={[styles.footerText, { color: colors.onPrimary }]}>
+        © {new Date().getFullYear()}{" "}
+        <Text style={{ fontWeight: "bold", color: colors.onPrimary }}>AON DIGICON LLP</Text>
       </Text>
     </DrawerContentScrollView>
   );
@@ -285,5 +464,41 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     marginTop: 20,
+  },
+  parentItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  parentLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  parentText: {
+    marginLeft: 12,
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  childItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+  },
+  activeItem: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+  activeText: {
+    fontWeight: "700",
+  },
+  activeIndicator: {
+    width: 4,
+    height: "100%",
+    backgroundColor: "#FFD54F",
+    borderRadius: 2,
+    marginRight: 8,
   },
 });

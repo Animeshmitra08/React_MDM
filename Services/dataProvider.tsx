@@ -5,11 +5,11 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Constants from 'expo-constants';
 import * as Device from "expo-device";
 import * as Network from "expo-network";
+import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import { LoginApi, NavigationApi, NavigationConfig } from "@/src/services/Api";
 import { LoginPayload, LoginResponse } from "@/src/types/Login";
@@ -29,6 +29,21 @@ interface DataContextType {
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
+
+const USER_KEY = "currentUser";
+
+export const saveUserSecure = async (user: LoginResponse) => {
+  await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
+};
+
+export const getUserSecure = async (): Promise<LoginResponse | null> => {
+  const stored = await SecureStore.getItemAsync(USER_KEY);
+  return stored ? JSON.parse(stored) : null;
+};
+
+export const removeUserSecure = async () => {
+  await SecureStore.deleteItemAsync(USER_KEY);
+};
 
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
@@ -92,6 +107,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       const data: LoginResponse = response;
       if (response) {
         setCurrentUser(response);
+        await saveUserSecure(response);
       }
       return data;
     } catch (err : any) {
@@ -103,7 +119,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const navigationTrigger = async (): Promise<void> => {
     try {
-      const res = await NavigationApi.getAll();
+      const res = await NavigationApi.getMobileAll();
       setNavigationList(res);
     } catch (error : any) {
       console.log("navigation list error", error);
@@ -170,7 +186,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // ✅ Logout function
   const logout = async () => {
     setCurrentUser(null);
-    await AsyncStorage.removeItem("currentUser");
+    await removeUserSecure();
   };
 
   // 🧠 Load current user from storage and validate
@@ -198,6 +214,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // 🔄 Initial data load
   useEffect(() => {
     getIp();
+  }, []);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await getUserSecure();
+      if (user) {
+        setCurrentUser(user);
+      }
+    };
+    loadUser();
   }, []);
 
   const value: DataContextType = {

@@ -37,8 +37,6 @@ interface LoginComponentProps {
 
 const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) => {
   const { colors } = useTheme();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -178,16 +176,16 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: isDark ? '#121212' : '#fff' }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: '#fff' }]}>
         <ActivityIndicator animating size="large" color={colors.primary} />
-        <Text variant="titleMedium" style={{ marginTop: 10, color: isDark ? '#fff' : '#000' }}>
+        <Text variant="titleMedium" style={{ marginTop: 10, color: '#000' }}>
           Logging in...
         </Text>
       </View>
     );
   }
 
-  const buttonTextColor = isDark ? '#fff' : '#fff';
+  const buttonTextColor = '#fff';
 
   return (
     <>
@@ -211,7 +209,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
               styles.shadow,
               styles.cardLandscape,
               isTablet && styles.cardTablet,
-              { backgroundColor: isDark ? '#1E1E1E' : '#fff' },
+              { backgroundColor: '#fff' },
             ]}
             mode="elevated"
           >
@@ -225,8 +223,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
               </View>
 
               <View style={{ flex: 1, justifyContent: 'center', opacity: formOpacity, transform: [{ translateY: formTranslateY }] }}>
-                <Text style={[styles.title, { color: isDark ? "#ffffff" : colors.primary, fontSize: headingSize }]}>Welcome</Text>
-                <Text style={[styles.subtitle, { fontSize: subtitleSize, color: isDark ? '#B0BEC5' : '#757575' }]}>Please login to your account</Text>
+                <Text style={[styles.title, { color: colors.primary, fontSize: headingSize }]}>Welcome</Text>
+                <Text style={[styles.subtitle, { fontSize: subtitleSize, color: '#B0BEC5' }]}>Please login to your account</Text>
 
                 <RNInput
                   label="Username"
@@ -275,14 +273,14 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
               >
-                <Card style={[styles.card, styles.shadow, isTablet && styles.cardTablet, { backgroundColor: isDark ? '#1E1E1E' : '#fff' }]} mode="elevated">
+                <Card style={[styles.card, styles.shadow, isTablet && styles.cardTablet, { backgroundColor: '#fff' }]} mode="elevated">
                   <Card.Content>
                     <View style={styles.logoContainerPortrait}>
                       {/* <Image source={require('../../assets/images/logo.png')} style={{ width: 100, height: 100, marginBottom: 5 }} resizeMode="contain" /> */}
                     </View>
 
-                    <Text style={[styles.title, { color: isDark ? "#ffffff" : colors.primary, fontSize: headingSize }]}>Welcome</Text>
-                    <Text style={[styles.subtitle, { fontSize: subtitleSize, color: isDark ? '#B0BEC5' : '#757575' }]}>Please login to your account</Text>
+                    <Text style={[styles.title, { color: colors.primary, fontSize: headingSize }]}>Welcome</Text>
+                    <Text style={[styles.subtitle, { fontSize: subtitleSize, color: '#B0BEC5' }]}>Please login to your account</Text>
 
                     <RNInput
                       label="Username"
