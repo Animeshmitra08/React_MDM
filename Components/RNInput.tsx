@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Icon, useTheme } from 'react-native-paper';
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { Icon, useTheme } from "react-native-paper";
 
 interface RNInputProps {
   label: string;
@@ -36,7 +42,13 @@ const RNInput: React.FC<RNInputProps> = ({
       <View
         style={[
           styles.inputWrapper,
-          { borderColor: error ? "#ff5252" : isFocused ? colors.primary : "#ccc" }
+          {
+            borderColor: error
+              ? "#ff5252"
+              : isFocused
+              ? colors.primary
+              : "#ccc",
+          },
         ]}
       >
         {/* Left icon */}
@@ -45,7 +57,7 @@ const RNInput: React.FC<RNInputProps> = ({
             <Icon
               source={icon}
               size={22}
-              color={error ? "#ff5252" : colors.primary}
+              color={error ? "#ff5252" : disabled ? "#888" : colors.primary}
             />
           </View>
         )}
@@ -84,10 +96,7 @@ const RNInput: React.FC<RNInputProps> = ({
           onFocus={() => !disabled && setFocused(true)}
           onBlur={() => setFocused(false)}
           autoCapitalize={autoCapitalize}
-          style={[
-            styles.input,
-            { color: disabled ? "#888" : "#000" },
-          ]}
+          style={[styles.input, { color: disabled ? "#888" : "#000" }]}
         />
 
         {/* 👁 Right Eye Toggle (Only for secure fields) */}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -15,13 +15,22 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { Avatar, Button, Divider, Text, useTheme } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Divider,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { useData } from "@/Services/dataProvider";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, Octicons } from "@expo/vector-icons";
 import { Navigation } from "@/src/types/Navigation";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { useRoute } from "@react-navigation/native";
 import Approval1 from "@/app/Screens/Request Approval/Approval1";
+import DialogComponent from "@/Components/DialogComponent";
+import RNInput from "@/Components/RNInput";
 
 const { width } = Dimensions.get("window");
 
@@ -35,7 +44,7 @@ type CustomDrawerProps = DrawerContentComponentProps & {
 };
 
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
-  requestapproval: Approval1,
+  requestapproval: HomeScreen,
 };
 
 function FallbackScreen() {
@@ -75,6 +84,7 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 // -----------------------------------------
 
 function HomeScreen({ navigation }: any) {
+  const [text, setText] = useState<string>("");
   return (
     <View style={demoStyles.container}>
       <Text variant="headlineMedium">🏠 Home Screen</Text>
@@ -88,6 +98,52 @@ function HomeScreen({ navigation }: any) {
       >
         Go to Test Screen with Params
       </Button>
+      <DialogComponent
+        visible={true}
+        title="Approval Confirmation"
+        onDismiss={() => {}}
+        actions={[
+          {
+            label: "Submit",
+            onPress: () => {},
+            mode: "contained",
+          },
+        ]}
+      >
+        {/* <View>
+          <Text
+            variant="bodyMedium"
+            style={{
+              margin: 4,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: "#e0e0e0",
+            }}
+          >
+            SubTitle
+          </Text>
+        </View> */}
+        <View>
+          <RNInput
+            label="Request Number**"
+            disabled={true}
+            value="4544"
+            icon={"format-list-numbered"}
+          />
+        </View>
+        <View>
+          <RNInput
+            label="Enter Remarks**"
+            value={text}
+            error="Enter Remarks It's Required"
+            icon="grease-pencil"
+            onChangeText={(value) => {
+              setText(value);
+            }}
+          />
+        </View>
+      </DialogComponent>
     </View>
   );
 }
