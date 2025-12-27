@@ -7,6 +7,7 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   Approval1Api,
+  BlockMaterialApproval1,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -33,11 +34,13 @@ const Approval1 = () => {
   const [ApiData, setApiData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { currentUser } = useData();
+  console.log(currentUser, "Current User");
+
   const ApiDataFunc = async () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await BlockMaterialApproval1.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -61,6 +64,11 @@ const Approval1 = () => {
     ApiDataPlant();
     ApiDataFunc();
   }, []);
+  // useEffect(() => {
+  //   if (plantApiData && Array.isArray(plantApiData)) {
+  //     setPlant(plantApiData?.map((each) => each?.id));
+  //   }
+  // }, [plant]);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -87,19 +95,17 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      isblock: actionType === "Accepted" ? 1 : 0,
+      blockApp1Remark: remarks,
+      blockAppr1On: new Date().toISOString(),
+      blockAppr1By: currentUser?.username || "user",
+      mode: "B",
     });
-
+    console.log(req, "Response", "Api Fit");
     showAlert(req, "success");
-    await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
     closeDialog();
+    await ApiDataFunc();
   };
-  console.log();
 
   return (
     <>
@@ -117,7 +123,6 @@ const Approval1 = () => {
         onPlantChange={setPlant}
         onApply={async () => ApiDataFunc()}
       />
-
       <RDatatable
         loading={loading}
         data={ApiData || []}
@@ -127,7 +132,7 @@ const Approval1 = () => {
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-up"
+                icon="block-helper"
                 style={{ backgroundColor: AppMDMThemeColors.approval }}
               />
             ),
@@ -143,7 +148,7 @@ const Approval1 = () => {
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-down"
+                icon="cancel"
                 style={{ backgroundColor: AppMDMThemeColors.rejected }}
               />
             ),
@@ -176,6 +181,11 @@ const Approval1 = () => {
             marginLeft: 20,
           },
           {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+          },
+          {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
@@ -194,7 +204,7 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
@@ -202,14 +212,22 @@ const Approval1 = () => {
               )} - ${handleNullUndefined(row.materialTypeName)}`,
           },
           {
-            key: "Created",
-            title: "Created",
+            key: "Block_By",
+            title: "Bloack By",
+            render: (row) => `${handleNullUndefined(row.blockBy)}`,
+          },
+          {
+            key: "Bloack_on",
+            title: "Bloack On",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
-              )}`,
+              ` ${handleNullUndefined(row.blockOn)?.split("T")[0]} - ${
+                handleNullUndefined(row.blockOn)?.split("T")[1].split(".")[0]
+              }`,
+          },
+          {
+            key: "User_Block_Remark",
+            title: "User Block Remark",
+            render: (row) => `${handleNullUndefined(row.blockUserRemark)}`,
           },
         ]}
         pagination={true}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { Text, TextInput } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { AppMDMThemeColors } from "@/src/theme/color";
 
 const formatDateDMY = (date: Date) => {
   const dd = String(date.getDate()).padStart(2, "0");
@@ -28,7 +29,6 @@ type DateComponentProps = {
   minimumDate?: Date;
   maximumDate?: Date;
 };
-
 
 const DateTimeComponent = ({
   label = "Select",
@@ -68,19 +68,22 @@ const DateTimeComponent = ({
   };
 
   const displayValue =
-  type === "date"
-    ? formatDateDMY(valueDate)
-    : timeFormat === "12h"
+    type === "date"
+      ? formatDateDMY(valueDate)
+      : timeFormat === "12h"
       ? formatTime12(valueDate)
       : formatTime24(valueDate);
 
-
   return (
     <View>
-      <Text style={{
-        marginBottom: 4,
-        fontWeight: "800",
-      }}>{label}</Text>
+      <Text
+        style={{
+          marginBottom: 4,
+          fontWeight: "700",
+        }}
+      >
+        {label}
+      </Text>
 
       <Pressable
         disabled={disabled}
@@ -89,15 +92,25 @@ const DateTimeComponent = ({
       >
         <View pointerEvents="none">
           <TextInput
-            style={[style, {
-              
-            }]}
-            left={<TextInput.Icon icon={type === "date" ? "calendar" : "clock"} />}
+            style={[
+              style,
+              {
+                backgroundColor: AppMDMThemeColors.white,
+              },
+            ]}
+            left={
+              <TextInput.Icon
+                icon={type === "date" ? "calendar" : "clock"}
+                color={AppMDMThemeColors.primary}
+              />
+            }
             editable={false}
             disabled={disabled}
             mode={mode}
             value={displayValue}
             placeholder={label}
+            activeOutlineColor={AppMDMThemeColors.primary}
+            outlineColor={AppMDMThemeColors.primary}
           />
         </View>
       </Pressable>

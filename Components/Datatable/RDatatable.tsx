@@ -1,7 +1,15 @@
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { TableAction, TableColumn } from "@/src/types/TableColumn";
-import React, { useMemo, useState } from "react";
-import { View, ScrollView, StyleSheet, Pressable } from "react-native";
+import { replace } from "expo-router/build/global-state/routing";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  Animated,
+  Easing,
+} from "react-native";
 import {
   DataTable,
   Text,
@@ -10,6 +18,7 @@ import {
   Button,
   TextInput,
 } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface RDatatableProps<T> {
   data: T[];
@@ -41,6 +50,7 @@ function RDatatable<T>({
   const theme = useTheme();
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(0);
+  const ACTION_WIDTH = 90;
 
   /* ---------------- SEARCH FILTER ---------------- */
   const filteredData = useMemo(() => {
@@ -73,6 +83,13 @@ function RDatatable<T>({
     setPage(0);
   }, [searchText]);
 
+  const computedColumns = useMemo(() => {
+    return columns.map((col) => ({
+      ...col,
+      width: col.width ?? getColumnWidth(col.title, data, String(col.key)),
+    }));
+  }, [columns, data]);
+
   return (
     <View style={styles.container}>
       {searchable && (
@@ -81,8 +98,15 @@ function RDatatable<T>({
           placeholder={searchPlaceholder}
           value={searchText}
           onChangeText={setSearchText}
-          style={{ marginBottom: 8 }}
-          left={<TextInput.Icon icon="magnify" />}
+          style={{
+            marginBottom: 8,
+            backgroundColor: AppMDMThemeColors.white,
+            height: 46,
+          }}
+          left={
+            <TextInput.Icon icon="magnify" color={AppMDMThemeColors.primary} />
+          }
+          outlineColor={AppMDMThemeColors.primary}
         />
       )}
       <ScrollView horizontal showsHorizontalScrollIndicator>
@@ -103,96 +127,149 @@ function RDatatable<T>({
               </DataTable.Title>
             ) : null}
 
-            {columns.map((col) => (
+            {computedColumns.map((col) => (
               <DataTable.Title
                 key={col.key}
                 style={[
                   styles.cell,
-                  col.width != null && { minWidth: col.width },
-                  col.marginLeft != null && { marginLeft: col.marginLeft },
+                  {
+                    width: col.width,
+                    flex: 0,
+                  },
                 ]}
               >
                 <Text style={styles.headerText}>{col.title}</Text>
               </DataTable.Title>
             ))}
           </DataTable.Header>
-          {paginatedData.length === 0 && (
-            <Text style={{ padding: 16 }}>No data available.</Text>
-          )}
-          {loading && <Text style={{ padding: 16 }}>Loading...</Text>}
-          <ScrollView style={{ maxHeight }}>
-            {paginatedData?.map((item, index) => (
-              <DataTable.Row
-                key={index}
-                style={[
-                  styles.row,
-                  // index % 2 === 0 && {
-                  //   backgroundColor: theme.colors.surfaceVariant,
-                  // },
-                ]}
-              >
-                {actions?.length ? (
-                  <DataTable.Cell style={styles.actionCell}>
-                    <View style={styles.actionGroup}>
-                      {actions.map((action) => (
-                        <Pressable
-                          key={action.key}
-                          onPress={() => action.onPress(item)}
-                        >
-                          {action.render ? (
-                            action.render(item)
-                          ) : (
-                            <Avatar.Text
-                              size={28}
-                              label={action.label ?? "A"}
-                              color="#fff"
-                              style={{
-                                backgroundColor: theme.colors.primary,
-                              }}
-                            />
-                          )}
-                        </Pressable>
-                      ))}
-                    </View>
-                  </DataTable.Cell>
-                ) : null}
+          {paginatedData.length === 0 && !loading && <NoDataComponent />}
+          {loading && <LoadingComponent />}
 
-                {columns.map((col) => (
-                  <DataTable.Cell
-                    key={col.key}
-                    style={[
-                      styles.cell,
-                      col.width != null && { minWidth: col.width },
-                      col.marginLeft != null && { marginLeft: col.marginLeft },
-                    ]}
-                  >
-                    {col.render ? col.render(item) : (item as any)[col.key]}
-                  </DataTable.Cell>
-                ))}
-              </DataTable.Row>
-            ))}
+          <ScrollView style={{ maxHeight }}>
+            {!loading &&
+              paginatedData?.map((item, index) => (
+                <DataTable.Row
+                  key={index}
+                  style={[
+                    styles.row,
+                    // index % 2 === 0 && {
+                    //   backgroundColor: theme.colors.surfaceVariant,
+                    // },
+                  ]}
+                >
+                  {actions?.length ? (
+                    <DataTable.Cell style={styles.actionCell}>
+                      <View style={styles.actionGroup}>
+                        {actions.map((action) => (
+                          <Pressable
+                            key={action.key}
+                            onPress={() => action.onPress(item)}
+                          >
+                            {action.render ? (
+                              action.render(item)
+                            ) : (
+                              <Avatar.Text
+                                size={28}
+                                label={action.label ?? "A"}
+                                color="#fff"
+                                style={{
+                                  backgroundColor: theme.colors.primary,
+                                }}
+                              />
+                            )}
+                          </Pressable>
+                        ))}
+                      </View>
+                    </DataTable.Cell>
+                  ) : null}
+
+                  {computedColumns.map((col) => (
+                    <DataTable.Cell
+                      key={col.key}
+                      style={[
+                        styles.cell,
+                        {
+                          width: col.width,
+                          flex: 0, //
+                        },
+                      ]}
+                    >
+                      {col.render ? col.render(item) : (item as any)[col.key]}
+                    </DataTable.Cell>
+                  ))}
+                </DataTable.Row>
+              ))}
           </ScrollView>
-          {pagination && totalPages > 1 && (
+          {!loading && pagination && totalPages > 1 && (
             <View style={styles.pagination}>
-              <Text>
-                Total : {data?.length}/ Pagination : {paginatedData?.length}
+              {/* <Text style={styles.pageInfo}>
+                Total/Pagination : {data?.length}/{paginatedData?.length}
+              </Text> */}
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "800",
+                  borderRadius: 16,
+                  paddingHorizontal: 10,
+                  paddingVertical: 10,
+                  backgroundColor: AppMDMThemeColors.second,
+                }}
+              >
+                {" "}
+                {paginatedData?.length}/{data?.length}
               </Text>
               <Button
+                mode="contained"
                 disabled={page === 0}
                 onPress={() => setPage((p) => p - 1)}
+                icon="arrow-left"
+                // style={[
+                //   styles.navBtn,
+                //   {
+                //     backgroundColor:
+                //       page === 0
+                //         ? AppMDMThemeColors.Grey
+                //         : AppMDMThemeColors.approval,
+                //   },
+                // ]}
+                // contentStyle={styles.navBtnContent}
+                // labelStyle={styles.navBtnLabel}
+                style={{
+                  marginLeft: 12,
+                }}
               >
                 Prev
               </Button>
 
-              <Text>
+              <Text style={[styles.pageInfo, { marginHorizontal: 6 }]}>
                 Page {page + 1} / {totalPages}
               </Text>
 
               <Button
+                mode="contained"
                 disabled={page + 1 >= totalPages}
                 onPress={() => setPage((p) => p + 1)}
+                icon={"arrow-right"}
+                contentStyle={{
+                  flexDirection: "row-reverse", // 👈 icon right side
+                }}
+                // style={[
+                //   styles.navBtn,
+                //   {
+                //     backgroundColor:
+                //       page + 1 >= totalPages
+                //         ? AppMDMThemeColors.Grey
+                //         : AppMDMThemeColors.approval,
+                //   },
+                // ]}
+                // contentStyle={styles.navBtnContent}
+                // labelStyle={styles.navBtnLabel}
               >
                 Next
+                {/* <TextInput.Icon
+                  icon={"arrow-right"}
+                  color={AppMDMThemeColors.white}
+                /> */}
               </Button>
             </View>
           )}
@@ -227,7 +304,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   cell: {
-    minWidth: 120,
+    paddingHorizontal: 12,
+    justifyContent: "center",
   },
   actionCell: {
     minWidth: 80,
@@ -249,16 +327,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-start",
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderColor: "#e5e7eb",
+    // borderTopWidth: 1,
     backgroundColor: "#ffffff",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
+    borderColor: AppMDMThemeColors.second,
+    borderWidth: 2,
   },
 
   pageInfo: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "800",
     color: "#374151",
   },
 
@@ -271,5 +350,111 @@ const styles = StyleSheet.create({
 
   disabledButton: {
     opacity: 0.4,
+  },
+  navBtn: {
+    borderRadius: 6,
+    alignSelf: "flex-start",
+  },
+  navBtnContent: {
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    alignItems: "center",
+  },
+  navBtnLabel: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: AppMDMThemeColors.white,
+  },
+});
+
+const RotatingLoader = ({ color = "#16A34A", size = 20 }) => {
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  return (
+    <Animated.View style={{ transform: [{ rotate }] }}>
+      <MaterialCommunityIcons name="loading" size={size} color={color} />
+    </Animated.View>
+  );
+};
+
+const getColumnWidth = (
+  title: string,
+  data: any[],
+  key: string,
+  min = 80,
+  max = 300
+) => {
+  const maxTextLength = Math.max(
+    title.length,
+    ...data.map((item) => String(item[key] ?? "").length)
+  );
+
+  const estimatedWidth = maxTextLength * 8 + 1000; // 8px per char
+  return Math.min(Math.max(estimatedWidth, min), max);
+};
+//
+
+export const LoadingComponent = ({
+  text = "Loading...",
+}: {
+  text?: string;
+}) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>{text}</Text>
+    </View>
+  );
+};
+
+export const NoDataComponent = ({
+  text = "No data found",
+}: {
+  text?: string;
+}) => {
+  return (
+    <View style={stylesOtherComponent.container}>
+      <MaterialCommunityIcons
+        name="database-off-outline"
+        size={36}
+        color={AppMDMThemeColors.second}
+      />
+      <Text style={stylesOtherComponent.text}>{text}</Text>
+    </View>
+  );
+};
+
+const stylesOtherComponent = StyleSheet.create({
+  container: {
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: AppMDMThemeColors.white,
+    borderWidth: 1,
+    borderColor: AppMDMThemeColors.second,
+    alignItems: "center",
+    justifyContent: "start",
+    flexDirection: "row",
+    gap: 10,
+  },
+  text: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: AppMDMThemeColors.primary,
   },
 });

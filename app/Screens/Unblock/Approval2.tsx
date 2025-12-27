@@ -6,8 +6,8 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
-  Approval1Api,
   PlantData,
+  UnBlock2Api,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { handleNullUndefined } from "@/utils/errorHandler";
@@ -16,7 +16,7 @@ import { Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
-const Approval1 = () => {
+const Approval2 = () => {
   const { showAlert } = useAlert();
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
@@ -36,8 +36,10 @@ const Approval1 = () => {
   const ApiDataFunc = async () => {
     try {
       if (plant !== null && plant !== undefined) {
+        console.log(plant, "99");
+
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await UnBlock2Api.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -87,20 +89,17 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      isUnBlock: actionType === "Accepted" ? 1 : 0,
+      unBlockApp2Remark: remarks,
+      unBlockApp2On: new Date().toISOString(),
+      unBlockApp2By: currentUser?.username || "user",
+      mode: "UB",
     });
-
-    showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
+    showAlert(req, "success");
+    console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
-
   return (
     <>
       <Filter1
@@ -123,11 +122,11 @@ const Approval1 = () => {
         data={ApiData || []}
         actions={[
           {
-            key: "edit-accept",
+            key: "book-lock-open",
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-up"
+                icon="block-helper"
                 style={{ backgroundColor: AppMDMThemeColors.approval }}
               />
             ),
@@ -139,11 +138,11 @@ const Approval1 = () => {
             },
           },
           {
-            key: "edit-reject",
+            key: "cancel",
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-down"
+                icon="cancel"
                 style={{ backgroundColor: AppMDMThemeColors.rejected }}
               />
             ),
@@ -176,6 +175,11 @@ const Approval1 = () => {
             marginLeft: 20,
           },
           {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+          },
+          {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
@@ -194,21 +198,38 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
                 row.materialType_Code
               )} - ${handleNullUndefined(row.materialTypeName)}`,
-          },
+          }, // unBlockOn
           {
-            key: "Created",
-            title: "Created",
+            key: "unblock_on",
+            title: "Unblock On",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
+              `${handleNullUndefined(
+                row.unBlockOn?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.unBlockOn?.split("T")[1].split(".")[0]
+              )}`,
+          }, // unBlockBy
+          {
+            key: "unblock_by",
+            title: "Unblock By",
+            render: (row) => `${handleNullUndefined(row.unBlockBy)}`,
+          }, // unBlockApp1By On
+          {
+            key: "unblock_approval",
+            title: "Unblock Approval 1",
+            render: (row) =>
+              `${handleNullUndefined(
+                row.unBlockApp1By
+              )} - ${handleNullUndefined(
+                row.unBlockApp1On?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.unBlockApp1On?.split("T")[1].split(".")[0]
               )}`,
           },
         ]}
@@ -241,7 +262,12 @@ const Approval1 = () => {
               value={selectedItem.reQ_CODE}
               icon="format-list-numbered"
             />
-
+            <RNInput
+              label="Approval Remark 1"
+              disabled
+              value={selectedItem.unBlockApp1Remark}
+              icon="format-list-numbered"
+            />
             <RNInput
               label="Enter Remarks**"
               value={remarks}
@@ -255,4 +281,4 @@ const Approval1 = () => {
   );
 };
 
-export default Approval1;
+export default Approval2;

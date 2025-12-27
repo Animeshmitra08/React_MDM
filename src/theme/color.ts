@@ -32,4 +32,5 @@ export const AppMDMThemeColors = {
   approval: "#008000",
   rejected: "#FF0000",
   white: "#FFFFFF",
+  Grey: "#6B7280",
 };

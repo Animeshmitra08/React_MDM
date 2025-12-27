@@ -7,6 +7,7 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   Approval1Api,
+  Approval2Api,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -16,7 +17,7 @@ import { Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
-const Approval1 = () => {
+const Approval2 = () => {
   const { showAlert } = useAlert();
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
@@ -32,16 +33,20 @@ const Approval1 = () => {
   const [remarks, setRemarks] = useState("");
   const [ApiData, setApiData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
   const { currentUser } = useData();
+
   const ApiDataFunc = async () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await Approval2Api.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
         });
+        console.log(fromDate, toDate, plant, "Plants");
+
         setApiData(response);
         setLoading(false);
       }
@@ -87,19 +92,20 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
+      appR2_STATUS: actionType === "Accepted" ? 1 : 0,
+      appR2_REMARKS: remarks,
+      appR2_ON: new Date().toISOString(),
+      appR2_BY: currentUser?.username || "user",
       mode: "C",
     });
-
-    showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
+    showAlert(req, "success");
+    console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
+
+  // console.log("Apidata", ApiData, "Apidata");
+  console.log(selectedItem, "selected");
 
   return (
     <>
@@ -188,9 +194,15 @@ const Approval1 = () => {
             key: "StorageCode&Name",
             title: "Storage Code & Name",
             render: (row) =>
-              `${handleNullUndefined(row.storage_Code)} - ${handleNullUndefined(
-                row.storage
-              )}`,
+              `${
+                handleNullUndefined(row.storage_Code) === null
+                  ? ""
+                  : handleNullUndefined(row.storage_Code)
+              } - ${
+                handleNullUndefined(row.storage) === null
+                  ? ""
+                  : handleNullUndefined(row.storage)
+              }`,
             width: 170,
           },
           {
@@ -209,6 +221,37 @@ const Approval1 = () => {
                 row.entereD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
                 row.entereD_ON?.split("T")[1].split(".")[0]
+              )}`,
+          },
+          {
+            key: "Updated",
+            title: "Updated",
+            render: (row) =>
+              `${handleNullUndefined(row.updateD_BY)} - ${handleNullUndefined(
+                row.updated_ON?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.updated_ON?.split("T")[1].split(".")[0]
+              )}`,
+          },
+
+          {
+            key: "Approved",
+            title: "Approved",
+            render: (row) =>
+              `${handleNullUndefined(row.appR1_BY)} - ${handleNullUndefined(
+                row.appR1_ON?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.appR1_ON?.split("T")[1].split(".")[0]
+              )}`,
+          },
+          {
+            key: "Rejected",
+            title: "Rejected",
+            render: (row) =>
+              `${handleNullUndefined(row.rejecteD_By)} - ${handleNullUndefined(
+                row.rejecteD_ON?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.rejecteD_ON?.split("T")[1].split(".")[0]
               )}`,
           },
         ]}
@@ -241,7 +284,12 @@ const Approval1 = () => {
               value={selectedItem.reQ_CODE}
               icon="format-list-numbered"
             />
-
+            <RNInput
+              label="Approval Remark 1"
+              disabled
+              value={selectedItem.appR1_REMARKS}
+              icon="format-list-numbered"
+            />
             <RNInput
               label="Enter Remarks**"
               value={remarks}
@@ -255,4 +303,4 @@ const Approval1 = () => {
   );
 };
 
-export default Approval1;
+export default Approval2;

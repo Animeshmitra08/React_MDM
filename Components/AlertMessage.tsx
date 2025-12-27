@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import { AppMDMThemeColors } from "@/src/theme/color";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,11 +7,11 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
-} from 'react-native';
-import { Card, Text, IconButton } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { Card, Text, IconButton } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export type AlertType = 'success' | 'error' | 'warning' | 'info';
+export type AlertType = "success" | "error" | "warning" | "info";
 
 interface AlertMessageProps {
   visible: boolean;
@@ -23,34 +24,34 @@ interface AlertMessageProps {
 
 const getAlertStyle = (type: AlertType | string) => {
   switch (type) {
-    case 'success':
+    case "success":
       return {
-        icon: 'check-circle',
-        backgroundColor: '#e6f4ea',
-        borderColor: '#2e7d32',
-        iconColor: '#2e7d32',
+        icon: "check-circle",
+        backgroundColor: AppMDMThemeColors.approval,
+        iconColor: AppMDMThemeColors.white,
+        borderColor: AppMDMThemeColors.approval,
       };
-    case 'error':
+    case "error":
       return {
-        icon: 'alert-circle',
-        backgroundColor: '#fdecea',
-        borderColor: '#d32f2f',
-        iconColor: '#d32f2f',
+        icon: "alert-circle",
+        backgroundColor: AppMDMThemeColors.rejected,
+        borderColor: AppMDMThemeColors.rejected,
+        iconColor: AppMDMThemeColors.white,
       };
-    case 'warning':
+    case "warning":
       return {
-        icon: 'alert',
-        backgroundColor: '#fff8e1',
-        borderColor: '#f9a825',
-        iconColor: '#f9a825',
+        icon: "alert",
+        backgroundColor: "#fff8e1",
+        borderColor: "#f9a825",
+        iconColor: "#f9a825",
       };
-    case 'info':
+    case "info":
     default:
       return {
-        icon: 'information',
-        backgroundColor: '#e3f2fd',
-        borderColor: '#1976d2',
-        iconColor: '#1976d2',
+        icon: "information",
+        backgroundColor: "#e3f2fd",
+        borderColor: "#1976d2",
+        iconColor: "#1976d2",
       };
   }
 };
@@ -59,7 +60,7 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
   visible,
   message,
   onDismiss,
-  type = 'info',
+  type = "info",
   duration = 2000,
   style,
 }) => {
@@ -104,7 +105,6 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
     return () => clearTimeout(timeout);
   }, [visible, duration, onDismiss]);
 
-
   if (!visible) return null;
 
   return (
@@ -140,7 +140,7 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
           <IconButton
             icon="close"
             size={20}
-            iconColor="#555"
+            iconColor={AppMDMThemeColors.white}
             onPress={onDismiss}
             style={styles.closeIcon}
           />
@@ -152,7 +152,7 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     left: 16,
     right: 16,
     zIndex: 1000,
@@ -165,9 +165,9 @@ const styles = StyleSheet.create({
   },
   content: {
     height: 65,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   icon: {
     marginRight: 4,
@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontSize: 14,
+    color: AppMDMThemeColors.white,
   },
   closeIcon: {
     marginLeft: 4,

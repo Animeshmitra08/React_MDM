@@ -1,4 +1,3 @@
-
 export interface AppError {
   title: string;
   message: string;
@@ -13,4 +12,12 @@ export const extractMessages = (error: any): string[] => {
   if (typeof error?.message === "string") return [error.message];
 
   return ["Unexpected error occurred"];
+};
+
+export const handleNullUndefined = (word: any) => {
+  if (word === null || word === undefined) {
+    return "-";
+  } else {
+    return word;
+  }
 };

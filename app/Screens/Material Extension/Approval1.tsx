@@ -6,7 +6,7 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
-  Approval1Api,
+  Approval1Extension,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -37,7 +37,7 @@ const Approval1 = () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await Approval1Extension.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -87,20 +87,17 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      extensionApproval1Status: actionType === "Accepted" ? 1 : 0,
+      extApp1_Remark: remarks,
+      extensionApproval1On: new Date().toISOString(),
+      extensionApproval1: currentUser?.username || "user",
+      mode: "E",
     });
-
     showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
+    console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
-
   return (
     <>
       <Filter1
@@ -172,8 +169,13 @@ const Approval1 = () => {
           {
             key: "reQ_CODE",
             title: "RequestCode",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
+            render: (row) => row.reQ_CODE,
             marginLeft: 20,
+          },
+          {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
           },
           {
             key: "PlantName&Code",
@@ -194,7 +196,7 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
@@ -202,13 +204,13 @@ const Approval1 = () => {
               )} - ${handleNullUndefined(row.materialTypeName)}`,
           },
           {
-            key: "Created",
-            title: "Created",
+            key: "Extension info",
+            title: "Extension info",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
+              `${handleNullUndefined(row.extensionBy)} - ${handleNullUndefined(
+                row.extension_On?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.extension_On?.split("T")[1].split(".")[0]
               )}`,
           },
         ]}

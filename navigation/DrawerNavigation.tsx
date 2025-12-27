@@ -1,13 +1,11 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Dimensions,
   LayoutAnimation,
   Platform,
   Pressable,
   StyleSheet,
   UIManager,
-  useColorScheme,
   View,
 } from "react-native";
 import {
@@ -28,9 +26,19 @@ import { FontAwesome6, Octicons } from "@expo/vector-icons";
 import { Navigation } from "@/src/types/Navigation";
 import type { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { useRoute } from "@react-navigation/native";
-import Approval1 from "@/app/Screens/Request Approval/Approval1";
+import RequestApproval1 from "@/app/Screens/Request Approval/Approval1";
 import DialogComponent from "@/Components/DialogComponent";
 import RNInput from "@/Components/RNInput";
+import RequestApproval2 from "@/app/Screens/Request Approval/Approval2";
+import MaterialExtensionApproval1 from "@/app/Screens/Material Extension/Approval1";
+import MaterialExtensionApproval2 from "@/app/Screens/Material Extension/Approval2";
+import ChangeRequestApproval1 from "@/app/Screens/Change Request Approval/Approval1";
+import ChangeRequestApproval2 from "@/app/Screens/Change Request Approval/Approval2";
+import BlockApproval1 from "@/app/Screens/Block Level/Approval1";
+import BlockApproval2 from "@/app/Screens/Block Level/Approval2";
+import UnblockApproval1 from "@/app/Screens/Unblock/Approval1";
+import UnblockApproval2 from "@/app/Screens/Unblock/Approval2";
+import { AppMDMThemeColors } from "@/src/theme/color";
 
 const { width } = Dimensions.get("window");
 
@@ -44,8 +52,16 @@ type CustomDrawerProps = DrawerContentComponentProps & {
 };
 
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
-  requestapproval: HomeScreen,
-  requestapprovalfinal: Approval1,
+  requestapproval: RequestApproval1,
+  requestapprovalfinal: RequestApproval2,
+  materialextensionapproval1: MaterialExtensionApproval1,
+  extensionapproval2: MaterialExtensionApproval2,
+  changerequestapproval1: ChangeRequestApproval1,
+  changerequestfinalapproval: ChangeRequestApproval2,
+  materialblocklevel1approval: BlockApproval1,
+  materialblockfinalapproval: BlockApproval2,
+  unblockapproval: UnblockApproval1,
+  unblockfinalapproval: UnblockApproval2,
 };
 
 function FallbackScreen() {
@@ -99,52 +115,6 @@ function HomeScreen({ navigation }: any) {
       >
         Go to Test Screen with Params
       </Button>
-      <DialogComponent
-        visible={false}
-        title="Approval Confirmation"
-        onDismiss={() => {}}
-        actions={[
-          {
-            label: "Submit",
-            onPress: () => {},
-            mode: "contained",
-          },
-        ]}
-      >
-        {/* <View>
-          <Text
-            variant="bodyMedium"
-            style={{
-              margin: 4,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: "#e0e0e0",
-            }}
-          >
-            SubTitle
-          </Text>
-        </View> */}
-        <View>
-          <RNInput
-            label="Request Number**"
-            disabled={true}
-            value="4544"
-            icon={"format-list-numbered"}
-          />
-        </View>
-        <View>
-          <RNInput
-            label="Enter Remarks**"
-            value={text}
-            error="Enter Remarks It's Required"
-            icon="grease-pencil"
-            onChangeText={(value) => {
-              setText(value);
-            }}
-          />
-        </View>
-      </DialogComponent>
     </View>
   );
 }
@@ -260,10 +230,10 @@ export default function DrawerNavigator() {
         drawerLabelStyle: {
           fontSize: 15,
           fontWeight: "600",
-          color: colors.onPrimary,
+          color: AppMDMThemeColors.white,
         },
         headerStyle: {
-          backgroundColor: colors.primaryContainer,
+          backgroundColor: AppMDMThemeColors.second,
         },
         headerTintColor: colors.onSurface,
       }}
@@ -290,9 +260,10 @@ export default function DrawerNavigator() {
               options={{
                 drawerLabel,
                 headerTitleStyle: {
-                  color: colors.secondary,
+                  color: AppMDMThemeColors.white,
                 },
-                headerTintColor: colors.primary,
+
+                headerTintColor: AppMDMThemeColors.white,
                 headerTitle: item.dashboardName ?? drawerLabel,
                 drawerIcon: ({ color, size }) => (
                   <FontAwesome6
@@ -380,7 +351,13 @@ function CustomDrawer(props: CustomDrawerProps) {
         </View>
       </View>
 
-      <Divider style={{ marginVertical: 12 }} />
+      <Divider
+        style={{
+          marginVertical: 12,
+          borderColor: AppMDMThemeColors.white,
+          borderWidth: 0.5,
+        }}
+      />
 
       {/* Drawer Items */}
       {groupedNavigation["root"]?.length > 0 ? (
@@ -490,7 +467,13 @@ function CustomDrawer(props: CustomDrawerProps) {
         </Text>
       )}
 
-      <Divider style={{ marginVertical: 16 }} />
+      <Divider
+        style={{
+          marginVertical: 16,
+          borderColor: AppMDMThemeColors.white,
+          borderWidth: 0.5,
+        }}
+      />
 
       {/* Logout */}
       <Button

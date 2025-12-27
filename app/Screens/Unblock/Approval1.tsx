@@ -8,6 +8,7 @@ import {
   Approval12Api,
   Approval1Api,
   PlantData,
+  UnBlock1Api,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { handleNullUndefined } from "@/utils/errorHandler";
@@ -37,7 +38,7 @@ const Approval1 = () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await UnBlock1Api.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -74,7 +75,6 @@ const Approval1 = () => {
     setActionType("");
     setRemarks("");
   };
-
   const submitAction = async () => {
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
@@ -87,20 +87,17 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      isUnBlock: actionType === "Accepted" ? 1 : 0,
+      unBlockApp1Remark: remarks,
+      unBlockApp1On: new Date().toISOString(),
+      unBlockApp1By: currentUser?.username || "user",
+      mode: "UB",
     });
-
-    showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
+    showAlert(req, "success");
+    console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
-
   return (
     <>
       <Filter1
@@ -123,11 +120,11 @@ const Approval1 = () => {
         data={ApiData || []}
         actions={[
           {
-            key: "edit-accept",
+            key: "book-lock-open",
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-up"
+                icon="block-helper"
                 style={{ backgroundColor: AppMDMThemeColors.approval }}
               />
             ),
@@ -139,11 +136,11 @@ const Approval1 = () => {
             },
           },
           {
-            key: "edit-reject",
+            key: "cancel",
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-down"
+                icon="cancel"
                 style={{ backgroundColor: AppMDMThemeColors.rejected }}
               />
             ),
@@ -176,6 +173,11 @@ const Approval1 = () => {
             marginLeft: 20,
           },
           {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+          },
+          {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
@@ -194,7 +196,7 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
@@ -202,13 +204,53 @@ const Approval1 = () => {
               )} - ${handleNullUndefined(row.materialTypeName)}`,
           },
           {
-            key: "Created",
-            title: "Created",
+            key: "Block_By",
+            title: "Bloack By",
+            render: (row) => `${handleNullUndefined(row.blockBy)}`,
+          },
+          {
+            key: "Bloack_on",
+            title: "Bloack On",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
+              ` ${handleNullUndefined(
+                row.blockOn?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.blockOn?.split("T")[1].split(".")[0]
+              )}`,
+          },
+          {
+            key: "UNBlock_By",
+            title: "UnBloack By",
+            render: (row) => `${handleNullUndefined(row.unBlockBy)}`,
+          },
+          {
+            key: "UnBloack_on",
+            title: "UnBloack On",
+            render: (row) =>
+              ` ${handleNullUndefined(
+                row.unBlockOn?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.unBlockOn?.split("T")[1].split(".")[0]
+              )}`,
+          },
+          {
+            key: "blockApprove1Info",
+            title: "Block Approve1 Info",
+            render: (row) =>
+              `${handleNullUndefined(row.blockAppr1By)} - ${handleNullUndefined(
+                row.blockAppr1On?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.blockAppr1On?.split("T")[1].split(".")[0]
+              )}`,
+          },
+          {
+            key: "blockApprove2Info",
+            title: "Block Approve2 Info",
+            render: (row) =>
+              `${handleNullUndefined(
+                row.blockAppr2On?.split("T")[0]
+              )} - ${handleNullUndefined(
+                row.blockAppr2On?.split("T")[1].split(".")[0]
               )}`,
           },
         ]}

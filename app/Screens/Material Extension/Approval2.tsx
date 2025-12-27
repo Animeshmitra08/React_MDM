@@ -6,7 +6,7 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
-  Approval1Api,
+  Approval2Extension,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -16,7 +16,7 @@ import { Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
-const Approval1 = () => {
+const Approval2 = () => {
   const { showAlert } = useAlert();
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
@@ -37,7 +37,7 @@ const Approval1 = () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await Approval2Extension.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -87,19 +87,19 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      extensionApproval2Status: actionType === "Accepted" ? 1 : 0,
+      extApp2_Remark: remarks,
+      extensionApproval2On: new Date().toISOString(),
+      extensionApproval2: currentUser?.username || "user",
+      mode: "E",
     });
-
     showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
+    console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
+
+  // console.log(ApiData, "Api Data rr");
 
   return (
     <>
@@ -176,6 +176,11 @@ const Approval1 = () => {
             marginLeft: 20,
           },
           {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+          },
+          {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
@@ -194,7 +199,7 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
@@ -202,13 +207,13 @@ const Approval1 = () => {
               )} - ${handleNullUndefined(row.materialTypeName)}`,
           },
           {
-            key: "Created",
-            title: "Created",
+            key: "Extension info",
+            title: "Extension info",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
+              `${handleNullUndefined(row.extensionBy)} - ${handleNullUndefined(
+                row.extension_On?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.extension_On?.split("T")[1].split(".")[0]
               )}`,
           },
         ]}
@@ -241,7 +246,12 @@ const Approval1 = () => {
               value={selectedItem.reQ_CODE}
               icon="format-list-numbered"
             />
-
+            <RNInput
+              label="Approval Remark 1"
+              disabled
+              value={selectedItem.extApp1_Remark}
+              icon="format-list-numbered"
+            />
             <RNInput
               label="Enter Remarks**"
               value={remarks}
@@ -255,4 +265,4 @@ const Approval1 = () => {
   );
 };
 
-export default Approval1;
+export default Approval2;

@@ -7,6 +7,8 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   Approval1Api,
+  BlockMaterialApproval1,
+  BlockMaterialApproval2,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -16,7 +18,7 @@ import { Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
-const Approval1 = () => {
+const Approval2 = () => {
   const { showAlert } = useAlert();
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
@@ -37,7 +39,7 @@ const Approval1 = () => {
     try {
       if (plant !== null && plant !== undefined) {
         setLoading(true);
-        const response = await Approval1Api.post({
+        const response = await BlockMaterialApproval2.post({
           fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
           tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
           plantIds: plant === "all" ? ["string"] : [plant],
@@ -87,20 +89,17 @@ const Approval1 = () => {
     });
     const req = await Approval12Api.post({
       ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
-      appR1_ON: new Date().toISOString(),
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
+      isblock: actionType === "Accepted" ? 1 : 0,
+      blockApp2Remark: remarks,
+      blockAppr2On: new Date().toISOString(),
+      blockAppr2By: currentUser?.username || "user",
+      mode: "B",
     });
-
+    console.log(req, "Response", "Api Fit");
     showAlert(req, "success");
     await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
-
   return (
     <>
       <Filter1
@@ -127,7 +126,7 @@ const Approval1 = () => {
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-up"
+                icon="block-helper"
                 style={{ backgroundColor: AppMDMThemeColors.approval }}
               />
             ),
@@ -143,7 +142,7 @@ const Approval1 = () => {
             render: () => (
               <Avatar.Icon
                 size={28}
-                icon="thumb-down"
+                icon="cancel"
                 style={{ backgroundColor: AppMDMThemeColors.rejected }}
               />
             ),
@@ -176,6 +175,11 @@ const Approval1 = () => {
             marginLeft: 20,
           },
           {
+            key: "materiaL_Code",
+            title: " Material Code",
+            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+          },
+          {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
@@ -194,7 +198,7 @@ const Approval1 = () => {
             width: 170,
           },
           {
-            key: "materiaL_TYPE",
+            key: "materiaL_Type",
             title: " Material Type",
             render: (row) =>
               `${handleNullUndefined(
@@ -202,14 +206,39 @@ const Approval1 = () => {
               )} - ${handleNullUndefined(row.materialTypeName)}`,
           },
           {
-            key: "Created",
-            title: "Created",
+            key: "Block_By",
+            title: "Bloack By",
+            render: (row) => `${handleNullUndefined(row.blockBy)}`,
+          },
+          {
+            key: "Bloack_on",
+            title: "Bloack On",
             render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
-              )}`,
+              ` ${handleNullUndefined(row.blockOn)?.split("T")[0]} - ${
+                handleNullUndefined(row.blockOn)?.split("T")[1].split(".")[0]
+              }`,
+          },
+          {
+            key: "blockApprove1Info",
+            title: "Block Approve1 Info",
+            render: (row) =>
+              `${handleNullUndefined(row.blockAppr1By)} - ${
+                handleNullUndefined(row.blockAppr1On)?.split("T")[0]
+              } - ${
+                handleNullUndefined(row.blockAppr1On)
+                  ?.split("T")[1]
+                  .split(".")[0]
+              }`,
+          },
+          {
+            key: "User_Block_Remark",
+            title: "User Block Remark",
+            render: (row) => `${handleNullUndefined(row.blockUserRemark)}`,
+          },
+          {
+            key: "blockApp1Remark",
+            title: "Block App1 Remark",
+            render: (row) => `${row.blockApp1Remark}`,
           },
         ]}
         pagination={true}
@@ -241,7 +270,18 @@ const Approval1 = () => {
               value={selectedItem.reQ_CODE}
               icon="format-list-numbered"
             />
-
+            <RNInput
+              label="Approval Remark 1"
+              disabled
+              value={selectedItem.blockApp1Remark}
+              icon="format-list-numbered"
+            />
+            <RNInput
+              label="User Approval Remark 1"
+              disabled
+              value={selectedItem.blockUserRemark}
+              icon="format-list-numbered"
+            />
             <RNInput
               label="Enter Remarks**"
               value={remarks}
@@ -255,4 +295,4 @@ const Approval1 = () => {
   );
 };
 
-export default Approval1;
+export default Approval2;
