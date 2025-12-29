@@ -1,29 +1,11 @@
-import { AppMDMThemeColors } from "@/src/theme/color";
 import { TableAction, TableColumn } from "@/src/types/TableColumn";
-import { replace } from "expo-router/build/global-state/routing";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Pressable,
-  Animated,
-  Easing,
-} from "react-native";
-import {
-  DataTable,
-  Text,
-  useTheme,
-  Avatar,
-  Button,
-  TextInput,
-} from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useMemo, useState } from "react";
+import { View, ScrollView, StyleSheet, Pressable, ViewStyle, TextStyle } from "react-native";
+import { DataTable, Text, useTheme, Avatar, Button, TextInput } from "react-native-paper";
 
 interface RDatatableProps<T> {
   data: T[];
   columns: TableColumn<T>[];
-
   actions?: TableAction<T>[];
   maxHeight?: number;
   searchable?: boolean;
@@ -34,6 +16,14 @@ interface RDatatableProps<T> {
   loading?: boolean;
 }
 
+const COLORS = {
+  primary: "#0CA79D",
+  secondary: "#EDA700",
+  approval: "#008000",
+  rejected: "#FF0000",
+  white: "#FFFFFF",
+};
+
 function RDatatable<T>({
   data,
   columns,
@@ -43,7 +33,6 @@ function RDatatable<T>({
   searchKeys = [],
   searchPlaceholder = "Search...",
   loading = false,
-
   pagination = false,
   pageSize = 5,
 }: RDatatableProps<T>) {
@@ -54,12 +43,9 @@ function RDatatable<T>({
 
   /* ---------------- SEARCH FILTER ---------------- */
   const filteredData = useMemo(() => {
-    if (!searchable || !searchText.trim() || !searchKeys.length) {
-      return data;
-    }
+    if (!searchable || !searchText.trim() || !searchKeys.length) return data;
 
     const query = searchText.toLowerCase();
-
     return data.filter((item) =>
       searchKeys.some((key) => {
         const value = item[key];
@@ -73,7 +59,6 @@ function RDatatable<T>({
 
   const paginatedData = useMemo(() => {
     if (!pagination) return filteredData;
-
     const start = page * pageSize;
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, page, pageSize, pagination]);
@@ -109,13 +94,15 @@ function RDatatable<T>({
           outlineColor={AppMDMThemeColors.primary}
         />
       )}
+
       <ScrollView horizontal showsHorizontalScrollIndicator>
         <View>
+          {/* Header */}
           <DataTable.Header
             style={[
               styles.header,
               {
-                backgroundColor: AppMDMThemeColors.second,
+                backgroundColor: COLORS.secondary,
                 borderTopLeftRadius: 16,
                 borderTopRightRadius: 16,
               },
@@ -142,46 +129,42 @@ function RDatatable<T>({
               </DataTable.Title>
             ))}
           </DataTable.Header>
-          {paginatedData.length === 0 && !loading && <NoDataComponent />}
-          {loading && <LoadingComponent />}
+
+          {paginatedData.length === 0 && !loading && (
+            <Text style={{ padding: 16 }}>No data available.</Text>
+          )}
+          {loading && <Text style={{ padding: 16 }}>Loading...</Text>}
 
           <ScrollView style={{ maxHeight }}>
-            {!loading &&
-              paginatedData?.map((item, index) => (
-                <DataTable.Row
-                  key={index}
-                  style={[
-                    styles.row,
-                    // index % 2 === 0 && {
-                    //   backgroundColor: theme.colors.surfaceVariant,
-                    // },
-                  ]}
-                >
-                  {actions?.length ? (
-                    <DataTable.Cell style={styles.actionCell}>
-                      <View style={styles.actionGroup}>
-                        {actions.map((action) => (
-                          <Pressable
-                            key={action.key}
-                            onPress={() => action.onPress(item)}
-                          >
-                            {action.render ? (
-                              action.render(item)
-                            ) : (
-                              <Avatar.Text
-                                size={28}
-                                label={action.label ?? "A"}
-                                color="#fff"
-                                style={{
-                                  backgroundColor: theme.colors.primary,
-                                }}
-                              />
-                            )}
-                          </Pressable>
-                        ))}
-                      </View>
-                    </DataTable.Cell>
-                  ) : null}
+            {paginatedData.map((item, index) => (
+              <DataTable.Row
+                key={index}
+                style={[
+                  styles.row,
+                  // Optional alternating row colors
+                  // index % 2 === 0 && { backgroundColor: "#f9f9f9" },
+                ]}
+              >
+                {actions?.length ? (
+                  <DataTable.Cell style={styles.actionCell}>
+                    <View style={styles.actionGroup}>
+                      {actions.map((action) => (
+                        <Pressable key={action.key} onPress={() => action.onPress(item)}>
+                          {action.render ? (
+                            action.render(item)
+                          ) : (
+                            <Avatar.Text
+                              size={28}
+                              label={action.label ?? "A"}
+                              color={COLORS.white}
+                              style={{ backgroundColor: COLORS.primary }}
+                            />
+                          )}
+                        </Pressable>
+                      ))}
+                    </View>
+                  </DataTable.Cell>
+                ) : null}
 
                   {computedColumns.map((col) => (
                     <DataTable.Cell
@@ -200,70 +183,32 @@ function RDatatable<T>({
                 </DataTable.Row>
               ))}
           </ScrollView>
-          {!loading && pagination && totalPages > 1 && (
+
+          {pagination && totalPages > 1 && (
             <View style={styles.pagination}>
-              {/* <Text style={styles.pageInfo}>
-                Total/Pagination : {data?.length}/{paginatedData?.length}
-              </Text> */}
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "800",
-                  borderRadius: 16,
-                  paddingHorizontal: 10,
-                  paddingVertical: 10,
-                  backgroundColor: AppMDMThemeColors.second,
-                }}
-              >
-                {" "}
-                {paginatedData?.length}/{data?.length}
+              <Text style={styles.pageInfo}>
+                Total: {data.length} / Showing: {paginatedData.length}
               </Text>
               <Button
-                mode="contained"
-                disabled={page === 0}
+                mode="outlined"
                 onPress={() => setPage((p) => p - 1)}
-                icon="arrow-left"
-                // style={[
-                //   styles.navBtn,
-                //   {
-                //     backgroundColor:
-                //       page === 0
-                //         ? AppMDMThemeColors.Grey
-                //         : AppMDMThemeColors.approval,
-                //   },
-                // ]}
-                // contentStyle={styles.navBtnContent}
-                // labelStyle={styles.navBtnLabel}
-                style={{
-                  marginLeft: 12,
-                }}
+                disabled={page === 0}
+                style={styles.pageButton}
+                textColor={COLORS.primary}
               >
                 Prev
               </Button>
 
-              <Text style={[styles.pageInfo, { marginHorizontal: 6 }]}>
+              <Text style={styles.pageInfo}>
                 Page {page + 1} / {totalPages}
               </Text>
 
               <Button
-                mode="contained"
-                disabled={page + 1 >= totalPages}
+                mode="outlined"
                 onPress={() => setPage((p) => p + 1)}
-                icon={"arrow-right"}
-                contentStyle={{
-                  flexDirection: "row-reverse", // 👈 icon right side
-                }}
-                // style={[
-                //   styles.navBtn,
-                //   {
-                //     backgroundColor:
-                //       page + 1 >= totalPages
-                //         ? AppMDMThemeColors.Grey
-                //         : AppMDMThemeColors.approval,
-                //   },
-                // ]}
-                // contentStyle={styles.navBtnContent}
-                // labelStyle={styles.navBtnLabel}
+                disabled={page + 1 >= totalPages}
+                style={styles.pageButton}
+                textColor={COLORS.primary}
               >
                 Next
                 {/* <TextInput.Icon
@@ -281,7 +226,20 @@ function RDatatable<T>({
 
 export default RDatatable;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<{
+  container: ViewStyle;
+  header: ViewStyle;
+  headerText: TextStyle;
+  row: ViewStyle;
+  cell: ViewStyle;
+  actionCell: ViewStyle;
+  actionGroup: ViewStyle;
+  actionItem: ViewStyle;
+  pagination: ViewStyle;
+  pageInfo: TextStyle;
+  pageButton: ViewStyle;
+  disabledButton: ViewStyle;
+}>({
   container: {
     backgroundColor: "#f4f4f4",
     padding: 8,
@@ -291,7 +249,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   headerText: {
-    color: "#ffffff",
+    color: COLORS.white,
     fontWeight: "600",
     fontSize: 13,
   },
@@ -299,9 +257,8 @@ const styles = StyleSheet.create({
     minHeight: 48,
     borderLeftWidth: 2,
     borderRightWidth: 2,
-    borderColor: AppMDMThemeColors.second,
-    borderBottomColor: AppMDMThemeColors.second,
     borderBottomWidth: 2,
+    borderColor: COLORS.secondary,
   },
   cell: {
     paddingHorizontal: 12,
@@ -324,137 +281,28 @@ const styles = StyleSheet.create({
   pagination: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-start",
+    justifyContent: "flex-start",
     paddingVertical: 8,
     paddingHorizontal: 12,
-    // borderTopWidth: 1,
-    backgroundColor: "#ffffff",
+    borderTopWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: COLORS.white,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    borderColor: AppMDMThemeColors.second,
-    borderWidth: 2,
+    gap: 12,
   },
-
   pageInfo: {
     fontSize: 13,
     fontWeight: "800",
     color: "#374151",
   },
-
   pageButton: {
     borderRadius: 20,
     minWidth: 36,
     height: 36,
     justifyContent: "center",
   },
-
   disabledButton: {
     opacity: 0.4,
-  },
-  navBtn: {
-    borderRadius: 6,
-    alignSelf: "flex-start",
-  },
-  navBtnContent: {
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    alignItems: "center",
-  },
-  navBtnLabel: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: AppMDMThemeColors.white,
-  },
-});
-
-const RotatingLoader = ({ color = "#16A34A", size = 20 }) => {
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, []);
-
-  const rotate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
-
-  return (
-    <Animated.View style={{ transform: [{ rotate }] }}>
-      <MaterialCommunityIcons name="loading" size={size} color={color} />
-    </Animated.View>
-  );
-};
-
-const getColumnWidth = (
-  title: string,
-  data: any[],
-  key: string,
-  min = 80,
-  max = 300
-) => {
-  const maxTextLength = Math.max(
-    title.length,
-    ...data.map((item) => String(item[key] ?? "").length)
-  );
-
-  const estimatedWidth = maxTextLength * 8 + 1000; // 8px per char
-  return Math.min(Math.max(estimatedWidth, min), max);
-};
-//
-
-export const LoadingComponent = ({
-  text = "Loading...",
-}: {
-  text?: string;
-}) => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{text}</Text>
-    </View>
-  );
-};
-
-export const NoDataComponent = ({
-  text = "No data found",
-}: {
-  text?: string;
-}) => {
-  return (
-    <View style={stylesOtherComponent.container}>
-      <MaterialCommunityIcons
-        name="database-off-outline"
-        size={36}
-        color={AppMDMThemeColors.second}
-      />
-      <Text style={stylesOtherComponent.text}>{text}</Text>
-    </View>
-  );
-};
-
-const stylesOtherComponent = StyleSheet.create({
-  container: {
-    paddingVertical: 18,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    backgroundColor: AppMDMThemeColors.white,
-    borderWidth: 1,
-    borderColor: AppMDMThemeColors.second,
-    alignItems: "center",
-    justifyContent: "start",
-    flexDirection: "row",
-    gap: 10,
-  },
-  text: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: AppMDMThemeColors.primary,
   },
 });
