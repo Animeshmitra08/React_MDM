@@ -11,6 +11,7 @@ import {
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
+import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
 import React, { useEffect, useMemo, useState } from "react";
 import { Avatar } from "react-native-paper";
@@ -22,8 +23,9 @@ const Approval2 = () => {
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [plant, setPlant] = useState<any>();
-  const [plantApiData, setPlantApiData] = useState<any>();
+  const [plant, setPlant] = useState<string | null>(null);
+  const [plantApiData, setPlantApiData] = useState<PlantMaster[]>([]);
+
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<any>();
@@ -31,29 +33,42 @@ const Approval2 = () => {
     ""
   );
   const [remarks, setRemarks] = useState("");
-  const [ApiData, setApiData] = useState<any>(null);
+  const [ApiData, setApiData] = useState<MaterialMaster[]>([]);
   const [loading, setLoading] = useState(false);
 
   const { currentUser } = useData();
 
   const ApiDataFunc = async () => {
-    try {
-      if (plant !== null && plant !== undefined) {
-        setLoading(true);
-        const response = await Approval2Api.post({
-          fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
-          tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
-          plantIds: plant === "all" ? ["string"] : [plant],
-        });
-        console.log(fromDate, toDate, plant, "Plants");
+    if (!fromDate || !toDate || !plantApiData.length) return;
 
-        setApiData(response);
-        setLoading(false);
-      }
+    let plantIds: string[] = [];
+
+    if (!plant || plant === "all") {
+      plantIds = plantApiData.map(p => p.id).filter(Boolean);
+    } else {
+      plantIds = [plant];
+    }
+
+    if (!plantIds.length) return;
+
+    const payload = {
+      fDate: fromDate.toISOString().split("T")[0],
+      tDate: toDate.toISOString().split("T")[0],
+      plantIds,
+    };
+
+    try {
+      setLoading(true);
+      const response = await Approval2Api.post(payload);
+      setApiData(response);
     } catch (err) {
-      console.error("Error fetching Approval1 data:", err);
+      console.error("Error fetching Approval2 data:", err);
+    } finally {
+      setLoading(false);
     }
   };
+
+
   const ApiDataPlant = async () => {
     try {
       const response = await PlantData.GetAll();
@@ -62,16 +77,25 @@ const Approval2 = () => {
       console.error("Error fetching Approval1 data:", error);
     }
   };
+  
+  // load plants once
   useEffect(() => {
     ApiDataPlant();
-    ApiDataFunc();
   }, []);
 
+  // set default dates
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
     setToDate(today);
   }, [today]);
+
+  // auto-fetch when filters are ready (optional)
+  useEffect(() => {
+    if (fromDate && toDate && plantApiData.length) {
+      ApiDataFunc();
+    }
+  }, [fromDate, toDate, plant, plantApiData]);
 
   const closeDialog = () => {
     setDialogStep("NONE");
@@ -103,9 +127,6 @@ const Approval2 = () => {
     console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-
-  // console.log("Apidata", ApiData, "Apidata");
-  console.log(selectedItem, "selected");
 
   return (
     <>
@@ -177,14 +198,14 @@ const Approval2 = () => {
         columns={[
           {
             key: "reQ_CODE",
-            title: "RequestCode",
+            title: "Request Code",
             render: (row) => handleNullUndefined(row.reQ_CODE),
             marginLeft: 20,
           },
           {
             key: "PlantName&Code",
             title: "Plant Code & Name",
-            width: 240,
+            // width: 240,
             render: (row) =>
               `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
                 row.plant
@@ -203,7 +224,6 @@ const Approval2 = () => {
                   ? ""
                   : handleNullUndefined(row.storage)
               }`,
-            width: 170,
           },
           {
             key: "materiaL_TYPE",
@@ -228,9 +248,9 @@ const Approval2 = () => {
             title: "Updated",
             render: (row) =>
               `${handleNullUndefined(row.updateD_BY)} - ${handleNullUndefined(
-                row.updated_ON?.split("T")[0]
+                row.updateD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.updated_ON?.split("T")[1].split(".")[0]
+                row.updateD_ON?.split("T")[1].split(".")[0]
               )}`,
           },
 
@@ -248,7 +268,7 @@ const Approval2 = () => {
             key: "Rejected",
             title: "Rejected",
             render: (row) =>
-              `${handleNullUndefined(row.rejecteD_By)} - ${handleNullUndefined(
+              `${handleNullUndefined(row.rejecteD_BY)} - ${handleNullUndefined(
                 row.rejecteD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
                 row.rejecteD_ON?.split("T")[1].split(".")[0]

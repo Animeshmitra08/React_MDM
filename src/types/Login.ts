@@ -1,10 +1,10 @@
 export type LoginPayload = {
-    ApplicationId: string;
-    Username: string;
-    Password: string;
-    IdentityCode: string;
-    IpAddress: string;
-    MACAddress: string | null;
+    applicationId: string;
+    username: string;
+    password: string;
+    identityCode: string;
+    ipAddress: string;
+    macAddress: string | null;
 }
 
 export type LoginResponse = {

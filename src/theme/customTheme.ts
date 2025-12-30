@@ -1,59 +1,60 @@
-import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
-import { AppMDMThemeColors, gunmetal } from "./color";
+import { MD3LightTheme } from "react-native-paper";
+import { amber, neutral, teal } from "./color";
 
-export const GunmetalLightTheme = {
+export const AppLightTheme = {
   ...MD3LightTheme,
   roundness: 8,
   colors: {
     ...MD3LightTheme.colors,
 
-    // BRAND / PRIMARY
-    primary: AppMDMThemeColors.primary,
-    onPrimary: gunmetal[50],
-    primaryContainer: gunmetal[200],
-    onPrimaryContainer: gunmetal[900],
+    // PRIMARY – Teal
+    primary: teal[500],
+    onPrimary: neutral.white,
+    primaryContainer: teal[100],
+    onPrimaryContainer: teal[900],
 
-    // SECONDARY
-    secondary: AppMDMThemeColors.white,
-    onSecondary: gunmetal[50],
-    secondaryContainer: gunmetal[200],
-    onSecondaryContainer: gunmetal[800],
+    // SECONDARY – Amber
+    secondary: amber[600],
+    onSecondary: neutral.heading,
+    secondaryContainer: amber[100],
+    onSecondaryContainer: amber[900],
 
-    // TERTIARY
-    tertiary: AppMDMThemeColors.approval,
-    onTertiary: gunmetal[50],
-    tertiaryContainer: gunmetal[300],
-    onTertiaryContainer: gunmetal[900],
+    // TERTIARY – soft accent
+    tertiary: amber[600],
+    onTertiary: neutral.white,
+    tertiaryContainer: amber[300],
+    onTertiaryContainer: amber[900],
 
     // BACKGROUND
-    background: AppMDMThemeColors.second,
-    onBackground: AppMDMThemeColors.second,
+    background: neutral.bg,
+    onBackground: neutral.heading,
 
     // SURFACE
-    surface: gunmetal[50],
-    onSurface: gunmetal[900],
+    surface: neutral.white,
+    onSurface: neutral.heading,
+    surfaceVariant: neutral.border,
+    onSurfaceVariant: neutral.text,
 
-    surfaceVariant: gunmetal[200],
-    onSurfaceVariant: gunmetal[700],
+    // OUTLINE / DIVIDERS
+    outline: neutral.border,
+    outlineVariant: neutral.muted,
 
-    // OUTLINE
-    outline: gunmetal[400],
-    outlineVariant: gunmetal[300],
-
-    // ERROR (kept red because it's standard)
+    // ERROR (standard)
     error: "#e74c3c",
-    onError: gunmetal[50],
+    onError: neutral.white,
     errorContainer: "#fddede",
     onErrorContainer: "#7a2525",
 
-    // INVERSE
-    inverseSurface: gunmetal[900],
-    inverseOnSurface: gunmetal[50],
-    inversePrimary: gunmetal[300],
+    // INVERSE (still needed internally by MD3)
+    inverseSurface: neutral.heading,
+    inverseOnSurface: neutral.white,
+    inversePrimary: teal[300],
 
-    shadow: "rgba(0,0,0,0.2)",
+    shadow: "rgba(0,0,0,0.15)",
 
-    // full scale exposed
-    gunmetal,
+    // expose palettes
+    teal,
+    amber,
+    neutral,
   },
 };

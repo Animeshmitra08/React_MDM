@@ -12,7 +12,7 @@ export const PlantData = {
       return response;
     } catch (error) {
       console.error("Error fetching PlantData:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -27,7 +27,7 @@ export const Approval1Api = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 1 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -42,7 +42,7 @@ export const Approval2Api = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -57,7 +57,7 @@ export const Approval12Api = {
       return response;
     } catch (error) {
       console.error("Error fetching Approvaled Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -72,7 +72,7 @@ export const Approval1Extension = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -90,7 +90,7 @@ export const Approval2Extension = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -105,7 +105,7 @@ export const ChangeReqApproval1 = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -123,7 +123,7 @@ export const ChangeReqApproval2 = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -138,7 +138,7 @@ export const BlockMaterialApproval1 = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -153,7 +153,7 @@ export const BlockMaterialApproval2 = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -167,7 +167,7 @@ export const UnBlock1Api = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };
@@ -181,7 +181,7 @@ export const UnBlock2Api = {
       return response;
     } catch (error) {
       console.error("Error fetching Approval 2 Data:", error);
-      //   throw error;
+      throw error;
     }
   },
 };

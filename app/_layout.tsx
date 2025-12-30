@@ -14,6 +14,10 @@ export default function RootLayout() {
       <ThemeProvider value={DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="Screens/MaterialTransactionPage/MatTransPage"
+            options={{ title: "Material Transaction" }}
+          />
         </Stack>
       </ThemeProvider>
     </DataProvider>

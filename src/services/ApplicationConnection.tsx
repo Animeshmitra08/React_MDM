@@ -5,13 +5,13 @@ const API_BASE =
 
 const appAxiosCon = {
   get: async (endpoint: string) => {
-    console.log("GET Request to:", `${API_BASE}${endpoint}`);
+    // console.log("GET Request to:", `${API_BASE}${endpoint}`);
     const response = await axios.get(`${API_BASE}${endpoint}`);
     return response.data;
   },
 
   post: async (endpoint: string, data: any) => {
-    console.log("POST Request to:", `${API_BASE}${endpoint}`, { data });
+    // console.log("POST Request to:", `${API_BASE}${endpoint}`, { data });
     const response = await axios.post(`${API_BASE}${endpoint}`, data);
     return response.data;
   },

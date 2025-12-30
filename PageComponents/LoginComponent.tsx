@@ -11,7 +11,8 @@ import {
   UIManager,
   Keyboard,
   LayoutAnimation,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ImageSourcePropType
 } from 'react-native';
 
 import {
@@ -33,9 +34,10 @@ import AlertMessage, { AlertType } from '@/Components/AlertMessage';
 
 interface LoginComponentProps {
   showCaptcha?: boolean;
+  LogoSource?: ImageSourcePropType;
 }
 
-const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) => {
+const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true, LogoSource }) => {
   const { colors } = useTheme();
 
   const [username, setUsername] = useState('');
@@ -215,11 +217,11 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
           >
             <View style={[styles.landscapeRow]}>
               <View style={styles.logoContainerLandscape}>
-                {/* <Image
-                  source={require('../../assets/images/logo.png')}
+                <Image
+                  source={LogoSource}
                   style={{ width: imageSize, height: imageSize, alignSelf: 'center', marginBottom: 20 }}
                   resizeMode="contain"
-                /> */}
+                />
               </View>
 
               <View style={{ flex: 1, justifyContent: 'center', opacity: formOpacity, transform: [{ translateY: formTranslateY }] }}>
@@ -276,7 +278,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true }) =
                 <Card style={[styles.card, styles.shadow, isTablet && styles.cardTablet, { backgroundColor: '#fff' }]} mode="elevated">
                   <Card.Content>
                     <View style={styles.logoContainerPortrait}>
-                      {/* <Image source={require('../../assets/images/logo.png')} style={{ width: 100, height: 100, marginBottom: 5 }} resizeMode="contain" /> */}
+                      <Image source={LogoSource} style={{ width: 100, height: 100, marginBottom: 5 }} resizeMode="contain" />
                     </View>
 
                     <Text style={[styles.title, { color: colors.primary, fontSize: headingSize }]}>Welcome</Text>

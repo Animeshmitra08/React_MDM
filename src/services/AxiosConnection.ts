@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 // import { API_BASE } from "@env";
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://aonapps.in:7089/api";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || "https://aonapps.in:7080/api";
 
 const axiosCon = {
   
@@ -48,6 +48,8 @@ const axiosCon = {
     data: any,
     headers: Record<string, string> = {}
   ) => {
+    console.log(endpoint, headers, data);
+    
     try {
       const config: AxiosRequestConfig = {
         method: 'post',

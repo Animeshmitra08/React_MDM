@@ -3,7 +3,7 @@ import { BackHandler, useColorScheme, View } from 'react-native';
 import { ActivityIndicator, Icon, MD3DarkTheme, MD3LightTheme, PaperProvider, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { GunmetalLightTheme } from '@/src/theme/customTheme';
+import { AppLightTheme } from '@/src/theme/customTheme';
 import TestScreen from '../Screens/TestScreen';
 import LoginComponent from '@/PageComponents/LoginComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -17,7 +17,7 @@ export default function TabsLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PaperProvider theme={GunmetalLightTheme}>
+      <PaperProvider theme={AppLightTheme}>
         {/* <NavigationContainer> */}
           {currentUser?.userID ? (
             <>
@@ -25,7 +25,7 @@ export default function TabsLayout() {
               <StatusBar style="light" />
             </>
           ) : (
-            <LoginComponent showCaptcha={false} />
+            <LoginComponent showCaptcha={false} LogoSource={require("../../assets/images/emamilogo1.jpeg")} />
           )}
         {/* </NavigationContainer> */}
       </PaperProvider>

@@ -1,5 +1,10 @@
 import { View } from "react-native";
-import { ActivityIndicator, Text, useTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Text,
+  useTheme,
+  IconButton,
+} from "react-native-paper";
 import { Dropdown } from "react-native-element-dropdown";
 import { AppMDMThemeColors } from "@/src/theme/color";
 
@@ -14,7 +19,7 @@ export default function EDropdown({
   label: string;
   data: { label: string; value: string }[];
   value: string | null;
-  onChange: (v: string) => void;
+  onChange: (v: string | null) => void;
   disabled?: boolean;
   loading?: boolean;
 }) {
@@ -22,12 +27,7 @@ export default function EDropdown({
 
   return (
     <>
-      <Text
-        style={{
-          marginBottom: 4,
-          fontWeight: "700",
-        }}
-      >
+      <Text style={{ marginBottom: 4, fontWeight: "700" }}>
         {label}
       </Text>
 
@@ -37,20 +37,20 @@ export default function EDropdown({
             height: 44,
             borderWidth: 1,
             borderRadius: 10,
-            borderColor: AppMDMThemeColors.primary,
+            borderColor: colors.outline,
             paddingHorizontal: 8,
             backgroundColor: disabled
-              ? colors.surfaceDisabled
-              : AppMDMThemeColors.white,
+              ? colors.outlineVariant
+              : colors.onPrimary,
           }}
           containerStyle={{
             borderRadius: 10,
-            borderColor: AppMDMThemeColors.primary,
+            borderColor: colors.outline,
             borderWidth: 1,
           }}
           placeholderStyle={{
             fontSize: 13,
-            color: disabled ? colors.onSurfaceVariant : "",
+            color: disabled ? colors.outlineVariant : undefined,
           }}
           selectedTextStyle={{
             fontSize: 13,
@@ -72,6 +72,21 @@ export default function EDropdown({
           onChange={(item) => onChange(item.value)}
         />
 
+        {/* Clear icon */}
+        {value && !disabled && !loading && (
+          <IconButton
+            icon="close-circle"
+            size={20}
+            onPress={() => onChange(null)}
+            style={{
+              position: "absolute",
+              right: 20,
+              top: 0,
+            }}
+          />
+        )}
+
+        {/* Loader */}
         {loading && (
           <ActivityIndicator
             size="small"

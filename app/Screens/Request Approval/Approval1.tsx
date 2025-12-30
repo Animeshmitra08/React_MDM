@@ -10,9 +10,11 @@ import {
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
+import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Avatar } from "react-native-paper";
+import { Avatar, Text } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
@@ -21,8 +23,8 @@ const Approval1 = () => {
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [plant, setPlant] = useState<any>();
-  const [plantApiData, setPlantApiData] = useState<any>();
+  const [plant, setPlant] = useState<string | null>(null);
+  const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<any>();
@@ -30,25 +32,49 @@ const Approval1 = () => {
     ""
   );
   const [remarks, setRemarks] = useState("");
-  const [ApiData, setApiData] = useState<any>(null);
+  const [ApiData, setApiData] = useState<MaterialMaster[]>([]);
   const [loading, setLoading] = useState(false);
+
+
   const { currentUser } = useData();
+
+  const router = useRouter();
+
+
   const ApiDataFunc = async () => {
+    if (!fromDate || !toDate) return;
+
+    let plantIds: string[] = [];
+
+    if (!plant) {
+      // cleared → all plants
+      plantIds = plantApiData?.map(p => p.id).filter(Boolean) ?? [];
+    } else if (plant === "all") {
+      plantIds = plantApiData?.map(p => p.id).filter(Boolean) ?? [];
+    } else {
+      plantIds = [plant];
+    }
+
+    // ⛔ stop API call if plantIds is empty
+    if (!plantIds.length) return;
+
+    const payload = {
+      fDate: fromDate.toISOString().split("T")[0],
+      tDate: toDate.toISOString().split("T")[0],
+      plantIds,
+    };
+
     try {
-      if (plant !== null && plant !== undefined) {
-        setLoading(true);
-        const response = await Approval1Api.post({
-          fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
-          tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
-          plantIds: plant === "all" ? ["string"] : [plant],
-        });
-        setApiData(response);
-        setLoading(false);
-      }
+      setLoading(true);
+      const response = await Approval1Api.post(payload);
+      setApiData(response);
     } catch (err) {
       console.error("Error fetching Approval1 data:", err);
+    } finally {
+      setLoading(false);
     }
   };
+
   const ApiDataPlant = async () => {
     try {
       const response = await PlantData.GetAll();
@@ -57,10 +83,16 @@ const Approval1 = () => {
       console.error("Error fetching Approval1 data:", error);
     }
   };
+
   useEffect(() => {
     ApiDataPlant();
-    ApiDataFunc();
   }, []);
+
+  useEffect(() => {
+    if (plantApiData?.length) {
+      ApiDataFunc();
+    }
+  }, [plant, fromDate, toDate, plantApiData]);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -99,7 +131,7 @@ const Approval1 = () => {
     // console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  console.log();
+  
 
   return (
     <>
@@ -115,12 +147,13 @@ const Approval1 = () => {
         }}
         onToDateChange={setToDate}
         onPlantChange={setPlant}
-        onApply={async () => ApiDataFunc()}
+        onApply={ApiDataFunc}
       />
+
 
       <RDatatable
         loading={loading}
-        data={ApiData || []}
+        data={ApiData}
         actions={[
           {
             key: "edit-accept",
@@ -164,7 +197,10 @@ const Approval1 = () => {
               />
             ),
             onPress: (row) => {
-              setSelectedItem(row);
+              router.push({
+                pathname: "/Screens/MaterialTransactionPage/MatTransPage",
+                params: { trnsId : row.trN_ID },
+              });
             },
           },
         ]}
@@ -217,6 +253,8 @@ const Approval1 = () => {
         pageSize={5}
         searchKeys={["plant"]}
       />
+
+
       <DialogComponent
         visible={dialogStep !== "NONE"}
         title={`${actionType} Confirmation`}

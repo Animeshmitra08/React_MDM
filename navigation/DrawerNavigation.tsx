@@ -38,7 +38,6 @@ import BlockApproval1 from "@/app/Screens/Block Level/Approval1";
 import BlockApproval2 from "@/app/Screens/Block Level/Approval2";
 import UnblockApproval1 from "@/app/Screens/Unblock/Approval1";
 import UnblockApproval2 from "@/app/Screens/Unblock/Approval2";
-import { AppMDMThemeColors } from "@/src/theme/color";
 
 const { width } = Dimensions.get("window");
 
@@ -230,10 +229,10 @@ export default function DrawerNavigator() {
         drawerLabelStyle: {
           fontSize: 15,
           fontWeight: "600",
-          color: AppMDMThemeColors.white,
+          color: colors.onPrimary,
         },
         headerStyle: {
-          backgroundColor: AppMDMThemeColors.second,
+          backgroundColor: colors.secondary,
         },
         headerTintColor: colors.onSurface,
       }}
@@ -260,10 +259,10 @@ export default function DrawerNavigator() {
               options={{
                 drawerLabel,
                 headerTitleStyle: {
-                  color: AppMDMThemeColors.white,
+                  color: colors.onPrimary,
                 },
 
-                headerTintColor: AppMDMThemeColors.white,
+                headerTintColor: colors.onPrimary,
                 headerTitle: item.dashboardName ?? drawerLabel,
                 drawerIcon: ({ color, size }) => (
                   <FontAwesome6
@@ -354,7 +353,7 @@ function CustomDrawer(props: CustomDrawerProps) {
       <Divider
         style={{
           marginVertical: 12,
-          borderColor: AppMDMThemeColors.white,
+          borderColor: colors.onPrimary,
           borderWidth: 0.5,
         }}
       />
@@ -470,7 +469,7 @@ function CustomDrawer(props: CustomDrawerProps) {
       <Divider
         style={{
           marginVertical: 16,
-          borderColor: AppMDMThemeColors.white,
+          borderColor: colors.onPrimary,
           borderWidth: 0.5,
         }}
       />

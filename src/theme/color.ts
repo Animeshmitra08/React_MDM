@@ -1,30 +1,34 @@
 // theme/colors.ts
-export const gunmetal = {
-  50: "#f3ebfa",
-  100: "#e7d6f5",
-  200: "#ceaeea",
-  300: "#b685e0",
-  400: "#9d5dd5",
-  500: "#8534cb",
-  600: "#6a2aa2",
-  700: "#501f7a",
-  800: "#351551",
-  900: "#1b0a29",
-  950: "#13071c",
+
+export const teal = {
+  50: "#E6F7F5",
+  100: "#BFE9E4",
+  300: "#66CFC6",
+  500: "#0CA79D",
+  600: "#0A8A82",
+  800: "#07665F",
+  900: "#04423D",
 };
-// {
-// 	50: "#fff4e5",
-// 	100: "#ffe9cc",
-// 	200: "#ffd399",
-// 	300: "#ffbd66",
-// 	400: "#ffa733",
-// 	500: "#ff9100",
-// 	600: "#cc7400",
-// 	700: "#995700",
-// 	800: "#663a00",
-// 	900: "#331d00",
-// 	950: "#241400"
-// };
+
+export const amber = {
+  50: "#FFF6E0",
+  100: "#FFE6A8",
+  300: "#FFD066",
+  500: "#FFC233",
+  600: "#E6AC2E",
+  800: "#B38623",
+  900: "#805F18",
+};
+
+export const neutral = {
+  white: "#FFFFFF",
+  bg: "#F8FAFC",
+  border: "#d3d4d5ff",
+  muted: "#9CA3AF",
+  text: "#374151",
+  heading: "#111827",
+};
+
 
 export const AppMDMThemeColors = {
   primary: "#0CA79D",

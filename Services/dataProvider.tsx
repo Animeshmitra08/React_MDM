@@ -16,6 +16,8 @@ import { LoginPayload, LoginResponse } from "@/src/types/Login";
 import { Navigation, NavigationConfigType } from "@/src/types/Navigation";
 import { extractMessages } from "@/utils/errorHandler";
 import { useAlert } from "./AlertContext";
+import { MaterialTransApi } from "@/src/services/MaterialTransaction";
+import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
 
 
 interface DataContextType {
@@ -26,15 +28,21 @@ interface DataContextType {
   navigationList: Navigation[];
   getNavigationConfig: (roleId: string) => Promise<void>;
   navigationConfigList: NavigationConfigType[];
+  materialTransData: MaterialTransactionsTypes[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 const USER_KEY = "currentUser";
+const MTRNS_KEY = "materialTransData"
 
 export const saveUserSecure = async (user: LoginResponse) => {
   await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
 };
+
+const saveMaterialTransData = async ( data : MaterialTransactionsTypes) => {
+  await SecureStore.setItemAsync(MTRNS_KEY, JSON.stringify(data));
+}
 
 export const getUserSecure = async (): Promise<LoginResponse | null> => {
   const stored = await SecureStore.getItemAsync(USER_KEY);
@@ -65,6 +73,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [ipAdd, setIpAdd] = useState("");
   const [navigationList, setNavigationList] = useState<Navigation[]>([]);
   const [navigationConfigList, setNavigationConfigList] = useState<NavigationConfigType[]>([])
+  const [materialTransData, setMaterialTransData] = useState<MaterialTransactionsTypes[]>([])
 
   const { showAlert } = useAlert();
 
@@ -94,14 +103,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     password: string
   ): Promise<LoginResponse> => {
     const payload: LoginPayload = {
-      ApplicationId: AppId || '',
-      Username: username,
-      Password: password,
-      IdentityCode: MobileDeviceId,
-      IpAddress: ipAdd,
-      MACAddress: "",
+      applicationId: AppId || '',
+      username: username,
+      password: password,
+      identityCode: MobileDeviceId,
+      ipAddress: ipAdd,
+      macAddress: "",
     };
-
     try {
       const response = await LoginApi.post(payload);
       const data: LoginResponse = response;
@@ -138,6 +146,31 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       throw error;
     }
   }
+
+  const getMaterialTrans = async () => {
+    try{
+      const res = await MaterialTransApi.getAll();
+      setMaterialTransData(res);
+      await saveMaterialTransData(res);
+    } catch (error : any) {
+      handleApiError(error);
+      console.log(error);
+    }
+  }
+
+  const loadMaterialTransFromStorage = async () => {
+    try {
+      const stored = await SecureStore.getItemAsync(MTRNS_KEY);
+
+      if (stored) {
+        const parsed: MaterialTransactionsTypes[] = JSON.parse(stored);
+        setMaterialTransData(parsed);
+      }
+    } catch (error) {
+      console.log("SecureStore load error", error);
+    }
+  };
+
 
   // Validate user from API with localStorage
   // const validateStoredUser = async () => {
@@ -217,6 +250,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    getMaterialTrans();
+    loadMaterialTransFromStorage();
+  }, []);
+
+  useEffect(() => {
     const loadUser = async () => {
       const user = await getUserSecure();
       if (user) {
@@ -233,8 +271,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     navigationTrigger,
     navigationList,
     getNavigationConfig,
-    navigationConfigList
+    navigationConfigList,
+    materialTransData
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
+
+
+// Value being stored in SecureStore is larger than 2048 bytes and it may not be stored successfully. In a future SDK version, this call may throw an error.

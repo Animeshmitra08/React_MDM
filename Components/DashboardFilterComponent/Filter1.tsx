@@ -13,8 +13,8 @@ type Filter1Props = {
   onFromDateChange: (date: Date) => void;
   onToDateChange: (date: Date) => void;
 
-  plant: string;
-  onPlantChange: (value: string) => void;
+  plant: string | null;
+  onPlantChange: (value: string | null) => void;
 
   onApply: () => void;
   plantData: any;

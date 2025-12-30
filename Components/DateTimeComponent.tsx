@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { Text, TextInput, useTheme } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { AppMDMThemeColors } from "@/src/theme/color";
 
@@ -43,6 +43,8 @@ const DateTimeComponent = ({
   maximumDate,
 }: DateComponentProps) => {
   const [open, setOpen] = useState(false);
+
+  const { colors } = useTheme();
 
   // Default → today / now
   useEffect(() => {
@@ -95,13 +97,13 @@ const DateTimeComponent = ({
             style={[
               style,
               {
-                backgroundColor: AppMDMThemeColors.white,
+                backgroundColor: colors.background,
               },
             ]}
             left={
               <TextInput.Icon
                 icon={type === "date" ? "calendar" : "clock"}
-                color={AppMDMThemeColors.primary}
+                color={colors.primary}
               />
             }
             editable={false}
@@ -110,7 +112,7 @@ const DateTimeComponent = ({
             value={displayValue}
             placeholder={label}
             activeOutlineColor={AppMDMThemeColors.primary}
-            outlineColor={AppMDMThemeColors.primary}
+            outlineColor={colors.outline}
           />
         </View>
       </Pressable>
