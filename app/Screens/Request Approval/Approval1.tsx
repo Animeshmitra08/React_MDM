@@ -22,7 +22,11 @@ type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
 const Approval1 = () => {
   const { showAlert } = useAlert();
-  const today = useMemo(() => new Date(), []);
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
@@ -59,10 +63,11 @@ const Approval1 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
-      tDate: toDate.toISOString().split("T")[0],
+      fDate: toISODate(fromDate),
+      tDate: toISODate(toDate),
       plantIds,
     };
+    
 
     try {
       setLoading(true);

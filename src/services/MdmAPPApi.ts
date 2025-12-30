@@ -21,9 +21,12 @@ export const PlantData = {
 export const Approval1Api = {
   post: async (data: DATAPayload) => {
     try {
-      const response = await appAxiosCon.post(
+      const response = await appAxiosCon.postWithHeaders(
         "/MaterialTransaction/Approval1",
-        data
+        data,
+        {
+          'accept': 'text/plain'
+        }
       );
       return response;
     } catch (error) {

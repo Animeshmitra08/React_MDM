@@ -17,6 +17,8 @@ interface RNInputProps {
   error?: string;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   disabled?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
 }
 
 const RNInput: React.FC<RNInputProps> = ({
@@ -28,6 +30,8 @@ const RNInput: React.FC<RNInputProps> = ({
   error,
   autoCapitalize = "none",
   disabled = false,
+  multiline = false,
+  numberOfLines = 1,
 }) => {
   const { colors } = useTheme();
   const [isFocused, setFocused] = useState(false);
@@ -92,11 +96,20 @@ const RNInput: React.FC<RNInputProps> = ({
           secureTextEntry={secure ? hidePassword : false}
           // placeholder={label}
           placeholderTextColor="#999"
+          multiline={multiline}
+          numberOfLines={multiline ? numberOfLines : 1}
           onChangeText={onChangeText}
           onFocus={() => !disabled && setFocused(true)}
           onBlur={() => setFocused(false)}
           autoCapitalize={autoCapitalize}
-          style={[styles.input, { color: disabled ? "#888" : "#000" }]}
+          style={[
+            styles.input,
+            {
+              color: disabled ? "#888" : "#000",
+              height: multiline ? numberOfLines * 24 : 46,
+              textAlignVertical: multiline ? "top" : "center",
+            },
+          ]}
         />
 
         {/* 👁 Right Eye Toggle (Only for secure fields) */}

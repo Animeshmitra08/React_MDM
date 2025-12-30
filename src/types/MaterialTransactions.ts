@@ -189,3 +189,11 @@ export interface MaterialTransactionsTypes {
   production_STLO: string;
   costing_Lot_Size: string;
 }
+
+export interface AttributeItem {
+  readonly Attribute: string;
+  Value: string;
+}
+
+export type AttributeData = AttributeItem[];
+export type AttributeDataSource = AttributeData | string;

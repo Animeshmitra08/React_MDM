@@ -1,10 +1,14 @@
 import RNInput from "@/Components/RNInput";
+import BasicInfoCard from "@/Components/View&EditData/Basic";
+import PurchaseInfoCard from "@/Components/View&EditData/Purchase";
+import SalesInfoCard from "@/Components/View&EditData/Sales";
 import { useData } from "@/Services/dataProvider";
+import { AttributeData, AttributeDataSource } from "@/src/types/MaterialTransactions";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Card, Text, useTheme } from "react-native-paper";
+import { Card, Chip, Text, TextInput, useTheme } from "react-native-paper";
 
 function MatTransPage() {
   const { trnsId } = useLocalSearchParams<{ trnsId?: string }>();
@@ -26,99 +30,17 @@ function MatTransPage() {
   const d = filteredTransData;
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, {backgroundColor : colors.outlineVariant}]}>
+    <ScrollView contentContainerStyle={[styles.container, {backgroundColor : "#dadadaff"}]}>
       <StatusBar style="dark" />
 
       {/* Basic */}
-        <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
-        <Card.Title title="Basic" />
-        <Card.Content>
-            <View style={styles.row}>
-            <View style={styles.col}>
-                <RNInput label="Request Code" value={d.reQ_CODE} />
-            </View>
-            <View style={styles.col}>
-                <RNInput label="Material Type" value={d.materialTypeName} />
-            </View>
+        <BasicInfoCard data={filteredTransData}/>
 
-            <View style={styles.col}>
-                <RNInput label="Industry Sector" value={d.industrY_SECTOR} />
-            </View>
-            <View style={styles.col}>
-                <RNInput label="Plant" value={d.plant} />
-            </View>
+      {/* sales */}
+      <SalesInfoCard data={filteredTransData} />
 
-            <View style={styles.col}>
-                <RNInput label="Storage Location" value={d.storagE_LOCATION} />
-            </View>
-            <View style={styles.col}>
-                <RNInput label="Sales Organization" value={d.saleS_ORG} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Distribution Channel" value={d.distributioN_CHANNEL} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Old Material Number" value={d.olD_MATERIAL_NUMBER} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Base Unit of Measure" value={d.uom} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="EAL Material Group" value={d.sapMaterialGroup} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="External Material Group" value={d.externaL_MATERIAL_GROUP} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Division" value={d.division} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Product Hierarchy" value={d.producT_HIERARCHY} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="General Item Category" value={d.geN_ITEM_CAT_GROUP} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Basic Material" value={d.basiC_MATERIAL} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Gross Weight" value={d.grosS_WEIGHT} />
-            </View>
-            </View>
-        </Card.Content>
-        </Card>
-
-      {/* Plant & Storage */}
-      <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
-        <Card.Title title="Plant & Storage" />
-        <Card.Content>
-            <View style={styles.row}>
-            <View style={styles.col}>
-                <RNInput label="Plant Code" value={d.plant_code} />
-            </View>
-            <View style={styles.col}>
-                <RNInput label="Plant Name" value={d.plant} />
-            </View>
-
-            <View style={styles.col}>
-                <RNInput label="Storage Code" value={d.storage_Code} />
-            </View>
-            <View style={styles.col}>
-                <RNInput label="Storage Name" value={d.storage} />
-            </View>
-            </View>
-        </Card.Content>
-        </Card>
+      {/* purchase */}
+      <PurchaseInfoCard data={filteredTransData}/>
 
       
     </ScrollView>
@@ -151,5 +73,31 @@ const styles = StyleSheet.create({
     width: "50%",
     paddingHorizontal: 6,
     marginBottom: 8,
+  },
+  chip: {
+    margin: 4,
+  },
+  attributeRow: {
+    marginTop: 10,
+  },
+  attributeLabel: {
+    fontSize: 12,
+    color: "#555",
+    marginBottom: 4,
+  },
+  attributeInput: {
+    backgroundColor: "#fff",
+    height: 40,
+  },
+  attributeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6, // balance padding
+  },
+
+  attributeCol: {
+    width: "50%", // 🔹 2-column grid
+    paddingHorizontal: 6,
+    marginBottom: 10,
   },
 });

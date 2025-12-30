@@ -9,7 +9,6 @@ import LoginComponent from '@/PageComponents/LoginComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useData } from '@/Services/dataProvider';
 import DrawerNavigator from '@/navigation/DrawerNavigation';
-import { NavigationContainer } from "@react-navigation/native";
 
 export default function TabsLayout() {
   const scheme = useColorScheme();
@@ -18,7 +17,6 @@ export default function TabsLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={AppLightTheme}>
-        {/* <NavigationContainer> */}
           {currentUser?.userID ? (
             <>
               <DrawerNavigator />
@@ -27,7 +25,6 @@ export default function TabsLayout() {
           ) : (
             <LoginComponent showCaptcha={false} LogoSource={require("../../assets/images/emamilogo1.jpeg")} />
           )}
-        {/* </NavigationContainer> */}
       </PaperProvider>
     </GestureHandlerRootView>
   );
