@@ -45,6 +45,28 @@ const Approval1 = () => {
 
   const router = useRouter();
 
+  useEffect(() => {
+    const firstDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1,
+      0, 0, 0, 0
+    );
+    setFromDate(firstDay);
+    setToDate(today);
+  }, [today]);
+
+  useEffect(() => {
+    if (plantApiData?.length) {
+      ApiDataFunc();
+    }
+  }, [plant, fromDate, toDate, plantApiData]);
+
+  const toISODate = (d: Date) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
+
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
 
@@ -79,31 +101,6 @@ const Approval1 = () => {
       setLoading(false);
     }
   };
-
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
-
-  useEffect(() => {
-    if (plantApiData?.length) {
-      ApiDataFunc();
-    }
-  }, [plant, fromDate, toDate, plantApiData]);
-
-  useEffect(() => {
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    setFromDate(firstDay);
-    setToDate(today);
-  }, [today]);
 
   const closeDialog = () => {
     setDialogStep("NONE");

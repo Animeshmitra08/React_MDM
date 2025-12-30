@@ -68,20 +68,6 @@ const Approval2 = () => {
     }
   };
 
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-
-  // // load plants once
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
-
   // set default dates
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -131,10 +117,6 @@ const Approval2 = () => {
     closeDialog();
   };
 
-  // console.log(selectedItem, "");
-  // useEffect(() => {
-  //   ApiDataFunc();
-  // }, [plantApiData]);
 
   return (
     <>
