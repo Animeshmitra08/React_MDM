@@ -6,7 +6,6 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
-  Approval1Api,
   Approval2Api,
   PlantData,
 } from "@/src/services/MdmAPPApi";
@@ -14,7 +13,9 @@ import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
 import React, { useEffect, useMemo, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
@@ -24,8 +25,7 @@ const Approval2 = () => {
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
-  const [plantApiData, setPlantApiData] = useState<PlantMaster[]>([]);
-
+  // const [plantApiData, setPlantApiData] = useState<PlantMaster[]>([]);
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<any>();
@@ -36,7 +36,7 @@ const Approval2 = () => {
   const [ApiData, setApiData] = useState<MaterialMaster[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { currentUser } = useData();
+  const { currentUser, plantApiData } = useData();
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate || !plantApiData.length) return;
@@ -44,7 +44,7 @@ const Approval2 = () => {
     let plantIds: string[] = [];
 
     if (!plant || plant === "all") {
-      plantIds = plantApiData.map(p => p.id).filter(Boolean);
+      plantIds = plantApiData.map((p) => p.id).filter(Boolean);
     } else {
       plantIds = [plant];
     }
@@ -68,20 +68,19 @@ const Approval2 = () => {
     }
   };
 
+  // const ApiDataPlant = async () => {
+  //   try {
+  //     const response = await PlantData.GetAll();
+  //     setPlantApiData(response);
+  //   } catch (error) {
+  //     console.error("Error fetching Approval1 data:", error);
+  //   }
+  // };
 
-  const ApiDataPlant = async () => {
-    try {
-      const response = await PlantData.GetAll();
-      setPlantApiData(response);
-    } catch (error) {
-      console.error("Error fetching Approval1 data:", error);
-    }
-  };
-  
-  // load plants once
-  useEffect(() => {
-    ApiDataPlant();
-  }, []);
+  // // load plants once
+  // useEffect(() => {
+  //   ApiDataPlant();
+  // }, []);
 
   // set default dates
   useEffect(() => {
@@ -114,6 +113,10 @@ const Approval2 = () => {
       action: actionType,
       remarks,
     });
+    if (!selectedItem) {
+      showAlert("No item selected", "error");
+      return;
+    }
     const req = await Approval12Api.post({
       ...selectedItem,
       appR2_STATUS: actionType === "Accepted" ? 1 : 0,
@@ -128,158 +131,172 @@ const Approval2 = () => {
     closeDialog();
   };
 
+  // console.log(selectedItem, "");
+  // useEffect(() => {
+  //   ApiDataFunc();
+  // }, [plantApiData]);
+
   return (
     <>
-      <Filter1
-        today={today}
-        fromDate={fromDate}
-        toDate={toDate}
-        plant={plant}
-        plantData={plantApiData}
-        onFromDateChange={(d) => {
-          setFromDate(d);
-          if (toDate && d > toDate) setToDate(d);
+      <ScrollView
+        style={{
+          flex: 1,
         }}
-        onToDateChange={setToDate}
-        onPlantChange={setPlant}
-        onApply={async () => ApiDataFunc()}
-      />
+      >
+        <Filter1
+          today={today}
+          fromDate={fromDate}
+          toDate={toDate}
+          plant={plant}
+          plantData={plantApiData}
+          onFromDateChange={(d) => {
+            setFromDate(d);
+            if (toDate && d > toDate) setToDate(d);
+          }}
+          onToDateChange={setToDate}
+          onPlantChange={setPlant}
+          onApply={async () => ApiDataFunc()}
+        />
 
-      <RDatatable
-        loading={loading}
-        data={ApiData || []}
-        actions={[
-          {
-            key: "edit-accept",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="thumb-up"
-                style={{ backgroundColor: AppMDMThemeColors.approval }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Accepted");
-              setDialogStep("REMARKS");
+        <RDatatable
+          loading={loading}
+          data={ApiData || []}
+          actions={[
+            {
+              key: "edit-accept",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="thumb-up"
+                  style={{ backgroundColor: AppMDMThemeColors.approval }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Accepted");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "edit-reject",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="thumb-down"
-                style={{ backgroundColor: AppMDMThemeColors.rejected }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Rejected");
-              setDialogStep("REMARKS");
+            {
+              key: "edit-reject",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="thumb-down"
+                  style={{ backgroundColor: AppMDMThemeColors.rejected }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Rejected");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "view",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="eye"
-                style={{ backgroundColor: "#2563eb" }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
+            {
+              key: "view",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="eye"
+                  style={{ backgroundColor: "#2563eb" }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+              },
             },
-          },
-        ]}
-        columns={[
-          {
-            key: "reQ_CODE",
-            title: "Request Code",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
-            marginLeft: 20,
-          },
-          {
-            key: "PlantName&Code",
-            title: "Plant Code & Name",
-            // width: 240,
-            render: (row) =>
-              `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                row.plant
-              )}`,
-          },
-          {
-            key: "StorageCode&Name",
-            title: "Storage Code & Name",
-            render: (row) =>
-              `${
-                handleNullUndefined(row.storage_Code) === null
-                  ? ""
-                  : handleNullUndefined(row.storage_Code)
-              } - ${
-                handleNullUndefined(row.storage) === null
-                  ? ""
-                  : handleNullUndefined(row.storage)
-              }`,
-          },
-          {
-            key: "materiaL_TYPE",
-            title: " Material Type",
-            render: (row) =>
-              `${handleNullUndefined(
-                row.materialType_Code
-              )} - ${handleNullUndefined(row.materialTypeName)}`,
-          },
-          {
-            key: "Created",
-            title: "Created",
-            render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
-              )}`,
-          },
-          {
-            key: "Updated",
-            title: "Updated",
-            render: (row) =>
-              `${handleNullUndefined(row.updateD_BY)} - ${handleNullUndefined(
-                row.updateD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.updateD_ON?.split("T")[1].split(".")[0]
-              )}`,
-          },
+          ]}
+          columns={[
+            {
+              key: "reQ_CODE",
+              title: "Request Code",
+              render: (row) => handleNullUndefined(row.reQ_CODE),
+              marginLeft: 20,
+            },
+            {
+              key: "PlantName&Code",
+              title: "Plant Code & Name",
+              // width: 240,
+              render: (row) =>
+                `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
+                  row.plant
+                )}`,
+            },
+            {
+              key: "StorageCode&Name",
+              title: "Storage Code & Name",
+              render: (row) =>
+                `${
+                  handleNullUndefined(row.storage_Code) === null
+                    ? ""
+                    : handleNullUndefined(row.storage_Code)
+                } - ${
+                  handleNullUndefined(row.storage) === null
+                    ? ""
+                    : handleNullUndefined(row.storage)
+                }`,
+            },
+            {
+              key: "materiaL_TYPE",
+              title: " Material Type",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.materialType_Code
+                )} - ${handleNullUndefined(row.materialTypeName)}`,
+            },
+            {
+              key: "Created",
+              title: "Created",
+              render: (row) =>
+                `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
+                  row.entereD_ON?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.entereD_ON?.split("T")[1].split(".")[0]
+                )}`,
+            },
+            {
+              key: "Updated",
+              title: "Updated",
+              render: (row) =>
+                `${handleNullUndefined(row.updateD_BY)} - ${handleNullUndefined(
+                  row.updateD_ON?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.updateD_ON?.split("T")[1].split(".")[0]
+                )}`,
+            },
 
-          {
-            key: "Approved",
-            title: "Approved",
-            render: (row) =>
-              `${handleNullUndefined(row.appR1_BY)} - ${handleNullUndefined(
-                row.appR1_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.appR1_ON?.split("T")[1].split(".")[0]
-              )}`,
-          },
-          {
-            key: "Rejected",
-            title: "Rejected",
-            render: (row) =>
-              `${handleNullUndefined(row.rejecteD_BY)} - ${handleNullUndefined(
-                row.rejecteD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.rejecteD_ON?.split("T")[1].split(".")[0]
-              )}`,
-          },
-        ]}
-        pagination={true}
-        searchable={true}
-        pageSize={5}
-        searchKeys={["plant"]}
-      />
+            {
+              key: "Approved",
+              title: "Approved",
+              render: (row) =>
+                `${handleNullUndefined(row.appR1_BY)} - ${handleNullUndefined(
+                  row.appR1_ON?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.appR1_ON?.split("T")[1].split(".")[0]
+                )}`,
+            },
+            {
+              key: "Rejected",
+              title: "Rejected",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.rejecteD_BY
+                )} - ${handleNullUndefined(
+                  row.rejecteD_ON?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.rejecteD_ON?.split("T")[1].split(".")[0]
+                )}`,
+            },
+          ]}
+          pagination={true}
+          searchable={true}
+          pageSize={4}
+          searchKeys={["plant"]}
+        />
+      </ScrollView>
+      <SafeAreaView style={{ marginTop: -30 }}></SafeAreaView>
       <DialogComponent
         visible={dialogStep !== "NONE"}
         title={`${actionType} Confirmation`}
@@ -307,7 +324,7 @@ const Approval2 = () => {
             <RNInput
               label="Approval Remark 1"
               disabled
-              value={selectedItem.appR1_REMARKS}
+              value={selectedItem.appR1_REMARK}
               icon="format-list-numbered"
             />
             <RNInput

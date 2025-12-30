@@ -10,9 +10,13 @@ import {
   UnBlock2Api,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
+import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
@@ -21,54 +25,76 @@ const Approval2 = () => {
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [plant, setPlant] = useState<any>();
-  const [plantApiData, setPlantApiData] = useState<any>();
+  const [plant, setPlant] = useState<string | null>(null);
+  // const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
-  const [selectedItem, setSelectedItem] = useState<any>();
+  const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>();
   const [actionType, setActionType] = useState<"Accepted" | "Rejected" | "">(
     ""
   );
   const [remarks, setRemarks] = useState("");
-  const [ApiData, setApiData] = useState<any>(null);
+  const [ApiData, setApiData] = useState<MaterialMaster[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const { currentUser } = useData();
-  const ApiDataFunc = async () => {
-    try {
-      if (plant !== null && plant !== undefined) {
-        console.log(plant, "99");
+  const { currentUser, plantApiData } = useData();
+  const router = useRouter();
 
-        setLoading(true);
-        const response = await UnBlock2Api.post({
-          fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
-          tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
-          plantIds: plant === "all" ? ["string"] : [plant],
-        });
-        setApiData(response);
-        setLoading(false);
-      }
+  const ApiDataFunc = async () => {
+    if (!fromDate || !toDate) return;
+
+    let plantIds: string[] = [];
+
+    if (!plant) {
+      // cleared → all plants
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
+    } else if (plant === "all") {
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
+    } else {
+      plantIds = [plant];
+    }
+
+    // ⛔ stop API call if plantIds is empty
+    if (!plantIds.length) return;
+
+    const payload = {
+      fDate: fromDate.toISOString().split("T")[0],
+      tDate: toDate.toISOString().split("T")[0],
+      plantIds,
+    };
+
+    try {
+      setLoading(true);
+      const response = await UnBlock2Api.post(payload);
+      setApiData(response);
     } catch (err) {
       console.error("Error fetching Approval1 data:", err);
+    } finally {
+      setLoading(false);
     }
   };
-  const ApiDataPlant = async () => {
-    try {
-      const response = await PlantData.GetAll();
-      setPlantApiData(response);
-    } catch (error) {
-      console.error("Error fetching Approval1 data:", error);
-    }
-  };
-  useEffect(() => {
-    ApiDataPlant();
-    ApiDataFunc();
-  }, []);
+  // const ApiDataPlant = async () => {
+  //   try {
+  //     const response = await PlantData.GetAll();
+  //     setPlantApiData(response);
+  //   } catch (error) {
+  //     console.error("Error fetching Approval1 data:", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   ApiDataPlant();
+  // }, []);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
     setToDate(today);
   }, [today]);
+
+  useEffect(() => {
+    if (plantApiData?.length) {
+      ApiDataFunc();
+    }
+  }, [plant, fromDate, toDate, plantApiData]);
 
   const closeDialog = () => {
     setDialogStep("NONE");
@@ -87,6 +113,10 @@ const Approval2 = () => {
       action: actionType,
       remarks,
     });
+    if (!selectedItem) {
+      showAlert("No item selected", "error");
+      return;
+    }
     const req = await Approval12Api.post({
       ...selectedItem,
       isUnBlock: actionType === "Accepted" ? 1 : 0,
@@ -100,144 +130,156 @@ const Approval2 = () => {
     console.log(req, "Response", "Api Fit");
     closeDialog();
   };
+
+  // useEffect(() => {
+  //   ApiDataFunc();
+  // }, [plantApiData]);
+
   return (
     <>
-      <Filter1
-        today={today}
-        fromDate={fromDate}
-        toDate={toDate}
-        plant={plant}
-        plantData={plantApiData}
-        onFromDateChange={(d) => {
-          setFromDate(d);
-          if (toDate && d > toDate) setToDate(d);
+      <ScrollView
+        style={{
+          flex: 1,
         }}
-        onToDateChange={setToDate}
-        onPlantChange={setPlant}
-        onApply={async () => ApiDataFunc()}
-      />
+      >
+        <Filter1
+          today={today}
+          fromDate={fromDate}
+          toDate={toDate}
+          plant={plant}
+          plantData={plantApiData}
+          onFromDateChange={(d) => {
+            setFromDate(d);
+            if (toDate && d > toDate) setToDate(d);
+          }}
+          onToDateChange={setToDate}
+          onPlantChange={setPlant}
+          onApply={async () => ApiDataFunc()}
+        />
 
-      <RDatatable
-        loading={loading}
-        data={ApiData || []}
-        actions={[
-          {
-            key: "book-lock-open",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="block-helper"
-                style={{ backgroundColor: AppMDMThemeColors.approval }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Accepted");
-              setDialogStep("REMARKS");
+        <RDatatable
+          loading={loading}
+          data={ApiData || []}
+          actions={[
+            {
+              key: "book-lock-open",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="block-helper"
+                  style={{ backgroundColor: AppMDMThemeColors.approval }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Accepted");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "cancel",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="cancel"
-                style={{ backgroundColor: AppMDMThemeColors.rejected }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Rejected");
-              setDialogStep("REMARKS");
+            {
+              key: "cancel",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="cancel"
+                  style={{ backgroundColor: AppMDMThemeColors.rejected }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Rejected");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "view",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="eye"
-                style={{ backgroundColor: "#2563eb" }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
+            {
+              key: "view",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="eye"
+                  style={{ backgroundColor: "#2563eb" }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+              },
             },
-          },
-        ]}
-        columns={[
-          {
-            key: "reQ_CODE",
-            title: "RequestCode",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
-            marginLeft: 20,
-          },
-          {
-            key: "materiaL_Code",
-            title: " Material Code",
-            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
-          },
-          {
-            key: "PlantName&Code",
-            title: "Plant Code & Name",
-            width: 240,
-            render: (row) =>
-              `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                row.plant
-              )}`,
-          },
-          {
-            key: "StorageCode&Name",
-            title: "Storage Code & Name",
-            render: (row) =>
-              `${handleNullUndefined(row.storage_Code)} - ${handleNullUndefined(
-                row.storage
-              )}`,
-            width: 170,
-          },
-          {
-            key: "materiaL_Type",
-            title: " Material Type",
-            render: (row) =>
-              `${handleNullUndefined(
-                row.materialType_Code
-              )} - ${handleNullUndefined(row.materialTypeName)}`,
-          }, // unBlockOn
-          {
-            key: "unblock_on",
-            title: "Unblock On",
-            render: (row) =>
-              `${handleNullUndefined(
-                row.unBlockOn?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.unBlockOn?.split("T")[1].split(".")[0]
-              )}`,
-          }, // unBlockBy
-          {
-            key: "unblock_by",
-            title: "Unblock By",
-            render: (row) => `${handleNullUndefined(row.unBlockBy)}`,
-          }, // unBlockApp1By On
-          {
-            key: "unblock_approval",
-            title: "Unblock Approval 1",
-            render: (row) =>
-              `${handleNullUndefined(
-                row.unBlockApp1By
-              )} - ${handleNullUndefined(
-                row.unBlockApp1On?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.unBlockApp1On?.split("T")[1].split(".")[0]
-              )}`,
-          },
-        ]}
-        pagination={true}
-        searchable={true}
-        pageSize={5}
-        searchKeys={["plant"]}
-      />
+          ]}
+          columns={[
+            {
+              key: "reQ_CODE",
+              title: "RequestCode",
+              render: (row) => handleNullUndefined(row.reQ_CODE),
+              marginLeft: 20,
+            },
+            {
+              key: "materiaL_Code",
+              title: " Material Code",
+              render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+            },
+            {
+              key: "PlantName&Code",
+              title: "Plant Code & Name",
+              width: 240,
+              render: (row) =>
+                `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
+                  row.plant
+                )}`,
+            },
+            {
+              key: "StorageCode&Name",
+              title: "Storage Code & Name",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.storage_Code
+                )} - ${handleNullUndefined(row.storage)}`,
+              width: 170,
+            },
+            {
+              key: "materiaL_Type",
+              title: " Material Type",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.materialType_Code
+                )} - ${handleNullUndefined(row.materialTypeName)}`,
+            }, // unBlockOn
+            {
+              key: "unblock_on",
+              title: "Unblock On",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.unBlockOn?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.unBlockOn?.split("T")[1].split(".")[0]
+                )}`,
+            }, // unBlockBy
+            {
+              key: "unblock_by",
+              title: "Unblock By",
+              render: (row) => `${handleNullUndefined(row.unBlockBy)}`,
+            }, // unBlockApp1By On
+            {
+              key: "unblock_approval",
+              title: "Unblock Approval 1",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.unBlockApp1By
+                )} - ${handleNullUndefined(
+                  row.unBlockApp1On?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.unBlockApp1On?.split("T")[1].split(".")[0]
+                )}`,
+            },
+          ]}
+          pagination={true}
+          searchable={true}
+          pageSize={5}
+          searchKeys={["plant"]}
+        />
+      </ScrollView>
+      <SafeAreaView style={{ marginTop: -30 }}></SafeAreaView>
       <DialogComponent
         visible={dialogStep !== "NONE"}
         title={`${actionType} Confirmation`}

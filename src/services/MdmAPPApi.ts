@@ -1,3 +1,4 @@
+import { ApprovalMaster, DATAPayload } from "../types/ApprovalType";
 import appAxiosCon from "./ApplicationConnection";
 
 const ApplicationID = process.env.EXPO_PUBLIC_APP_ID;
@@ -18,7 +19,7 @@ export const PlantData = {
 };
 
 export const Approval1Api = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/Approval1",
@@ -33,7 +34,7 @@ export const Approval1Api = {
 };
 
 export const Approval2Api = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/Approval2",
@@ -48,7 +49,7 @@ export const Approval2Api = {
 };
 
 export const Approval12Api = {
-  post: async (data: any) => {
+  post: async (data: ApprovalMaster) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/Appproval",
@@ -63,7 +64,7 @@ export const Approval12Api = {
 };
 
 export const Approval1Extension = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialExtension/MaterialExtensionforApproval1",
@@ -78,7 +79,7 @@ export const Approval1Extension = {
 };
 
 export const Approval2Extension = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.postWithHeaders(
         "/MaterialExtension/MaterialExtensionforApproval2",
@@ -96,7 +97,7 @@ export const Approval2Extension = {
 };
 
 export const ChangeReqApproval1 = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/GetDataForChangeReqApproval1",
@@ -111,7 +112,7 @@ export const ChangeReqApproval1 = {
 };
 
 export const ChangeReqApproval2 = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.postWithHeaders(
         "/MaterialTransaction/GetDataForChangeReqApproval2",
@@ -129,7 +130,7 @@ export const ChangeReqApproval2 = {
 };
 
 export const BlockMaterialApproval1 = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/Block1",
@@ -144,7 +145,7 @@ export const BlockMaterialApproval1 = {
 };
 
 export const BlockMaterialApproval2 = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/Block2",
@@ -158,7 +159,7 @@ export const BlockMaterialApproval2 = {
   },
 };
 export const UnBlock1Api = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/UnBlock1",
@@ -172,7 +173,7 @@ export const UnBlock1Api = {
   },
 };
 export const UnBlock2Api = {
-  post: async (data: any) => {
+  post: async (data: DATAPayload) => {
     try {
       const response = await appAxiosCon.post(
         "/MaterialTransaction/UnBlock2",

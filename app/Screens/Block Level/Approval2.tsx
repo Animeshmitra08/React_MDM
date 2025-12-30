@@ -6,13 +6,13 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
-  Approval1Api,
-  BlockMaterialApproval1,
   BlockMaterialApproval2,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
+import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Avatar } from "react-native-paper";
 
@@ -23,53 +23,63 @@ const Approval2 = () => {
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  const [plant, setPlant] = useState<any>();
-  const [plantApiData, setPlantApiData] = useState<any>();
+  const [plant, setPlant] = useState<string | null>(null);
+  // const [plantApiData, setPlantApiData] = useState<PlantMaster[] | null>(null);
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
-  const [selectedItem, setSelectedItem] = useState<any>();
+  const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>(null);
   const [actionType, setActionType] = useState<"Accepted" | "Rejected" | "">(
     ""
   );
   const [remarks, setRemarks] = useState("");
-  const [ApiData, setApiData] = useState<any>(null);
+  const [ApiData, setApiData] = useState<MaterialMaster[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const { currentUser } = useData();
+  const { currentUser, plantApiData } = useData();
+
+  const router = useRouter();
+
   const ApiDataFunc = async () => {
+    if (!fromDate || !toDate) return;
+
+    let plantIds: string[] = [];
+
+    if (!plant) {
+      // cleared → all plants
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
+    } else if (plant === "all") {
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
+    } else {
+      plantIds = [plant];
+    }
+
+    // ⛔ stop API call if plantIds is empty
+    if (!plantIds.length) return;
+
+    const payload = {
+      fDate: fromDate.toISOString().split("T")[0],
+      tDate: toDate.toISOString().split("T")[0],
+      plantIds,
+    };
+
     try {
-      if (plant !== null && plant !== undefined) {
-        setLoading(true);
-        const response = await BlockMaterialApproval2.post({
-          fDate: fromDate ? fromDate.toISOString().split("T")[0] : "string",
-          tDate: toDate ? toDate.toISOString().split("T")[0] : "string",
-          plantIds: plant === "all" ? ["string"] : [plant],
-        });
-        setApiData(response);
-        setLoading(false);
-      }
+      setLoading(true);
+      const response = await BlockMaterialApproval2.post(payload);
+      setApiData(response);
     } catch (err) {
       console.error("Error fetching Approval1 data:", err);
+    } finally {
+      setLoading(false);
     }
   };
-  const ApiDataPlant = async () => {
-    try {
-      const response = await PlantData.GetAll();
-      setPlantApiData(response);
-    } catch (error) {
-      console.error("Error fetching Approval1 data:", error);
-    }
-  };
-  useEffect(() => {
-    ApiDataPlant();
-    ApiDataFunc();
-  }, []);
 
-  useEffect(() => {
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    setFromDate(firstDay);
-    setToDate(today);
-  }, [today]);
-
+  // const ApiDataPlant = async () => {
+  //   try {
+  //     const response = await PlantData.GetAll();
+  //     setPlantApiData(response);
+  //   } catch (error) {
+  //     console.error("Error fetching Approval1 data:", error);
+  //   }
+  // };
   const closeDialog = () => {
     setDialogStep("NONE");
     setSelectedItem(null);
@@ -87,6 +97,10 @@ const Approval2 = () => {
       action: actionType,
       remarks,
     });
+    if (!selectedItem) {
+      showAlert("No item selected", "error");
+      return;
+    }
     const req = await Approval12Api.post({
       ...selectedItem,
       isblock: actionType === "Accepted" ? 1 : 0,
@@ -100,6 +114,25 @@ const Approval2 = () => {
     await ApiDataFunc();
     closeDialog();
   };
+
+  // useEffect(() => {
+  //   ApiDataPlant();
+  // }, []);
+
+  useEffect(() => {
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    setFromDate(firstDay);
+    setToDate(today);
+  }, [today]);
+  useEffect(() => {
+    if (plantApiData?.length) {
+      ApiDataFunc();
+    }
+  }, [plant, fromDate, toDate, plantApiData]);
+  // useEffect(() => {
+  //   ApiDataFunc();
+  // }, [plantApiData]);
+
   return (
     <>
       <Filter1

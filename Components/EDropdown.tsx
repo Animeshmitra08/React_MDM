@@ -7,6 +7,8 @@ import {
 } from "react-native-paper";
 import { Dropdown } from "react-native-element-dropdown";
 import { AppMDMThemeColors } from "@/src/theme/color";
+import { AntDesign } from "@expo/vector-icons";
+import { useState } from "react";
 
 export default function EDropdown({
   label,
@@ -24,12 +26,22 @@ export default function EDropdown({
   loading?: boolean;
 }) {
   const { colors } = useTheme();
+  const [isFocus, setIsFocus] = useState(false);
+  const renderRightIcon = () => {
+    return isFocus ? (
+      <AntDesign name="caret-up" size={18} color={AppMDMThemeColors.primary} />
+    ) : (
+      <AntDesign
+        name="caret-down"
+        size={18}
+        color={AppMDMThemeColors.primary}
+      />
+    );
+  };
 
   return (
     <>
-      <Text style={{ marginBottom: 4, fontWeight: "700" }}>
-        {label}
-      </Text>
+      <Text style={{ marginBottom: 4, fontWeight: "700" }}>{label}</Text>
 
       <View style={{ position: "relative" }}>
         <Dropdown
@@ -68,14 +80,20 @@ export default function EDropdown({
           placeholder={label}
           searchPlaceholder="Search..."
           value={value}
+          onFocus={() => setIsFocus(true)}
           disable={disabled}
-          onChange={(item) => onChange(item.value)}
+          onChange={(item) => {
+            onChange(item.value);
+            setIsFocus(false);
+          }}
+          renderRightIcon={renderRightIcon}
         />
 
         {/* Clear icon */}
         {value && !disabled && !loading && (
           <IconButton
             icon="close-circle"
+            iconColor={AppMDMThemeColors.rejected}
             size={20}
             onPress={() => onChange(null)}
             style={{

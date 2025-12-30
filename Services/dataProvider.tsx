@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Network from "expo-network";
 import * as SecureStore from "expo-secure-store";
@@ -18,7 +18,8 @@ import { extractMessages } from "@/utils/errorHandler";
 import { useAlert } from "./AlertContext";
 import { MaterialTransApi } from "@/src/services/MaterialTransaction";
 import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
-
+import { PlantMaster } from "@/src/types/ApprovalType";
+import { PlantData } from "@/src/services/MdmAPPApi";
 
 interface DataContextType {
   currentUser: LoginResponse | null;
@@ -29,20 +30,26 @@ interface DataContextType {
   getNavigationConfig: (roleId: string) => Promise<void>;
   navigationConfigList: NavigationConfigType[];
   materialTransData: MaterialTransactionsTypes[];
+  plantApiData: PlantMaster[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 const USER_KEY = "currentUser";
-const MTRNS_KEY = "materialTransData"
+const MTRNS_KEY = "materialTransData";
+const PLANT_KEY = "plantData";
 
 export const saveUserSecure = async (user: LoginResponse) => {
   await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
 };
 
-const saveMaterialTransData = async ( data : MaterialTransactionsTypes) => {
+const saveMaterialTransData = async (data: MaterialTransactionsTypes) => {
   await SecureStore.setItemAsync(MTRNS_KEY, JSON.stringify(data));
-}
+};
+
+const savePlantData = async (data: PlantMaster[]) => {
+  await SecureStore.setItemAsync(PLANT_KEY, JSON.stringify(data));
+};
 
 export const getUserSecure = async (): Promise<LoginResponse | null> => {
   const stored = await SecureStore.getItemAsync(USER_KEY);
@@ -72,8 +79,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<LoginResponse | null>(null);
   const [ipAdd, setIpAdd] = useState("");
   const [navigationList, setNavigationList] = useState<Navigation[]>([]);
-  const [navigationConfigList, setNavigationConfigList] = useState<NavigationConfigType[]>([])
-  const [materialTransData, setMaterialTransData] = useState<MaterialTransactionsTypes[]>([])
+  const [navigationConfigList, setNavigationConfigList] = useState<
+    NavigationConfigType[]
+  >([]);
+  const [materialTransData, setMaterialTransData] = useState<
+    MaterialTransactionsTypes[]
+  >([]);
+  const [plantApiData, setPlantApiData] = useState<PlantMaster[]>([]);
 
   const { showAlert } = useAlert();
 
@@ -84,18 +96,15 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     Device.osBuildId ??
     "unknown";
 
-  const getIp = async () =>{
+  const getIp = async () => {
     const ip = await Network.getIpAddressAsync();
     setIpAdd(ip);
-  }
+  };
 
   const handleApiError = (error: any) => {
     const messages = extractMessages(error);
-    messages.forEach(msg => showAlert(msg, "error"));
+    messages.forEach((msg) => showAlert(msg, "error"));
   };
-
-
-  
 
   // ✅ Login function
   const onLogin = async (
@@ -103,7 +112,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     password: string
   ): Promise<LoginResponse> => {
     const payload: LoginPayload = {
-      applicationId: AppId || '',
+      applicationId: AppId || "",
       username: username,
       password: password,
       identityCode: MobileDeviceId,
@@ -118,7 +127,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         await saveUserSecure(response);
       }
       return data;
-    } catch (err : any) {
+    } catch (err: any) {
       // console.error("❌ Login error:", err);
       handleApiError(err);
       throw err;
@@ -129,34 +138,45 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await NavigationApi.getMobileAll();
       setNavigationList(res);
-    } catch (error : any) {
+    } catch (error: any) {
       console.log("navigation list error", error);
       handleApiError(error);
       throw error;
     }
   };
 
-  const getNavigationConfig = async (roleId: string): Promise<void> =>{
+  const getNavigationConfig = async (roleId: string): Promise<void> => {
     try {
       const res = await NavigationConfig.getAll(roleId);
       setNavigationConfigList(res);
-    } catch (error : any) {
+    } catch (error: any) {
       console.log("navigation config list error", error);
       handleApiError(error);
       throw error;
     }
-  }
+  };
 
   const getMaterialTrans = async () => {
-    try{
+    try {
       const res = await MaterialTransApi.getAll();
       setMaterialTransData(res);
       await saveMaterialTransData(res);
-    } catch (error : any) {
+    } catch (error: any) {
       handleApiError(error);
       console.log(error);
     }
-  }
+  };
+
+  const getPlantMaster = async () => {
+    try {
+      const res = await PlantData.GetAll();
+      setPlantApiData(res);
+      await savePlantData(res);
+    } catch (error) {
+      handleApiError(error);
+      console.log(error);
+    }
+  };
 
   const loadMaterialTransFromStorage = async () => {
     try {
@@ -171,6 +191,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const loadPlantDataFromStorage = async () => {
+    try {
+      const stored = await SecureStore.getItemAsync(PLANT_KEY);
+      if (stored) {
+        const parsed: PlantMaster[] = JSON.parse(stored);
+        setPlantApiData(parsed);
+      }
+    } catch (error) {
+      console.log("Secure load error", error);
+    }
+  };
 
   // Validate user from API with localStorage
   // const validateStoredUser = async () => {
@@ -252,6 +283,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   useEffect(() => {
     getMaterialTrans();
     loadMaterialTransFromStorage();
+    getPlantMaster();
+    loadPlantDataFromStorage();
   }, []);
 
   useEffect(() => {
@@ -272,11 +305,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     navigationList,
     getNavigationConfig,
     navigationConfigList,
-    materialTransData
+    materialTransData,
+    plantApiData,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
-
 
 // Value being stored in SecureStore is larger than 2048 bytes and it may not be stored successfully. In a future SDK version, this call may throw an error.

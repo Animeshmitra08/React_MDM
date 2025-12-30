@@ -14,7 +14,9 @@ import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
 import { Avatar, Text } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
@@ -24,10 +26,10 @@ const Approval1 = () => {
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
-  const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
+  // const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
-  const [selectedItem, setSelectedItem] = useState<any>();
+  const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>();
   const [actionType, setActionType] = useState<"Accepted" | "Rejected" | "">(
     ""
   );
@@ -35,11 +37,9 @@ const Approval1 = () => {
   const [ApiData, setApiData] = useState<MaterialMaster[]>([]);
   const [loading, setLoading] = useState(false);
 
-
-  const { currentUser } = useData();
+  const { currentUser, plantApiData } = useData();
 
   const router = useRouter();
-
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
@@ -48,9 +48,9 @@ const Approval1 = () => {
 
     if (!plant) {
       // cleared → all plants
-      plantIds = plantApiData?.map(p => p.id).filter(Boolean) ?? [];
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
     } else if (plant === "all") {
-      plantIds = plantApiData?.map(p => p.id).filter(Boolean) ?? [];
+      plantIds = plantApiData?.map((p) => p.id).filter(Boolean) ?? [];
     } else {
       plantIds = [plant];
     }
@@ -75,18 +75,18 @@ const Approval1 = () => {
     }
   };
 
-  const ApiDataPlant = async () => {
-    try {
-      const response = await PlantData.GetAll();
-      setPlantApiData(response);
-    } catch (error) {
-      console.error("Error fetching Approval1 data:", error);
-    }
-  };
+  // const ApiDataPlant = async () => {
+  //   try {
+  //     const response = await PlantData.GetAll();
+  //     setPlantApiData(response);
+  //   } catch (error) {
+  //     console.error("Error fetching Approval1 data:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    ApiDataPlant();
-  }, []);
+  // useEffect(() => {
+  //   ApiDataPlant();
+  // }, []);
 
   useEffect(() => {
     if (plantApiData?.length) {
@@ -117,10 +117,14 @@ const Approval1 = () => {
       action: actionType,
       remarks,
     });
+    if (!selectedItem) {
+      showAlert("No item selected", "error");
+      return;
+    }
     const req = await Approval12Api.post({
       ...selectedItem,
       appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARKS: remarks,
+      appR1_REMARK: remarks,
       appR1_ON: new Date().toISOString(),
       appR1_BY: currentUser?.username || "user",
       mode: "C",
@@ -131,129 +135,132 @@ const Approval1 = () => {
     // console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  
+  // useEffect(() => {
+  //   ApiDataFunc();
+  // }, [plantApiData]);
 
   return (
     <>
-      <Filter1
-        today={today}
-        fromDate={fromDate}
-        toDate={toDate}
-        plant={plant}
-        plantData={plantApiData}
-        onFromDateChange={(d) => {
-          setFromDate(d);
-          if (toDate && d > toDate) setToDate(d);
-        }}
-        onToDateChange={setToDate}
-        onPlantChange={setPlant}
-        onApply={ApiDataFunc}
-      />
-
-
-      <RDatatable
-        loading={loading}
-        data={ApiData}
-        actions={[
-          {
-            key: "edit-accept",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="thumb-up"
-                style={{ backgroundColor: AppMDMThemeColors.approval }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Accepted");
-              setDialogStep("REMARKS");
+      <ScrollView style={{ flex: 1 }}>
+        <Filter1
+          today={today}
+          fromDate={fromDate}
+          toDate={toDate}
+          plant={plant}
+          plantData={plantApiData}
+          onFromDateChange={(d) => {
+            setFromDate(d);
+            if (toDate && d > toDate) setToDate(d);
+          }}
+          onToDateChange={setToDate}
+          onPlantChange={setPlant}
+          onApply={ApiDataFunc}
+        />
+        <RDatatable
+          loading={loading}
+          data={ApiData}
+          actions={[
+            {
+              key: "edit-accept",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="thumb-up"
+                  style={{ backgroundColor: AppMDMThemeColors.approval }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Accepted");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "edit-reject",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="thumb-down"
-                style={{ backgroundColor: AppMDMThemeColors.rejected }}
-              />
-            ),
-            onPress: (row) => {
-              setSelectedItem(row);
-              setDialogStep("CHOOSE");
-              setActionType("Rejected");
-              setDialogStep("REMARKS");
+            {
+              key: "edit-reject",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="thumb-down"
+                  style={{ backgroundColor: AppMDMThemeColors.rejected }}
+                />
+              ),
+              onPress: (row) => {
+                setSelectedItem(row);
+                setDialogStep("CHOOSE");
+                setActionType("Rejected");
+                setDialogStep("REMARKS");
+              },
             },
-          },
-          {
-            key: "view",
-            render: () => (
-              <Avatar.Icon
-                size={28}
-                icon="eye"
-                style={{ backgroundColor: "#2563eb" }}
-              />
-            ),
-            onPress: (row) => {
-              router.push({
-                pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                params: { trnsId : row.trN_ID },
-              });
+            {
+              key: "view",
+              render: () => (
+                <Avatar.Icon
+                  size={28}
+                  icon="eye"
+                  style={{ backgroundColor: "#2563eb" }}
+                />
+              ),
+              onPress: (row) => {
+                router.push({
+                  pathname: "/Screens/MaterialTransactionPage/MatTransPage",
+                  params: { trnsId: row.trN_ID },
+                });
+              },
             },
-          },
-        ]}
-        columns={[
-          {
-            key: "reQ_CODE",
-            title: "RequestCode",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
-            marginLeft: 20,
-          },
-          {
-            key: "PlantName&Code",
-            title: "Plant Code & Name",
-            width: 240,
-            render: (row) =>
-              `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                row.plant
-              )}`,
-          },
-          {
-            key: "StorageCode&Name",
-            title: "Storage Code & Name",
-            render: (row) =>
-              `${handleNullUndefined(row.storage_Code)} - ${handleNullUndefined(
-                row.storage
-              )}`,
-            width: 170,
-          },
-          {
-            key: "materiaL_TYPE",
-            title: " Material Type",
-            render: (row) =>
-              `${handleNullUndefined(
-                row.materialType_Code
-              )} - ${handleNullUndefined(row.materialTypeName)}`,
-          },
-          {
-            key: "Created",
-            title: "Created",
-            render: (row) =>
-              `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[0]
-              )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
-              )}`,
-          },
-        ]}
-        pagination={true}
-        searchable={true}
-        pageSize={5}
-        searchKeys={["plant"]}
-      />
+          ]}
+          columns={[
+            {
+              key: "reQ_CODE",
+              title: "RequestCode",
+              render: (row) => handleNullUndefined(row.reQ_CODE),
+              marginLeft: 20,
+            },
+            {
+              key: "PlantName&Code",
+              title: "Plant Code & Name",
+              width: 240,
+              render: (row) =>
+                `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
+                  row.plant
+                )}`,
+            },
+            {
+              key: "StorageCode&Name",
+              title: "Storage Code & Name",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.storage_Code
+                )} - ${handleNullUndefined(row.storage)}`,
+              width: 170,
+            },
+            {
+              key: "materiaL_TYPE",
+              title: " Material Type",
+              render: (row) =>
+                `${handleNullUndefined(
+                  row.materialType_Code
+                )} - ${handleNullUndefined(row.materialTypeName)}`,
+            },
+            {
+              key: "Created",
+              title: "Created",
+              render: (row) =>
+                `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
+                  row.entereD_ON?.split("T")[0]
+                )} - ${handleNullUndefined(
+                  row.entereD_ON?.split("T")[1].split(".")[0]
+                )}`,
+            },
+          ]}
+          pagination={true}
+          searchable={true}
+          pageSize={5}
+          searchKeys={["plant"]}
+        />
+      </ScrollView>
 
+      <SafeAreaView style={{ marginTop: -30 }}></SafeAreaView>
 
       <DialogComponent
         visible={dialogStep !== "NONE"}

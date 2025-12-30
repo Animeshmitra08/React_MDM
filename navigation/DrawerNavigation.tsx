@@ -224,7 +224,7 @@ export default function DrawerNavigator() {
         headerShown: true,
         drawerStyle: {
           backgroundColor: colors.primary,
-          width: width * 0.75,
+          width: width * 0.8,
         },
         drawerLabelStyle: {
           fontSize: 15,
