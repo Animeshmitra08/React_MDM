@@ -47,6 +47,11 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
 
     return map;
   }, [lookUpData]);
+
+  console.log(
+    lookupMap.has(`ForeCast_Model|${String(data.uom)}`)
+  );
+
   
 
   return (
@@ -66,39 +71,45 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
           <LookUpFields label="Reference Number" value={data.reQ_CODE} />
           <LookUpFields label="Material Type" value={data.materialTypeName} />
           <LookUpFields label="Industry Sector" value={data.industrY_SECTOR} lookupMap={lookupMap}/>
-          <LookUpFields label="Plant" value={data.plant} />
-          <Field label="Storage Location" value={data.storagE_LOCATION} />
+          <LookUpFields label="Plant" value={data.plant} lookupMap={lookupMap}/>
+          <LookUpFields label="Storage Location" value={data.storagE_LOCATION} lookupMap={lookupMap}/>
           <LookUpFields label="Sales Organisation" value={data.saleS_ORG} lookupMap={lookupMap}/>
           <LookUpFields
             label="Distribution Channel"
             value={data.distributioN_CHANNEL}
+            lookupMap={lookupMap}
           />
-          <Field label="Old Material Number" value={data.olD_MATERIAL_NUMBER} />
+          <LookUpFields label="Old Material Number" value={data.olD_MATERIAL_NUMBER} />
           <LookUpFields label="Base Unit of Measure" value={data.uom} lookupKey="UOM" lookupMap={lookupMap}/>
-          <LookUpFields label="EAL Material Group" value={data.materiaL_GROUP} lookupMap={lookupMap}/>
+          <LookUpFields label="EAL Material Group" value={data.sapMaterialGroup} lookupKey="SAP MATERIALGROUP" lookupMap={lookupMap}/>
           <LookUpFields label="External Material Group" value={data.externaL_MATERIAL_GROUP} lookupMap={lookupMap}/>
-          <Field label="Division" value={data.division} />
+          <LookUpFields label="Division" value={data.division} lookupMap={lookupMap}/>
           <LookUpFields label="Product Hierarchy" value={data.producT_HIERARCHY} lookupMap={lookupMap}/>
-          <Field
+          <LookUpFields
             label="General Item Category"
             value={data.geN_ITEM_CAT_GROUP}
+            lookupMap={lookupMap}
           />
-          <Field label="Basic Material" value={data.basiC_MATERIAL} />
-          <Field label="Gross Weight" value={data.grosS_WEIGHT} />
-          <Field label="Weight Unit" value={data.weighT_UNIT} />
-          <Field label="Net Weight" value={data.neT_WEIGHT} />
-          <Field label="Volume" value={data.volume} />
-          <Field label="Volume Unit" value={data.volume_Unit} />
-          <Field
+          <LookUpFields label="Basic Material" value={data.basiC_MATERIAL} lookupMap={lookupMap}/>
+          <LookUpFields label="Gross Weight" value={data.grosS_WEIGHT} lookupMap={lookupMap}/>
+          <LookUpFields label="Weight Unit" value={data.weighT_UNIT} lookupMap={lookupMap}/>
+          <LookUpFields label="Net Weight" value={data.neT_WEIGHT} lookupMap={lookupMap}/>
+          <LookUpFields label="Volume" value={data.volume} lookupMap={lookupMap}/>
+          <LookUpFields label="Volume Unit" value={data.volume_Unit} lookupMap={lookupMap}/>
+          <LookUpFields
             label="Material Packaging Group"
             value={data.material_Group_Packaging}
+            lookupMap={lookupMap}
+            lookupKey="Packaging Materials"
           />
-          <Field label="Document Number" value={data.document_Number} />
-          <Field label="Department" value={data.departmenT_ID} />
-          <Field label="MDM Material Group" value={data.materiaL_GROUP} />
-          <Field
+          <LookUpFields label="Document Number" value={data.document_Number} lookupMap={lookupMap}/>
+          <LookUpFields label="Department" value={data.departmenT_ID} lookupMap={lookupMap}/>
+          <LookUpFields label="MDM Material Group" value={data.materiaL_GROUP} lookupMap={lookupMap} lookupKey="MATERIAL GROUP"/>
+          <LookUpFields
             label="MDM Material Sub Group"
             value={data.materiaL_SUBGROUP}
+            lookupMap={lookupMap}
+            lookupKey="MATERIAL SUB GROUP"
           />
         </View>
 
@@ -157,13 +168,6 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
 };
 
 export default BasicInfoCard;
-
-/* 🔹 Reusable field */
-const Field = ({ label, value }: { label: string; value: any }) => (
-  <View style={styles.col}>
-    <RNInput label={label} value={String(value ?? "")} disabled />
-  </View>
-);
 
 const styles = StyleSheet.create({
   card: { marginBottom: 12, borderRadius: 12, overflow: "hidden" },

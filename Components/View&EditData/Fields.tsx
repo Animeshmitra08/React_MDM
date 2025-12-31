@@ -39,18 +39,6 @@ const LookupField: React.FC<LookupFieldProps> = ({
     return String(value);
   }, [label, lookupKey, value, lookupMap]);
 
-  console.log({
-    label,
-    lookupKey,
-    value,
-    labelKey: `${normalize(label)}|${String(value)}`,
-    lookupKeyKey: lookupKey ? `${normalize(lookupKey)}|${String(value)}` : null,
-    hasLabel: lookupMap?.has(`${normalize(label)}|${String(value)}`),
-    hasLookupKey: lookupKey
-      ? lookupMap?.has(`${normalize(lookupKey)}|${String(value)}`)
-      : false,
-  });
-
   return (
     <View style={{ width: "50%", paddingHorizontal: 6, marginBottom: 8 }}>
       <RNInput label={label} value={displayValue} disabled />
