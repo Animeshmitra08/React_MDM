@@ -1,14 +1,36 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  Card,
+  Chip,
+  Divider,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import RNInput from "@/Components/RNInput";
+import LookupField from "./Fields";
+import { useData } from "@/Services/dataProvider";
 
 interface Props {
   data: any;
 }
-
+const normalize = (s: string) => s.replace(/\s+/g, "").toLowerCase();
 const PlantQuality: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
+  const { lookUpData } = useData();
+  const lookupMap = useMemo(() => {
+    const map = new Map<string, string>();
+    lookUpData?.forEach((item) => {
+      const display = item.name
+        ? `${item.name} - ${item.description}`
+        : item.description;
+
+      map.set(`${normalize(item.documentName)}|${String(item.id)}`, display);
+    });
+
+    return map;
+  }, [lookUpData]);
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
       {/* Custom Centered Title */}
@@ -23,13 +45,20 @@ const PlantQuality: React.FC<Props> = ({ data }) => {
 
       <Card.Content style={styles.content}>
         <View style={styles.row}>
-          <Field
+          <LookupField
             label="Production Scheduler Profile"
             value={data.productioN_SCHEDULAR_PROFILE}
+            lookupMap={lookupMap}
+            lookupKey="Production SCH PRF"
           />
           <Field label="Total Shelf Life" value={data.totaL_SHELF_LIFE} />
           <Field label="Minimum Shelf Life" value={data.minimuM_SHELF_LIFE} />
-          <Field label="Rounding Rule" value={data.roundinG_RULE} />
+          <LookupField
+            label="Rounding Rule"
+            value={data.roundinG_RULE}
+            lookupMap={lookupMap}
+            lookupKey="Rounding Rule"
+          />
           <Field label="Is Quality Active" value={data.qualitY_ACTIVE} />
           <Field
             label="Post To Inspection Stcok"
@@ -39,7 +68,12 @@ const PlantQuality: React.FC<Props> = ({ data }) => {
             label="Is QM Procurement"
             value={data.qM_PROCUREMENT_ISACTIVE}
           />
-          <Field label="QM Control Key" value={data.qM_CONTROL_KEY} />
+          <LookupField
+            label="QM Control Key"
+            value={data.qM_CONTROL_KEY}
+            lookupMap={lookupMap}
+            lookupKey="QM CONTROL KEY"
+          />
         </View>
       </Card.Content>
     </Card>
@@ -62,17 +96,17 @@ const styles = StyleSheet.create({
   col: { width: "50%", paddingHorizontal: 6, marginBottom: 8 },
   titleContainer: {
     paddingVertical: 12,
-    alignItems: 'center', // Centers horizontally
-    justifyContent: 'center',
+    alignItems: "center", // Centers horizontally
+    justifyContent: "center",
   },
   centeredTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     letterSpacing: 0.5,
   },
   divider: {
     height: 1,
     marginHorizontal: 12, // Optional: makes divider slightly shorter than card width
-  }
+  },
 });
 
 export default PlantQuality;

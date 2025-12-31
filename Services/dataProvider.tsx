@@ -42,9 +42,6 @@ const MTRNS_KEY = "materialTransData";
 const PLANT_KEY = "plantData";
 const LOOKUP_KEY = "lookUpData";
 
-
-
-
 export const saveUserSecure = async (user: LoginResponse) => {
   await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
 };
@@ -199,7 +196,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       console.log(error);
     }
   };
-
 
   const loadMaterialTransFromStorage = async () => {
     try {
