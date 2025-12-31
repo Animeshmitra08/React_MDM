@@ -3,13 +3,19 @@ import { View, StyleSheet } from "react-native";
 import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
 import RNInput from "@/Components/RNInput";
 import { AttributeData } from "@/src/types/MaterialTransactions";
+import { useData } from "@/Services/dataProvider";
+import LookUpFields from "./Fields";
 
 interface Props {
   data: any;
 }
 
+const normalize = (s: string) =>
+  s.replace(/\s+/g, "").toLowerCase();
+
 const BasicInfoCard: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
+  const { lookUpData } = useData();
 
   const attributes = useMemo<AttributeData>(() => {
     if (Array.isArray(data.attribute_Data)) return data.attribute_Data;
@@ -23,6 +29,25 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
   const validAttributes = attributes.filter(
     (a) => a.Value !== null && a.Value !== ""
   );
+
+  const lookupMap = useMemo(() => {
+    const map = new Map<string, string>();
+
+    lookUpData?.forEach(item => {
+      const display =
+        item.name
+          ? `${item.name} - ${item.description}`
+          : item.description;
+          
+      map.set(
+        `${normalize(item.documentName)}|${String(item.id)}`,
+        display
+      );
+    });
+
+    return map;
+  }, [lookUpData]);
+  
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
@@ -38,20 +63,22 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
 
       <Card.Content style={styles.content}>
         <View style={styles.row}>
-          <Field label="Reference Number" value={data.reQ_CODE} />
-          <Field label="Material Type" value={data.materialTypeName} />
-          <Field label="Industry Sector" value={data.industrY_SECTOR} />
-          <Field label="Plant" value={data.plant} />
+          <LookUpFields label="Reference Number" value={data.reQ_CODE} />
+          <LookUpFields label="Material Type" value={data.materialTypeName} />
+          <LookUpFields label="Industry Sector" value={data.industrY_SECTOR} lookupMap={lookupMap}/>
+          <LookUpFields label="Plant" value={data.plant} />
           <Field label="Storage Location" value={data.storagE_LOCATION} />
-          <Field label="Sales Organization" value={data.saleS_ORG} />
-          <Field
+          <LookUpFields label="Sales Organisation" value={data.saleS_ORG} lookupMap={lookupMap}/>
+          <LookUpFields
             label="Distribution Channel"
             value={data.distributioN_CHANNEL}
           />
           <Field label="Old Material Number" value={data.olD_MATERIAL_NUMBER} />
-          <Field label="Base Unit of Measure" value={data.uom} />
+          <LookUpFields label="Base Unit of Measure" value={data.uom} lookupKey="UOM" lookupMap={lookupMap}/>
+          <LookUpFields label="EAL Material Group" value={data.materiaL_GROUP} lookupMap={lookupMap}/>
+          <LookUpFields label="External Material Group" value={data.externaL_MATERIAL_GROUP} lookupMap={lookupMap}/>
           <Field label="Division" value={data.division} />
-          <Field label="Product Hierarchy" value={data.producT_HIERARCHY} />
+          <LookUpFields label="Product Hierarchy" value={data.producT_HIERARCHY} lookupMap={lookupMap}/>
           <Field
             label="General Item Category"
             value={data.geN_ITEM_CAT_GROUP}
