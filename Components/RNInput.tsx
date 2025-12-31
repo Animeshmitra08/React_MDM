@@ -66,7 +66,7 @@ const RNInput: React.FC<RNInputProps> = ({
           </View>
         )}
 
-        <Text
+        {/* <Text
           style={[
             styles.floatingLabel,
             {
@@ -86,28 +86,60 @@ const RNInput: React.FC<RNInputProps> = ({
           ]}
         >
           {label}
+        </Text> */}
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[
+            styles.floatingLabel,
+            {
+              maxWidth: icon
+                ? secure
+                  ? "72%" // left + right icon
+                  : "80%" // left icon only
+                : secure
+                ? "85%" // right icon only
+                : "90%", // no icons
+              color: error
+                ? "#ff5252"
+                : disabled
+                ? "#888"
+                : isFocused
+                ? colors.primary
+                : "#999",
+              backgroundColor: "#fff",
+              top: isFloating ? -8 : 12,
+              fontSize: isFloating ? 12 : 16,
+              paddingHorizontal: isFloating ? 4 : 0,
+              marginLeft: icon ? 36 : 12,
+            },
+          ]}
+        >
+          {label}
         </Text>
 
         {/* TextInput */}
         <TextInput
           value={value}
           editable={!disabled}
+          scrollEnabled={!disabled}
           selectTextOnFocus={!disabled}
-          secureTextEntry={secure ? hidePassword : false}
-          // placeholder={label}
-          placeholderTextColor="#999"
+          secureTextEntry={secure && !disabled ? hidePassword : false}
           multiline={multiline}
           numberOfLines={multiline ? numberOfLines : 1}
+          selection={disabled ? { start: 0, end: 0 } : undefined}
           onChangeText={onChangeText}
           onFocus={() => !disabled && setFocused(true)}
           onBlur={() => setFocused(false)}
           autoCapitalize={autoCapitalize}
+          textAlign="left"
           style={[
             styles.input,
             {
               color: disabled ? "#888" : "#000",
               height: multiline ? numberOfLines * 24 : 46,
               textAlignVertical: multiline ? "top" : "center",
+              paddingRight: secure ? 40 : 12,
             },
           ]}
         />

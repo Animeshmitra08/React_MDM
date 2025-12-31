@@ -66,9 +66,17 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
           />
         </View>
 
-        <RNInput label="Material Description" value={data.lonG_TEXT} disabled />
+        <RNInput
+          label="Material Description"
+          multiline
+          numberOfLines={3}
+          value={data.lonG_TEXT}
+          disabled
+        />
         <RNInput
           label="Material Short Description"
+          multiline
+          numberOfLines={3}
           value={data.materiaL_SHORT_DESCRIPTION}
           disabled
         />
