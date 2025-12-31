@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Chip, Text, TextInput, useTheme } from "react-native-paper";
+
 export default function MatTransPage() {
   const { trnsId } = useLocalSearchParams<{ trnsId?: string }>();
   const { materialTransData } = useData();
@@ -36,70 +37,74 @@ export default function MatTransPage() {
     );
   }
 
+  const d = filteredTransData;
+
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.container,
-        { backgroundColor: "#dadadaff" },
-      ]}
-    >
+    <View style={styles.screenWrapper}>
       <StatusBar style="dark" />
-      {/* Basic */}
-      <BasicInfoCard data={filteredTransData} />
 
-      {/* Sales Info */}
-      <SalesInfoCard data={filteredTransData} />
+      {/* STICKY HEADER: Placed outside ScrollView */}
+      <View style={[styles.stickyHeader, { backgroundColor: colors.surface }]}>
+        <Text style={styles.headerTitle}>MDM Request Number</Text>
+        <Chip icon="identifier" style={styles.headerChip}>{d.reQ_CODE}</Chip>
+      </View>
 
-      {/* purchase */}
-      <PurchaseInfoCard data={filteredTransData} />
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Basic Info */}
+        <BasicInfoCard data={filteredTransData}/>
 
-      {/* Plant & Quality */}
-      <PlanQuality data={filteredTransData} />
+        {/* Sales Info */}
+        <SalesInfoCard data={filteredTransData} />
 
-      {/* Flanance  */}
-      <Finance data={filteredTransData} />
-    </ScrollView>
+        {/* Purchase Info */}
+        <PurchaseInfoCard data={filteredTransData}/>
+
+        <PlanQuality data={filteredTransData} />
+
+        <Finance data={filteredTransData} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screenWrapper: {
-    flex: 1,
-    backgroundColor: "#dadadaff",
+    flex: 1, 
+    backgroundColor: "#dadadaff"
   },
   centerContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // Added missing notFound style
   notFound: {
     fontSize: 16,
-    color: "#666",
-    fontWeight: "500",
+    color: '#666',
+    fontWeight: '500',
   },
   stickyHeader: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     // Adds a slight shadow to look like it's floating
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
   headerTitle: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     opacity: 0.7,
   },
   headerChip: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: '#e0e0e0',
   },
   container: {
     padding: 12,
