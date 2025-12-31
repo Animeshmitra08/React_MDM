@@ -2,13 +2,37 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
 import RNInput from "@/Components/RNInput";
+import { useData } from "@/Services/dataProvider";
+import LookupField from "./Fields";
 
 interface Props {
   data: any;
 }
 
+const normalize = (s: string) =>
+  s.replace(/\s+/g, "").toLowerCase();
+
 const PurchaseInfoCard: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
+  const { lookUpData } = useData();
+  
+  const lookupMap = useMemo(() => {
+      const map = new Map<string, string>();
+  
+      lookUpData?.forEach(item => {
+        const display =
+          item.name
+            ? `${item.name} - ${item.description}`
+            : item.description;
+            
+        map.set(
+          `${normalize(item.documentName)}|${String(item.id)}`,
+          display
+        );
+      });
+  
+      return map;
+    }, [lookUpData]);
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
@@ -24,60 +48,74 @@ const PurchaseInfoCard: React.FC<Props> = ({ data }) => {
 
       <Card.Content style={styles.content}>
         <View style={styles.row}>
-          <Field label="Purchase Group" value={data.purchasE_GROUP} />
-          <Field label="Tax Indicator" value={data.taX_INDICATOR} />
-          <Field label="MRP Type" value={data.mrP_TYPE} />
-          <Field label="MRP Controller" value={data.mrP_CONTROLLER} />
-          <Field label="Lot Size" value={data.loT_SIZE} />
-          <Field label="Procurement Type" value={data.procuremenT_TYPE} />
-          <Field
+          <LookupField label="Purchase Group" value={data.purchasE_GROUP} lookupMap={lookupMap}/>
+          <LookupField label="Tax Indicator" value={data.taX_INDICATOR} lookupMap={lookupMap}/>
+          <LookupField label="MRP Type" value={data.mrP_TYPE} lookupMap={lookupMap}/>
+          <LookupField label="MRP Controller" value={data.mrP_CONTROLLER} lookupMap={lookupMap} />
+          <LookupField label="Lot Size" value={data.loT_SIZE} lookupMap={lookupMap} />
+          <LookupField label="Procurement Type" value={data.procuremenT_TYPE} lookupMap={lookupMap} />
+          <LookupField
             label="Inhouse Production Time"
             value={data.inhousE_PROD_TIME}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="Planned Delivery Time(day's)"
             value={data.planneD_DELIVERY_TIME}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="GR Processing Time(day's)"
             value={data.gR_PROCESSING_TIME}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="Scheduling Margin Key"
             value={data.schedulinG_MARGIN_KEY}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="Period Indicator"
             value={data.perioD_INDICATOR_SHELF_LIFE}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="Planing Strategy Group"
             value={data.plaN_STRATEGY_GROUP}
+            lookupMap={lookupMap}
+            lookupKey="PLANNING STRATEGY GRP "
           />
-          <Field
+          <LookupField
             label="Dependent Requirements"
             value={data.dependenT_REQUIREMENTS}
+            lookupMap={lookupMap}
+            lookupKey="DEPENDENT REQ"
           />
-          <Field
+          <LookupField
             label="Production Scheduler"
             value={data.productioN_SCHEDULER}
+            lookupMap={lookupMap}
+            lookupKey="Production SCH"
           />
-          <Field label="Forecast Model" value={data.foreCast_Model} />
-          <Field label="Safety Stock" value={data.safetY_STOCK} />
-          <Field
+          <LookupField label="Forecast Model" value={data.foreCast_Model} lookupMap={lookupMap} lookupKey="ForeCast_Model"/>
+          <LookupField label="Safety Stock" value={data.safetY_STOCK} lookupMap={lookupMap} />
+          <LookupField
             label="Minimum Safety Stock"
             value={data.minimuM_SAFETY_STOCK}
+            lookupMap={lookupMap}
           />
-          <Field
+          <LookupField
             label="Maximum Safety Stock"
             value={data.maximuM_SAFETY_STOCK}
+            lookupMap={lookupMap}
           />
-          <Field label="Reorder Point" value={data.rE_ORDER_POINT} />
-          <Field
+          <LookupField label="Reorder Point" value={data.rE_ORDER_POINT} lookupMap={lookupMap} />
+          <LookupField
             label="Production Storage Location"
             value={data.production_STLO}
+            lookupMap={lookupMap}
           />
-          <Field label="Costing Lot Size" value={data.costing_Lot_Size} />
+          <LookupField label="Costing Lot Size" value={data.costing_Lot_Size} lookupMap={lookupMap}/>
         </View>
       </Card.Content>
     </Card>
@@ -85,13 +123,6 @@ const PurchaseInfoCard: React.FC<Props> = ({ data }) => {
 };
 
 export default PurchaseInfoCard;
-
-/* 🔹 Reusable field */
-const Field = ({ label, value }: { label: string; value: any }) => (
-  <View style={styles.col}>
-    <RNInput label={label} value={String(value ?? "")} disabled />
-  </View>
-);
 
 const styles = StyleSheet.create({
   card: { marginBottom: 12, borderRadius: 12, overflow: "hidden" },

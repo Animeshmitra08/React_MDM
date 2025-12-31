@@ -3,14 +3,36 @@ import { View, StyleSheet } from "react-native";
 import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
 import RNInput from "@/Components/RNInput";
 import { useData } from "@/Services/dataProvider";
+import LookupField from "./Fields";
 
 interface Props {
   data: any;
 }
 
+const normalize = (s: string) =>
+  s.replace(/\s+/g, "").toLowerCase();
+
 const SalesInfoCard: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
-    const { lookUpData } = useData();
+  const { lookUpData } = useData();
+
+  const lookupMap = useMemo(() => {
+      const map = new Map<string, string>();
+  
+      lookUpData?.forEach(item => {
+        const display =
+          item.name
+            ? `${item.name} - ${item.description}`
+            : item.description;
+            
+        map.set(
+          `${normalize(item.documentName)}|${String(item.id)}`,
+          display
+        );
+      });
+  
+      return map;
+    }, [lookUpData]);
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
@@ -26,34 +48,41 @@ const SalesInfoCard: React.FC<Props> = ({ data }) => {
 
       <Card.Content style={styles.content}>
         <View style={styles.row}>
-          <Field label="Sales Unit" value={data.saleS_UNIT} />
-          <Field
+          <LookupField label="Sales Unit" value={data.saleS_UNIT} lookupMap={lookupMap} />
+          <LookupField
             label="Tax Classicfication JGST "
             value={data.taX_CLASSIFICATION_JGST}
+            lookupMap={lookupMap}
+            lookupKey="TAX CLASSIFICATION JGST"
           />
-          <Field
+          <LookupField
             label="Tax Classicfication JTC1"
             value={data.taX_CLASSIFICATION_JTC1}
+            lookupMap={lookupMap}
+            lookupKey="TAX CLASSIFICATION JTC1"
           />
-          <Field label="Material Price Group" value={data.maT_PRICE_GROUP} />
-          <Field
+          <LookupField label="Material Price Group" value={data.maT_PRICE_GROUP} lookupMap={lookupMap} lookupKey="MATERIAL PRICING GRP"/>
+          <LookupField
             label="Account Assignment Group"
             value={data.assignmenT_GROUP}
+            lookupMap={lookupMap}
+            lookupKey="ACCOUNT ASSG GRP"
           />
-          <Field label="Availability Check" value={data.availabilitY_CHECK} />
-          <Field label="Instant Group" value={data.instanT_GROUP} />
-          <Field
+          <LookupField label="Availability Check" value={data.availabilitY_CHECK} lookupMap={lookupMap}/>
+          <LookupField label="Instant Group" value={data.instanT_GROUP} lookupMap={lookupMap}/>
+          <LookupField
             label="Transportation Group"
             value={data.transportatioN_GROUP}
+            lookupMap={lookupMap}
           />
-          <Field label="Loading Group" value={data.loadinG_GROUP} />
-          <Field label="Profit Center" value={data.profiT_CENTER} />
-          <Field label="Control Code" value={data.controL_CODE} />
-          <Field label="Material Group 1" value={data.materiaL_GROUP1} />
-          <Field label="Material Group 2" value={data.materiaL_GROUP2} />
-          <Field label="Material Group 3" value={data.materiaL_GROUP3} />
-          <Field label="Material Group 4" value={data.materiaL_GROUP4} />
-          <Field label="Material Group 5" value={data.materiaL_GROUP5} />
+          <LookupField label="Loading Group" value={data.loadinG_GROUP} lookupMap={lookupMap}/>
+          <LookupField label="Profit Center" value={data.profiT_CENTER} lookupMap={lookupMap}/>
+          <LookupField label="Control Code" value={data.controL_CODE} lookupMap={lookupMap}/>
+          <LookupField label="Material Group 1" value={data.materiaL_GROUP1} lookupMap={lookupMap}/>
+          <LookupField label="Material Group 2" value={data.materiaL_GROUP2} lookupMap={lookupMap}/>
+          <LookupField label="Material Group 3" value={data.materiaL_GROUP3} lookupMap={lookupMap} />
+          <LookupField label="Material Group 4" value={data.materiaL_GROUP4} lookupMap={lookupMap}/>
+          <LookupField label="Material Group 5" value={data.materiaL_GROUP5} lookupMap={lookupMap}/>
         </View>
       </Card.Content>
     </Card>
@@ -61,13 +90,6 @@ const SalesInfoCard: React.FC<Props> = ({ data }) => {
 };
 
 export default SalesInfoCard;
-
-/* 🔹 Reusable field */
-const Field = ({ label, value }: { label: string; value: any }) => (
-  <View style={styles.col}>
-    <RNInput label={label} value={String(value ?? "")} disabled />
-  </View>
-);
 
 const styles = StyleSheet.create({
   card: { marginBottom: 12, borderRadius: 12, overflow: "hidden" },
