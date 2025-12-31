@@ -12,6 +12,7 @@ import {
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
@@ -21,6 +22,7 @@ type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
 const Approval2 = () => {
   const { showAlert } = useAlert();
+  const router = useRouter();
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
@@ -185,7 +187,10 @@ const Approval2 = () => {
                 />
               ),
               onPress: (row) => {
-                setSelectedItem(row);
+                router.push({
+                  pathname: "/Screens/MaterialTransactionPage/MatTransPage",
+                  params: { trnsId: row.trN_ID },
+                });
               },
             },
           ]}

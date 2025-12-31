@@ -206,7 +206,10 @@ const Approval1 = () => {
                 />
               ),
               onPress: (row) => {
-                setSelectedItem(row);
+                router.push({
+                  pathname: "/Screens/MaterialTransactionPage/MatTransPage",
+                  params: { trnsId: row.trN_ID },
+                });
               },
             },
           ]}

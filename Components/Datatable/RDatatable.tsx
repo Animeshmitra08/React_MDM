@@ -422,7 +422,7 @@ function RDatatable<T>({
   searchPlaceholder = "Search records...",
   loading = false,
   pagination = true,
-  pageSize = 10,
+  pageSize = 5,
 }: RDatatableProps<T>) {
   const theme = useTheme();
   const [searchText, setSearchText] = useState("");
