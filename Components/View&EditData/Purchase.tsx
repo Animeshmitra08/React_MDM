@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { Card, Chip, Text, TextInput, useTheme } from "react-native-paper";
+import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
 import RNInput from "@/Components/RNInput";
 
 interface Props {
@@ -12,8 +12,17 @@ const PurchaseInfoCard: React.FC<Props> = ({ data }) => {
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
-      <Card.Title title="Purchase & MRP" />
-      <Card.Content>
+      {/* Custom Centered Title */}
+      <View style={styles.titleContainer}>
+        <Text variant="titleMedium" style={styles.centeredTitle}>
+          Purchase & MRP
+        </Text>
+      </View>
+
+      {/* Divider between title and content */}
+      <Divider style={styles.divider} />
+
+      <Card.Content style={styles.content}>
         <View style={styles.row}>
           <Field label="Purchase Group" value={data.purchasE_GROUP} />
           <Field label="Tax Indicator" value={data.taX_INDICATOR} />
@@ -85,9 +94,25 @@ const Field = ({ label, value }: { label: string; value: any }) => (
 );
 
 const styles = StyleSheet.create({
-  card: { marginBottom: 12, borderRadius: 12 },
+  card: { marginBottom: 12, borderRadius: 12, overflow: "hidden" },
+  content: {
+    paddingTop: 12,
+  },
   row: { flexDirection: "row", flexWrap: "wrap", marginHorizontal: -6 },
   col: { width: "50%", paddingHorizontal: 6, marginBottom: 8 },
+  titleContainer: {
+    paddingVertical: 12,
+    alignItems: 'center', // Centers horizontally
+    justifyContent: 'center',
+  },
+  centeredTitle: {
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  divider: {
+    height: 1,
+    marginHorizontal: 12, // Optional: makes divider slightly shorter than card width
+  },
 
   attributeBox: {
     backgroundColor: "#e2e3ebff",
