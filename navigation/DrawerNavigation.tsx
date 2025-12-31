@@ -1,6 +1,7 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import {
   Dimensions,
+  Image,
   LayoutAnimation,
   Platform,
   Pressable,
@@ -14,6 +15,7 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import {
+  ActivityIndicator,
   Avatar,
   Button,
   Divider,
@@ -38,6 +40,7 @@ import BlockApproval1 from "@/app/Screens/Block Level/Approval1";
 import BlockApproval2 from "@/app/Screens/Block Level/Approval2";
 import UnblockApproval1 from "@/app/Screens/Unblock/Approval1";
 import UnblockApproval2 from "@/app/Screens/Unblock/Approval2";
+import { StatusBar } from "expo-status-bar";
 
 const { width } = Dimensions.get("window");
 
@@ -203,17 +206,29 @@ export default function DrawerNavigator() {
   /* -------------------- Loading states -------------------- */
   if (!navigationList?.length) {
     return (
+      <>
+      <StatusBar style="light" />
       <Centered>
-        <Text>Loading menu…</Text>
+        <ActivityIndicator size="large" />
+        <Text style={{marginTop: 6}}>Loading menu…</Text>
       </Centered>
+      </>
     );
   }
 
   if (!orderedNavigationList.length) {
     return (
+      <>
+      <StatusBar style="dark" />
       <Centered>
-        <Text>No accessible menus</Text>
+        <Image
+          source={require("@/assets/images/emamilogo1.jpeg")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.emptyText}>No accessible menus</Text>
       </Centered>
+      </>
     );
   }
 
@@ -552,5 +567,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFD54F",
     borderRadius: 2,
     marginRight: 8,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 16,
+    opacity: 0.7,
   },
 });

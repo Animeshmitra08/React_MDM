@@ -47,11 +47,6 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
 
     return map;
   }, [lookUpData]);
-
-  console.log(
-    lookupMap.has(`ForeCast_Model|${String(data.uom)}`)
-  );
-
   
 
   return (
@@ -153,6 +148,8 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
                     value={String(item.Value ?? "")}
                     dense
                     multiline
+                    textAlign="left"
+                    selection={{ start: 0, end: 0 }}
                     numberOfLines={2}
                     editable={false}
                     style={styles.attributeInput}

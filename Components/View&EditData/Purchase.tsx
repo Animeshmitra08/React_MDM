@@ -49,7 +49,7 @@ const PurchaseInfoCard: React.FC<Props> = ({ data }) => {
       <Card.Content style={styles.content}>
         <View style={styles.row}>
           <LookupField label="Purchase Group" value={data.purchasE_GROUP} lookupMap={lookupMap}/>
-          <LookupField label="Tax Indicator" value={data.taX_INDICATOR} lookupMap={lookupMap}/>
+          <LookupField label="Tax Indicator" value={data.taX_INDICATOR} lookupMap={lookupMap} lookupKey="TAX_INDICATOR"/>
           <LookupField label="MRP Type" value={data.mrP_TYPE} lookupMap={lookupMap}/>
           <LookupField label="MRP Controller" value={data.mrP_CONTROLLER} lookupMap={lookupMap} />
           <LookupField label="Lot Size" value={data.loT_SIZE} lookupMap={lookupMap} />

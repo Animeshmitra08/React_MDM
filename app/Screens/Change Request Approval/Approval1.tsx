@@ -12,9 +12,10 @@ import {
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
-import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { Avatar } from "react-native-paper";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
 
@@ -34,8 +35,16 @@ const Approval1 = () => {
   const [remarks, setRemarks] = useState("");
   const [ApiData, setApiData] = useState<MaterialMaster[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [navigating, setNavigating] = useState(false);
   const { currentUser, plantApiData } = useData();
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      setNavigating(false);
+    }, [])
+  );
+
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
@@ -133,6 +142,12 @@ const Approval1 = () => {
   //   ApiDataFunc();
   // }, [plantApiData]);
 
+  useEffect(() => {
+  console.log("navigating:", navigating);
+}, [navigating]);
+
+
+
   return (
     <>
       <Filter1
@@ -196,11 +211,13 @@ const Approval1 = () => {
               />
             ),
             onPress: (row) => {
+              if (navigating) return;
+              setNavigating(true);
               router.push({
                 pathname: "/Screens/MaterialTransactionPage/MatTransPage",
                 params: { trnsId: row?.trN_ID },
               });
-            },
+            }
           },
         ]}
         columns={[
@@ -290,8 +307,24 @@ const Approval1 = () => {
           </>
         )}
       </DialogComponent>
+
+      {navigating && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
     </>
   );
 };
 
 export default Approval1;
+
+const styles = StyleSheet.create({
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 999,
+  },
+});

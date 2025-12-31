@@ -75,6 +75,7 @@ const Finance: React.FC<Props> = ({ data }) => {
             label="Variance Key"
             value={data.variancE_KEY}
             lookupMap={lookupMap}
+            lookupKey="VARIATION KEY"
           />
           <Field label="Material Origin" value={data.matericaL_ORIGIN} />
         </View>
