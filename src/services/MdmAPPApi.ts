@@ -189,3 +189,17 @@ export const UnBlock2Api = {
     }
   },
 };
+
+
+
+// lookup----
+export const lookUpApi = {
+  getAll : async () => {
+    try {
+      const response = await appAxiosCon.get("/Lookup");
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+};

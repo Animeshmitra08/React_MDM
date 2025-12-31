@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Chip, Divider, Text, TextInput, useTheme } from "react-native-paper";
 import RNInput from "@/Components/RNInput";
+import { useData } from "@/Services/dataProvider";
 
 interface Props {
   data: any;
@@ -9,6 +10,7 @@ interface Props {
 
 const SalesInfoCard: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
+    const { lookUpData } = useData();
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>

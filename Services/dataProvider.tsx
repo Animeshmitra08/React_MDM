@@ -19,7 +19,8 @@ import { useAlert } from "./AlertContext";
 import { MaterialTransApi } from "@/src/services/MaterialTransaction";
 import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
 import { PlantMaster } from "@/src/types/ApprovalType";
-import { PlantData } from "@/src/services/MdmAPPApi";
+import { lookUpApi, PlantData } from "@/src/services/MdmAPPApi";
+import { DocumentItem } from "@/src/types/LookUp";
 
 interface DataContextType {
   currentUser: LoginResponse | null;
@@ -31,6 +32,7 @@ interface DataContextType {
   navigationConfigList: NavigationConfigType[];
   materialTransData: MaterialTransactionsTypes[];
   plantApiData: PlantMaster[];
+  lookUpData: DocumentItem[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -38,6 +40,10 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 const USER_KEY = "currentUser";
 const MTRNS_KEY = "materialTransData";
 const PLANT_KEY = "plantData";
+const LOOKUP_KEY = "lookUpData";
+
+
+
 
 export const saveUserSecure = async (user: LoginResponse) => {
   await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
@@ -58,6 +64,10 @@ export const getUserSecure = async (): Promise<LoginResponse | null> => {
 
 export const removeUserSecure = async () => {
   await SecureStore.deleteItemAsync(USER_KEY);
+};
+
+const saveLookUpData = async (data: DocumentItem[]) => {
+  await SecureStore.setItemAsync(LOOKUP_KEY, JSON.stringify(data));
 };
 
 export const useData = (): DataContextType => {
@@ -86,6 +96,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     MaterialTransactionsTypes[]
   >([]);
   const [plantApiData, setPlantApiData] = useState<PlantMaster[]>([]);
+  const [lookUpData, setLookUpData] = useState<DocumentItem[]>([]);
 
   const { showAlert } = useAlert();
 
@@ -178,6 +189,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const getLookUp = async () => {
+    try {
+      const res = await lookUpApi.getAll();
+      setLookUpData(res);
+      await saveLookUpData(res);
+    } catch (error) {
+      handleApiError(error);
+      console.log(error);
+    }
+  };
+
+
   const loadMaterialTransFromStorage = async () => {
     try {
       const stored = await SecureStore.getItemAsync(MTRNS_KEY);
@@ -200,6 +223,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.log("Secure load error", error);
+    }
+  };
+
+  const loadLookUpFromStorage = async () => {
+    try {
+      const stored = await SecureStore.getItemAsync(LOOKUP_KEY);
+      if (stored) {
+        const parsed: DocumentItem[] = JSON.parse(stored);
+        setLookUpData(parsed);
+      }
+    } catch (error) {
+      console.log("SecureStore lookup load error", error);
     }
   };
 
@@ -285,6 +320,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     loadMaterialTransFromStorage();
     getPlantMaster();
     loadPlantDataFromStorage();
+    getLookUp();
+    loadLookUpFromStorage();
   }, []);
 
   useEffect(() => {
@@ -307,6 +344,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     navigationConfigList,
     materialTransData,
     plantApiData,
+    lookUpData,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
