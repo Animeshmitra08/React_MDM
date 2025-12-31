@@ -276,7 +276,6 @@ const Approval2 = () => {
         ]}
         pagination={true}
         searchable={true}
-        pageSize={5}
         searchKeys={["plant"]}
       />
       <DialogComponent

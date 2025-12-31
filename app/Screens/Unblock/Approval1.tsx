@@ -299,7 +299,6 @@ const Approval1 = () => {
           ]}
           pagination={true}
           searchable={true}
-          pageSize={5}
           searchKeys={["plant"]}
         />
       </ScrollView>

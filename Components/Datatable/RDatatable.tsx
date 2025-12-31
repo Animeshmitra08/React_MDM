@@ -323,8 +323,24 @@
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { TableAction, TableColumn } from "@/src/types/TableColumn";
 import React, { useMemo, useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, Pressable, ViewStyle, TextStyle, Animated } from "react-native";
-import { DataTable, Text, useTheme, Avatar, Button, TextInput, Surface } from "react-native-paper";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  ViewStyle,
+  TextStyle,
+  Animated,
+} from "react-native";
+import {
+  DataTable,
+  Text,
+  useTheme,
+  Avatar,
+  Button,
+  TextInput,
+  Surface,
+} from "react-native-paper";
 
 interface RDatatableProps<T> {
   data: T[];
@@ -343,14 +359,30 @@ interface RDatatableProps<T> {
  * Loading Skeleton Component
  * Mimics the table rows to prevent layout shift
  */
-const TableSkeleton = ({ rows, columns, hasActions }: { rows: number, columns: any[], hasActions: boolean }) => {
+const TableSkeleton = ({
+  rows,
+  columns,
+  hasActions,
+}: {
+  rows: number;
+  columns: any[];
+  hasActions: boolean;
+}) => {
   const opacity = React.useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.7, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, {
+          toValue: 0.7,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
       ])
     ).start();
   }, []);
@@ -361,12 +393,17 @@ const TableSkeleton = ({ rows, columns, hasActions }: { rows: number, columns: a
         <DataTable.Row key={`skeleton-row-${i}`} style={styles.row}>
           {hasActions && (
             <DataTable.Cell style={styles.actionHeaderCell}>
-               <Animated.View style={[styles.skeletonCircle, { opacity }]} />
+              <Animated.View style={[styles.skeletonCircle, { opacity }]} />
             </DataTable.Cell>
           )}
           {columns.map((col, j) => (
-            <DataTable.Cell key={`skeleton-col-${j}`} style={[styles.cell, { width: col.width, flex: 0 }]}>
-              <Animated.View style={[styles.skeletonBar, { width: '80%', opacity }]} />
+            <DataTable.Cell
+              key={`skeleton-col-${j}`}
+              style={[styles.cell, { width: col.width, flex: 0 }]}
+            >
+              <Animated.View
+                style={[styles.skeletonBar, { width: "80%", opacity }]}
+              />
             </DataTable.Cell>
           ))}
         </DataTable.Row>
@@ -395,7 +432,11 @@ function RDatatable<T>({
     if (!searchable || !searchText.trim() || !searchKeys.length) return data;
     const query = searchText.toLowerCase();
     return data.filter((item) =>
-      searchKeys.some((key) => String(item[key] ?? "").toLowerCase().includes(query))
+      searchKeys.some((key) =>
+        String(item[key] ?? "")
+          .toLowerCase()
+          .includes(query)
+      )
     );
   }, [data, searchText, searchKeys, searchable]);
 
@@ -425,7 +466,13 @@ function RDatatable<T>({
             onChangeText={setSearchText}
             dense
             style={styles.searchInput}
-            left={<TextInput.Icon icon="magnify" size={20} color={theme.colors.primary} />}
+            left={
+              <TextInput.Icon
+                icon="magnify"
+                size={20}
+                color={theme.colors.primary}
+              />
+            }
             outlineStyle={{ borderRadius: 8 }}
           />
         </View>
@@ -433,7 +480,12 @@ function RDatatable<T>({
 
       <ScrollView horizontal showsHorizontalScrollIndicator={true}>
         <View style={styles.tableMinWidth}>
-          <DataTable.Header style={[styles.header, { backgroundColor: theme.colors.surfaceVariant }]}>
+          <DataTable.Header
+            style={[
+              styles.header,
+              { backgroundColor: theme.colors.surfaceVariant },
+            ]}
+          >
             {actions?.length ? (
               <DataTable.Title style={styles.actionHeaderCell}>
                 <Text style={styles.headerText}>ACTIONS</Text>
@@ -445,17 +497,19 @@ function RDatatable<T>({
                 key={String(col.key)}
                 style={[styles.cell, { width: col.width, flex: 0 }]}
               >
-                <Text style={styles.headerText} numberOfLines={3}>{col.title.toUpperCase()}</Text>
+                <Text style={styles.headerText} numberOfLines={3}>
+                  {col.title.toUpperCase()}
+                </Text>
               </DataTable.Title>
             ))}
           </DataTable.Header>
 
           <ScrollView style={{ maxHeight }}>
             {loading ? (
-              <TableSkeleton 
-                rows={pageSize} 
-                columns={computedColumns} 
-                hasActions={!!actions?.length} 
+              <TableSkeleton
+                rows={pageSize}
+                columns={computedColumns}
+                hasActions={!!actions?.length}
               />
             ) : paginatedData.length === 0 ? (
               <View style={styles.statusContainer}>
@@ -468,9 +522,19 @@ function RDatatable<T>({
                     <DataTable.Cell style={styles.actionHeaderCell}>
                       <View style={styles.actionGroup}>
                         {actions.map((action) => (
-                          <Pressable key={action.key} onPress={() => action.onPress(item)} hitSlop={8}>
-                            {action.render ? action.render(item) : (
-                              <Avatar.Icon size={28} icon="dots-vertical" style={{ backgroundColor: 'transparent' }} />
+                          <Pressable
+                            key={action.key}
+                            onPress={() => action.onPress(item)}
+                            hitSlop={8}
+                          >
+                            {action.render ? (
+                              action.render(item)
+                            ) : (
+                              <Avatar.Icon
+                                size={28}
+                                icon="dots-vertical"
+                                style={{ backgroundColor: "transparent" }}
+                              />
                             )}
                           </Pressable>
                         ))}
@@ -484,7 +548,9 @@ function RDatatable<T>({
                       style={[styles.cell, { width: col.width, flex: 0 }]}
                     >
                       <Text variant="bodyMedium" numberOfLines={3}>
-                        {col.render ? col.render(item) : String(item[col.key as keyof T] ?? "-")}
+                        {col.render
+                          ? col.render(item)
+                          : String(item[col.key as keyof T] ?? "-")}
                       </Text>
                     </DataTable.Cell>
                   ))}
@@ -499,9 +565,30 @@ function RDatatable<T>({
         <View style={styles.paginationFooter}>
           <Text style={styles.footerInfo}>{filteredData.length} total</Text>
           <View style={styles.pageControls}>
-            <Button compact mode="text" disabled={page === 0} onPress={() => setPage(p => p - 1)} icon="chevron-left">Prev</Button>
-            <View style={styles.pageIndicator}><Text style={styles.pageText}>{page + 1} / {totalPages}</Text></View>
-            <Button compact mode="text" contentStyle={{ flexDirection: 'row-reverse' }} disabled={page + 1 >= totalPages} onPress={() => setPage(p => p + 1)} icon="chevron-right">Next</Button>
+            <Button
+              compact
+              mode="text"
+              disabled={page === 0}
+              onPress={() => setPage((p) => p - 1)}
+              icon="chevron-left"
+            >
+              Prev
+            </Button>
+            <View style={styles.pageIndicator}>
+              <Text style={styles.pageText}>
+                {page + 1} / {totalPages}
+              </Text>
+            </View>
+            <Button
+              compact
+              mode="text"
+              contentStyle={{ flexDirection: "row-reverse" }}
+              disabled={page + 1 >= totalPages}
+              onPress={() => setPage((p) => p + 1)}
+              icon="chevron-right"
+            >
+              Next
+            </Button>
           </View>
         </View>
       )}
@@ -510,25 +597,63 @@ function RDatatable<T>({
 }
 
 const styles = StyleSheet.create({
-  surface: { borderRadius: 12, backgroundColor: "#fff", overflow: "hidden", marginVertical: 8, marginHorizontal: 6 },
-  searchContainer: { padding: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  surface: {
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    marginVertical: 8,
+    marginHorizontal: 6,
+  },
+  searchContainer: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
   searchInput: { height: 40, backgroundColor: "#fff" },
   tableMinWidth: { minWidth: "100%" },
   header: { height: 52, borderBottomWidth: 1, borderBottomColor: "#e0e0e0" },
-  headerText: { fontSize: 12, fontWeight: "800", letterSpacing: 0.5, color: "#666" },
+  headerText: {
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    color: "#666",
+  },
   row: { borderBottomWidth: 0.5, borderBottomColor: "#f0f0f0", minHeight: 60 },
   cell: { paddingHorizontal: 16 },
   actionHeaderCell: { width: 90, flex: 0, marginRight: 5 },
   actionGroup: { flexDirection: "row", gap: 8 },
-  statusContainer: { padding: 32, alignItems: "center", justifyContent: "center" },
-  paginationFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: "#eee" },
+  statusContainer: {
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paginationFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
   footerInfo: { fontSize: 12, color: "#888" },
   pageControls: { flexDirection: "row", alignItems: "center" },
-  pageIndicator: { paddingHorizontal: 12, backgroundColor: "#f5f5f5", borderRadius: 4, height: 28, justifyContent: "center" },
+  pageIndicator: {
+    paddingHorizontal: 12,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 4,
+    height: 28,
+    justifyContent: "center",
+  },
   pageText: { fontSize: 12, fontWeight: "600" },
   // Skeleton Styles
-  skeletonBar: { height: 12, backgroundColor: '#E1E9EE', borderRadius: 4 },
-  skeletonCircle: { height: 24, width: 24, backgroundColor: '#E1E9EE', borderRadius: 12 },
+  skeletonBar: { height: 12, backgroundColor: "#E1E9EE", borderRadius: 4 },
+  skeletonCircle: {
+    height: 24,
+    width: 24,
+    backgroundColor: "#E1E9EE",
+    borderRadius: 12,
+  },
 });
 
 export default RDatatable;

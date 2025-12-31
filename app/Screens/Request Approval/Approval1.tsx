@@ -50,7 +50,10 @@ const Approval1 = () => {
       today.getFullYear(),
       today.getMonth(),
       1,
-      0, 0, 0, 0
+      0,
+      0,
+      0,
+      0
     );
     setFromDate(firstDay);
     setToDate(today);
@@ -63,9 +66,9 @@ const Approval1 = () => {
   }, [plant, fromDate, toDate, plantApiData]);
 
   const toISODate = (d: Date) =>
-  new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-    .toISOString()
-    .split("T")[0];
+    new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split("T")[0];
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
@@ -89,7 +92,6 @@ const Approval1 = () => {
       tDate: toISODate(toDate),
       plantIds,
     };
-    
 
     try {
       setLoading(true);
@@ -257,7 +259,6 @@ const Approval1 = () => {
           ]}
           pagination={true}
           searchable={true}
-          pageSize={5}
           searchKeys={["plant"]}
         />
       </ScrollView>
