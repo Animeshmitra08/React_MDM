@@ -7,49 +7,35 @@ interface Props {
   data: any;
 }
 
-const SalesInfoCard: React.FC<Props> = ({ data }) => {
+const PlanQuality: React.FC<Props> = ({ data }) => {
   const { colors } = useTheme();
-
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
-      <Card.Title title="Sales" />
+      <Card.Title title="Plant And Quality" />
       <Card.Content>
         <View style={styles.row}>
-          <Field label="Sales Unit" value={data.saleS_UNIT} />
           <Field
-            label="Tax Classicfication JGST "
-            value={data.taX_CLASSIFICATION_JGST}
+            label="Production Scheduler Profile"
+            value={data.productioN_SCHEDULAR_PROFILE}
+          />
+          <Field label="Total Shelf Life" value={data.totaL_SHELF_LIFE} />
+          <Field label="Minimum Shelf Life" value={data.minimuM_SHELF_LIFE} />
+          <Field label="Rounding Rule" value={data.roundinG_RULE} />
+          <Field label="Is Quality Active" value={data.qualitY_ACTIVE} />
+          <Field
+            label="Post To Inspection Stcok"
+            value={data.posttO_INSPECTION_STOCK}
           />
           <Field
-            label="Tax Classicfication JTC1"
-            value={data.taX_CLASSIFICATION_JTC1}
+            label="Is QM Procurement"
+            value={data.qM_PROCUREMENT_ISACTIVE}
           />
-          <Field label="Material Price Group" value={data.maT_PRICE_GROUP} />
-          <Field
-            label="Account Assignment Group"
-            value={data.assignmenT_GROUP}
-          />
-          <Field label="Availability Check" value={data.availabilitY_CHECK} />
-          <Field label="Instant Group" value={data.instanT_GROUP} />
-          <Field
-            label="Transportation Group"
-            value={data.transportatioN_GROUP}
-          />
-          <Field label="Loading Group" value={data.loadinG_GROUP} />
-          <Field label="Profit Center" value={data.profiT_CENTER} />
-          <Field label="Control Code" value={data.controL_CODE} />
-          <Field label="Material Group 1" value={data.materiaL_GROUP1} />
-          <Field label="Material Group 2" value={data.materiaL_GROUP2} />
-          <Field label="Material Group 3" value={data.materiaL_GROUP3} />
-          <Field label="Material Group 4" value={data.materiaL_GROUP4} />
-          <Field label="Material Group 5" value={data.materiaL_GROUP5} />
+          <Field label="QM Control Key" value={data.qM_CONTROL_KEY} />
         </View>
       </Card.Content>
     </Card>
   );
 };
-
-export default SalesInfoCard;
 
 /* 🔹 Reusable field */
 const Field = ({ label, value }: { label: string; value: any }) => (
@@ -79,3 +65,5 @@ const styles = StyleSheet.create({
   attributeLabel: { fontSize: 12, color: "#555", marginBottom: 4 },
   attributeInput: { backgroundColor: "#fff", height: 40 },
 });
+
+export default PlanQuality;
