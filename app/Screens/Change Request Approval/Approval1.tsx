@@ -55,8 +55,8 @@ const Approval1 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
-      tDate: toDate.toISOString().split("T")[0],
+      fDate: fromDate.toISOString()?.split("T")[0],
+      tDate: toDate.toISOString()?.split("T")[0],
       plantIds,
     };
 
@@ -198,7 +198,7 @@ const Approval1 = () => {
             onPress: (row) => {
               router.push({
                 pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                params: { trnsId: row.trN_ID },
+                params: { trnsId: row?.trN_ID },
               });
             },
           },
@@ -207,21 +207,21 @@ const Approval1 = () => {
           {
             key: "reQ_CODE",
             title: "RequestCode",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
+            render: (row) => handleNullUndefined(row?.reQ_CODE),
             marginLeft: 20,
           },
           {
             key: "materiaL_Code",
             title: " Material Code",
-            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+            render: (row) => `${handleNullUndefined(row?.maT_CODE)}`,
           },
           {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
             render: (row) =>
-              `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                row.plant
+              `${handleNullUndefined(row?.plant_code)} - ${handleNullUndefined(
+                row?.plant
               )}`,
           },
           {
@@ -248,7 +248,7 @@ const Approval1 = () => {
               `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
                 row.entereD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.entereD_ON?.split("T")[1]?.split(".")[0]
               )}`,
           },
         ]}

@@ -60,7 +60,7 @@ const Approval1 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
+      fDate: fromDate.toISOString()?.split("T")[0],
       tDate: toDate.toISOString().split("T")[0],
       plantIds,
     };
@@ -260,7 +260,7 @@ const Approval1 = () => {
                 )} - ${handleNullUndefined(
                   row.extension_On?.split("T")[0]
                 )} - ${handleNullUndefined(
-                  row.extension_On?.split("T")[1].split(".")[0]
+                  row.extension_On?.split("T")[1]?.split(".")[0]
                 )}`,
             },
           ]}

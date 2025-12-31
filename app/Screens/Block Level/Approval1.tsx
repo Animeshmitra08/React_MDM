@@ -58,8 +58,8 @@ const Approval1 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
-      tDate: toDate.toISOString().split("T")[0],
+      fDate: fromDate.toISOString()?.split("T")[0],
+      tDate: toDate.toISOString()?.split("T")[0],
       plantIds,
     };
 
@@ -169,10 +169,10 @@ const Approval1 = () => {
             {
               key: "edit-accept",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="block-helper"
-                  style={{ backgroundColor: AppMDMThemeColors.approval }}
+                  style={{ backgroundColor: AppMDMThemeColors.rejected }}
+                  label="B"
                 />
               ),
               onPress: (row) => {
@@ -185,10 +185,10 @@ const Approval1 = () => {
             {
               key: "edit-reject",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="cancel"
-                  style={{ backgroundColor: AppMDMThemeColors.rejected }}
+                  label="R"
+                  style={{ backgroundColor: AppMDMThemeColors.approval }}
                 />
               ),
               onPress: (row) => {
@@ -210,7 +210,7 @@ const Approval1 = () => {
               onPress: (row) => {
                 router.push({
                   pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                  params: { trnsId: row.trN_ID },
+                  params: { trnsId: row?.trN_ID },
                 });
               },
             },
@@ -219,30 +219,30 @@ const Approval1 = () => {
             {
               key: "reQ_CODE",
               title: "RequestCode",
-              render: (row) => handleNullUndefined(row.reQ_CODE),
+              render: (row) => handleNullUndefined(row?.reQ_CODE),
               marginLeft: 20,
             },
             {
               key: "materiaL_Code",
               title: " Material Code",
-              render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+              render: (row) => `${handleNullUndefined(row?.maT_CODE)}`,
             },
             {
               key: "PlantName&Code",
               title: "Plant Code & Name",
               width: 240,
               render: (row) =>
-                `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                  row.plant
-                )}`,
+                `${handleNullUndefined(
+                  row?.plant_code
+                )} - ${handleNullUndefined(row?.plant)}`,
             },
             {
               key: "StorageCode&Name",
               title: "Storage Code & Name",
               render: (row) =>
                 `${handleNullUndefined(
-                  row.storage_Code
-                )} - ${handleNullUndefined(row.storage)}`,
+                  row?.storage_Code
+                )} - ${handleNullUndefined(row?.storage)}`,
               width: 170,
             },
             {
@@ -251,25 +251,25 @@ const Approval1 = () => {
               render: (row) =>
                 `${handleNullUndefined(
                   row.materialType_Code
-                )} - ${handleNullUndefined(row.materialTypeName)}`,
+                )} - ${handleNullUndefined(row?.materialTypeName)}`,
             },
             {
               key: "Block_By",
               title: "Bloack By",
-              render: (row) => `${handleNullUndefined(row.blockBy)}`,
+              render: (row) => `${handleNullUndefined(row?.blockBy)}`,
             },
             {
               key: "Bloack_on",
               title: "Bloack On",
               render: (row) =>
                 ` ${handleNullUndefined(row.blockOn)?.split("T")[0]} - ${
-                  handleNullUndefined(row.blockOn)?.split("T")[1].split(".")[0]
+                  handleNullUndefined(row.blockOn)?.split("T")[1]?.split(".")[0]
                 }`,
             },
             {
               key: "User_Block_Remark",
               title: "User Block Remark",
-              render: (row) => `${handleNullUndefined(row.blockUserRemark)}`,
+              render: (row) => `${handleNullUndefined(row?.blockUserRemark)}`,
             },
           ]}
           pagination={true}

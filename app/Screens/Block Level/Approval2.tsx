@@ -56,8 +56,8 @@ const Approval2 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
-      tDate: toDate.toISOString().split("T")[0],
+      fDate: fromDate.toISOString()?.split("T")[0],
+      tDate: toDate.toISOString()?.split("T")[0],
       plantIds,
     };
 
@@ -157,9 +157,9 @@ const Approval2 = () => {
           {
             key: "edit-accept",
             render: () => (
-              <Avatar.Icon
+              <Avatar.Text
                 size={28}
-                icon="block-helper"
+                label="B"
                 style={{ backgroundColor: AppMDMThemeColors.approval }}
               />
             ),
@@ -173,9 +173,9 @@ const Approval2 = () => {
           {
             key: "edit-reject",
             render: () => (
-              <Avatar.Icon
+              <Avatar.Text
+                label="R"
                 size={28}
-                icon="cancel"
                 style={{ backgroundColor: AppMDMThemeColors.rejected }}
               />
             ),
@@ -198,7 +198,7 @@ const Approval2 = () => {
             onPress: (row) => {
               router.push({
                 pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                params: { trnsId: row.trN_ID },
+                params: { trnsId: row?.trN_ID },
               });
             },
           },
@@ -207,30 +207,30 @@ const Approval2 = () => {
           {
             key: "reQ_CODE",
             title: "RequestCode",
-            render: (row) => handleNullUndefined(row.reQ_CODE),
+            render: (row) => handleNullUndefined(row?.reQ_CODE),
             marginLeft: 20,
           },
           {
             key: "materiaL_Code",
             title: " Material Code",
-            render: (row) => `${handleNullUndefined(row.maT_CODE)}`,
+            render: (row) => `${handleNullUndefined(row?.maT_CODE)}`,
           },
           {
             key: "PlantName&Code",
             title: "Plant Code & Name",
             width: 240,
             render: (row) =>
-              `${handleNullUndefined(row.plant_code)} - ${handleNullUndefined(
-                row.plant
+              `${handleNullUndefined(row?.plant_code)} - ${handleNullUndefined(
+                row?.plant
               )}`,
           },
           {
             key: "StorageCode&Name",
             title: "Storage Code & Name",
             render: (row) =>
-              `${handleNullUndefined(row.storage_Code)} - ${handleNullUndefined(
-                row.storage
-              )}`,
+              `${handleNullUndefined(
+                row?.storage_Code
+              )} - ${handleNullUndefined(row?.storage)}`,
             width: 170,
           },
           {
@@ -239,42 +239,42 @@ const Approval2 = () => {
             render: (row) =>
               `${handleNullUndefined(
                 row.materialType_Code
-              )} - ${handleNullUndefined(row.materialTypeName)}`,
+              )} - ${handleNullUndefined(row?.materialTypeName)}`,
           },
           {
             key: "Block_By",
             title: "Bloack By",
-            render: (row) => `${handleNullUndefined(row.blockBy)}`,
+            render: (row) => `${handleNullUndefined(row?.blockBy)}`,
           },
           {
             key: "Bloack_on",
             title: "Bloack On",
             render: (row) =>
-              ` ${handleNullUndefined(row.blockOn)?.split("T")[0]} - ${
-                handleNullUndefined(row.blockOn)?.split("T")[1].split(".")[0]
+              ` ${handleNullUndefined(row?.blockOn)?.split("T")[0]} - ${
+                handleNullUndefined(row?.blockOn)?.split("T")[1]?.split(".")[0]
               }`,
           },
           {
             key: "blockApprove1Info",
             title: "Block Approve1 Info",
             render: (row) =>
-              `${handleNullUndefined(row.blockAppr1By)} - ${
-                handleNullUndefined(row.blockAppr1On)?.split("T")[0]
+              `${handleNullUndefined(row?.blockAppr1By)} - ${
+                handleNullUndefined(row?.blockAppr1On)?.split("T")[0]
               } - ${
                 handleNullUndefined(row.blockAppr1On)
                   ?.split("T")[1]
-                  .split(".")[0]
+                  ?.split(".")[0]
               }`,
           },
           {
             key: "User_Block_Remark",
             title: "User Block Remark",
-            render: (row) => `${handleNullUndefined(row.blockUserRemark)}`,
+            render: (row) => `${handleNullUndefined(row?.blockUserRemark)}`,
           },
           {
             key: "blockApp1Remark",
             title: "Block App1 Remark",
-            render: (row) => `${row.blockApp1Remark}`,
+            render: (row) => `${row?.blockApp1Remark}`,
           },
         ]}
         pagination={true}
@@ -302,19 +302,19 @@ const Approval2 = () => {
             <RNInput
               label="Request Number"
               disabled
-              value={selectedItem.reQ_CODE}
+              value={selectedItem?.reQ_CODE}
               icon="format-list-numbered"
             />
             <RNInput
               label="Approval Remark 1"
               disabled
-              value={selectedItem.blockApp1Remark}
+              value={selectedItem?.blockApp1Remark}
               icon="format-list-numbered"
             />
             <RNInput
               label="User Approval Remark 1"
               disabled
-              value={selectedItem.blockUserRemark}
+              value={selectedItem?.blockUserRemark}
               icon="format-list-numbered"
             />
             <RNInput

@@ -57,8 +57,8 @@ const Approval2 = () => {
     if (!plantIds.length) return;
 
     const payload = {
-      fDate: fromDate.toISOString().split("T")[0],
-      tDate: toDate.toISOString().split("T")[0],
+      fDate: fromDate.toISOString()?.split("T")[0],
+      tDate: toDate.toISOString()?.split("T")[0],
       plantIds,
     };
 
@@ -250,7 +250,7 @@ const Approval2 = () => {
               `${handleNullUndefined(row.entereD_BY)} - ${handleNullUndefined(
                 row.entereD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.entereD_ON?.split("T")[1].split(".")[0]
+                row.entereD_ON?.split("T")[1]?.split(".")[0]
               )}`,
           },
           {
@@ -260,7 +260,7 @@ const Approval2 = () => {
               `${handleNullUndefined(row.appR1_BY)} - ${handleNullUndefined(
                 row.appR1_ON?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.appR1_ON?.split("T")[1].split(".")[0]
+                row.appR1_ON?.split("T")[1]?.split(".")[0]
               )}`,
           },
           {
@@ -270,7 +270,7 @@ const Approval2 = () => {
               `${handleNullUndefined(row.rejecteD_BY)} - ${handleNullUndefined(
                 row.rejecteD_ON?.split("T")[0]
               )} - ${handleNullUndefined(
-                row.rejecteD_ON?.split("T")[1].split(".")[0]
+                row.rejecteD_ON?.split("T")[1]?.split(".")[0]
               )}`,
           },
         ]}

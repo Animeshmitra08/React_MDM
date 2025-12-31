@@ -163,9 +163,9 @@ const Approval1 = () => {
             {
               key: "book-lock-open",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="block-helper"
+                  label="Un"
                   style={{ backgroundColor: AppMDMThemeColors.approval }}
                 />
               ),
@@ -179,9 +179,9 @@ const Approval1 = () => {
             {
               key: "cancel",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="cancel"
+                  label="R"
                   style={{ backgroundColor: AppMDMThemeColors.rejected }}
                 />
               ),
