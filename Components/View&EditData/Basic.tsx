@@ -54,8 +54,8 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
           <Field label="MDM Material Sub Group" value={data.materiaL_SUBGROUP} />
         </View>
 
-        <RNInput label="Material Description" value={data.lonG_TEXT} disabled/>
-        <RNInput label="Material Short Description" value={data.materiaL_SHORT_DESCRIPTION} disabled/>
+        <RNInput label="Material Description" multiline numberOfLines={3} value={data.lonG_TEXT} disabled/>
+        <RNInput label="Material Short Description" multiline numberOfLines={3} value={data.materiaL_SHORT_DESCRIPTION} disabled/>
         <RNInput
           label="Material Long Description"
           value={data.materiaL_LONG_DESCRIPTION}
@@ -88,8 +88,6 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
             </View>
           </View>
         )}
-
-        
       </Card.Content>
     </Card>
   );

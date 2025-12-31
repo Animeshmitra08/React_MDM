@@ -10,7 +10,7 @@ import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Chip, Text, TextInput, useTheme } from "react-native-paper";
 
-function MatTransPage() {
+export default function MatTransPage() {
   const { trnsId } = useLocalSearchParams<{ trnsId?: string }>();
   const { materialTransData } = useData();
   const { colors } = useTheme();
@@ -23,81 +23,83 @@ function MatTransPage() {
     );
   }, [trnsId, materialTransData]);
 
+  // Handle data not found state
   if (!filteredTransData) {
-    return <Text style={styles.notFound}>Transaction not found</Text>;
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.notFound}>Transaction not found</Text>
+      </View>
+    );
   }
 
   const d = filteredTransData;
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, {backgroundColor : "#dadadaff"}]}>
+    <View style={styles.screenWrapper}>
       <StatusBar style="dark" />
 
-      {/* Basic */}
+      {/* STICKY HEADER: Placed outside ScrollView */}
+      <View style={[styles.stickyHeader, { backgroundColor: colors.onPrimary }]}>
+        <Text style={styles.headerTitle}>MDM Request Number</Text>
+        <Chip icon="identifier" style={styles.headerChip}>{d.reQ_CODE}</Chip>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Basic Info */}
         <BasicInfoCard data={filteredTransData}/>
 
-      {/* sales */}
-      <SalesInfoCard data={filteredTransData} />
+        {/* Sales Info */}
+        <SalesInfoCard data={filteredTransData} />
 
-      {/* purchase */}
-      <PurchaseInfoCard data={filteredTransData}/>
-
-      
-    </ScrollView>
+        {/* Purchase Info */}
+        <PurchaseInfoCard data={filteredTransData}/>
+      </ScrollView>
+    </View>
   );
 }
 
-export default MatTransPage;
-
-
 const styles = StyleSheet.create({
+  screenWrapper: {
+    flex: 1, 
+    backgroundColor: "#dadadaff"
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Added missing notFound style
+  notFound: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  stickyHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // Adds a slight shadow to look like it's floating
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  headerTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    opacity: 0.7,
+  },
+  headerChip: {
+    backgroundColor: '#e0e0e0',
+  },
   container: {
     padding: 12,
-    paddingBottom: 24,
+    paddingBottom: 40,
   },
-  card: {
-    marginBottom: 12,
-    borderRadius: 12,
-  },
-  notFound: {
-    padding: 16,
-    textAlign: "center",
-  },
-
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -6, // balance padding
-  },
-  col: {
-    width: "50%",
-    paddingHorizontal: 6,
-    marginBottom: 8,
-  },
-  chip: {
-    margin: 4,
-  },
-  attributeRow: {
-    marginTop: 10,
-  },
-  attributeLabel: {
-    fontSize: 12,
-    color: "#555",
-    marginBottom: 4,
-  },
-  attributeInput: {
-    backgroundColor: "#fff",
-    height: 40,
-  },
-  attributeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -6, // balance padding
-  },
-
-  attributeCol: {
-    width: "50%", // 🔹 2-column grid
-    paddingHorizontal: 6,
-    marginBottom: 10,
-  },
+  // ... other styles
 });
