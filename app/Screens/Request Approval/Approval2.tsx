@@ -82,7 +82,7 @@ const Approval2 = () => {
     if (fromDate && toDate && plantApiData.length) {
       ApiDataFunc();
     }
-  }, [fromDate, toDate, plant, plantApiData]);
+  }, [plantApiData]);
 
   const closeDialog = () => {
     setDialogStep("NONE");

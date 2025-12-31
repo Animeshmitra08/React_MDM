@@ -128,7 +128,7 @@ const Approval2 = () => {
     if (plantApiData?.length) {
       ApiDataFunc();
     }
-  }, [plant, fromDate, toDate, plantApiData]);
+  }, [plantApiData]);
   // useEffect(() => {
   //   ApiDataFunc();
   // }, [plantApiData]);

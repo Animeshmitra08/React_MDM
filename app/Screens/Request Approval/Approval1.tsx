@@ -63,7 +63,7 @@ const Approval1 = () => {
     if (plantApiData?.length) {
       ApiDataFunc();
     }
-  }, [plant, fromDate, toDate, plantApiData]);
+  }, [plantApiData]);
 
   const toISODate = (d: Date) =>
     new Date(d.getTime() - d.getTimezoneOffset() * 60000)

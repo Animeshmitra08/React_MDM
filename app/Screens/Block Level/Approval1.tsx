@@ -37,7 +37,6 @@ const Approval1 = () => {
   const [ApiData, setApiData] = useState<MaterialMaster[] | null>(null);
   const [loading, setLoading] = useState(false);
   const { currentUser, plantApiData } = useData();
-  console.log(currentUser, "Current User");
 
   const router = useRouter();
 
@@ -132,7 +131,7 @@ const Approval1 = () => {
     if (plantApiData?.length) {
       ApiDataFunc();
     }
-  }, [plant, fromDate, toDate, plantApiData]);
+  }, [plantApiData]);
   // useEffect(() => {
   //   ApiDataPlant();
   // }, []);
