@@ -12,10 +12,11 @@ import {
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
-import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar, Text } from "react-native-paper";
+import { ActivityIndicator, Avatar, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -45,6 +46,14 @@ const Approval1 = () => {
 
   const router = useRouter();
 
+  const [navigating, setNavigating] = useState(false);
+      
+    useFocusEffect(
+      useCallback(() => {
+        setNavigating(false);
+      }, [])
+    );
+
   useEffect(() => {
     const firstDay = new Date(
       today.getFullYear(),
@@ -60,17 +69,21 @@ const Approval1 = () => {
   }, [today]);
 
   useEffect(() => {
-    if (plantApiData?.length) {
+    if (
+      plantApiData?.length &&
+      fromDate &&
+      toDate
+    ) {
       ApiDataFunc();
     }
-  }, [plantApiData]);
+  }, []);
 
   const toISODate = (d: Date) =>
     new Date(d.getTime() - d.getTimezoneOffset() * 60000)
       .toISOString()
       .split("T")[0];
 
-  const ApiDataFunc = async () => {
+  const ApiDataFunc = useCallback(async () => {
     if (!fromDate || !toDate) return;
 
     let plantIds: string[] = [];
@@ -102,7 +115,7 @@ const Approval1 = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fromDate, toDate, plant, plantApiData]);
 
   const closeDialog = () => {
     setDialogStep("NONE");
@@ -206,17 +219,19 @@ const Approval1 = () => {
                 />
               ),
               onPress: (row) => {
+                if (navigating) return;
+                setNavigating(true);
                 router.push({
                   pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                  params: { trnsId: row.trN_ID },
+                  params: { trnsId: row?.trN_ID },
                 });
-              },
+              }
             },
           ]}
           columns={[
             {
               key: "reQ_CODE",
-              title: "RequestCode",
+              title: "Request Code",
               render: (row) => handleNullUndefined(row.reQ_CODE),
               marginLeft: 20,
             },
@@ -236,7 +251,7 @@ const Approval1 = () => {
                 `${handleNullUndefined(
                   row.storage_Code
                 )} - ${handleNullUndefined(row.storage)}`,
-              width: 170,
+              width: 190,
             },
             {
               key: "materiaL_TYPE",
@@ -299,8 +314,24 @@ const Approval1 = () => {
           </>
         )}
       </DialogComponent>
+
+      {navigating && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
     </>
   );
 };
 
 export default Approval1;
+
+const styles = StyleSheet.create({
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 999,
+  },
+});

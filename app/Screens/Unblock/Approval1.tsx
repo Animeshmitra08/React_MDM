@@ -12,10 +12,11 @@ import {
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
-import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar } from "react-native-paper";
+import { ActivityIndicator, Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -38,6 +39,14 @@ const Approval1 = () => {
   const [loading, setLoading] = useState(false);
   const { currentUser, plantApiData } = useData();
   const router = useRouter();
+
+  const [navigating, setNavigating] = useState(false);
+    
+  useFocusEffect(
+    useCallback(() => {
+      setNavigating(false);
+    }, [])
+  );
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
@@ -202,9 +211,11 @@ const Approval1 = () => {
                 />
               ),
               onPress: (row) => {
+                if (navigating) return;
+                setNavigating(true);
                 router.push({
                   pathname: "/Screens/MaterialTransactionPage/MatTransPage",
-                  params: { trnsId: row.trN_ID },
+                  params: { trnsId: row?.trN_ID },
                 });
               },
             },
@@ -212,7 +223,7 @@ const Approval1 = () => {
           columns={[
             {
               key: "reQ_CODE",
-              title: "RequestCode",
+              title: "Request Code",
               render: (row) => handleNullUndefined(row.reQ_CODE),
               marginLeft: 20,
             },
@@ -237,7 +248,7 @@ const Approval1 = () => {
                 `${handleNullUndefined(
                   row.storage_Code
                 )} - ${handleNullUndefined(row.storage)}`,
-              width: 170,
+              // width: 170,
             },
             {
               key: "materiaL_Type",
@@ -340,8 +351,24 @@ const Approval1 = () => {
           </>
         )}
       </DialogComponent>
+
+      {navigating && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
     </>
   );
 };
 
 export default Approval1;
+
+const styles = StyleSheet.create({
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 999,
+  },
+});

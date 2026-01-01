@@ -142,11 +142,6 @@ const Approval1 = () => {
   //   ApiDataFunc();
   // }, [plantApiData]);
 
-  useEffect(() => {
-  console.log("navigating:", navigating);
-}, [navigating]);
-
-
 
   return (
     <>
@@ -223,7 +218,7 @@ const Approval1 = () => {
         columns={[
           {
             key: "reQ_CODE",
-            title: "RequestCode",
+            title: "Request Code",
             render: (row) => handleNullUndefined(row?.reQ_CODE),
             marginLeft: 20,
           },
@@ -248,7 +243,7 @@ const Approval1 = () => {
               `${handleNullUndefined(row.storage_Code)} - ${handleNullUndefined(
                 row.storage
               )}`,
-            width: 170,
+            // width: 170,
           },
           {
             key: "materiaL_Type",

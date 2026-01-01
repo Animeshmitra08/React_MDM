@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  TextInputProps,
 } from "react-native";
 import { Icon, useTheme } from "react-native-paper";
 
@@ -14,7 +15,12 @@ interface RNInputProps {
   onChangeText?: (text: string) => void;
   icon?: string;
   secure?: boolean;
+  autoFocus?: boolean;
+  inputMode?: TextInputProps["inputMode"];
+  keyboardType?: TextInputProps["keyboardType"];
+  style?: TextInputProps["style"];
   error?: string;
+  floatingLabel?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   disabled?: boolean;
   multiline?: boolean;
@@ -28,8 +34,13 @@ const RNInput: React.FC<RNInputProps> = ({
   icon,
   secure = false,
   error,
+  autoFocus = false,
+  inputMode = "text",
+  keyboardType = "default",
+  style,
   autoCapitalize = "none",
   disabled = false,
+  floatingLabel = true,
   multiline = false,
   numberOfLines = 1,
 }) => {
@@ -39,7 +50,7 @@ const RNInput: React.FC<RNInputProps> = ({
   // 👇 Add password visibility toggle
   const [hidePassword, setHidePassword] = useState(secure);
 
-  const isFloating = isFocused || !!value;
+  const isFloating = floatingLabel && (isFocused || !!value);
 
   return (
     <View style={styles.container}>
@@ -125,6 +136,9 @@ const RNInput: React.FC<RNInputProps> = ({
           scrollEnabled={!disabled}
           selectTextOnFocus={!disabled}
           secureTextEntry={secure && !disabled ? hidePassword : false}
+          inputMode= {inputMode}
+          keyboardType={keyboardType}
+          placeholder={floatingLabel ? undefined : label}
           multiline={multiline}
           numberOfLines={multiline ? numberOfLines : 1}
           selection={disabled ? { start: 0, end: 0 } : undefined}
@@ -141,6 +155,7 @@ const RNInput: React.FC<RNInputProps> = ({
               textAlignVertical: multiline ? "top" : "center",
               paddingRight: secure ? 40 : 12,
             },
+            style
           ]}
         />
 

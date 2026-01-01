@@ -91,7 +91,7 @@ const normalizeFaIcon = (iconClass?: string): string => {
   // Otherwise treat it as a Font Awesome class string
   const icon = iconClass
     .split(" ")
-    .find((cls) => cls.startsWith("fa-") && !cls.startsWith("fa-solid"));
+    .find((cls) => cls.startsWith("fa-") && !cls.startsWith("fa-solid") && !cls.startsWith("fa-regular") && !cls.startsWith("fa-light") && !cls.startsWith("fa-thin"));
 
   return icon ? icon.replace("fa-", "") : "circle";
 };

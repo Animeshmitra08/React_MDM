@@ -48,6 +48,7 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
     return map;
   }, [lookUpData]);
   
+  
 
   return (
     <Card style={[styles.card, { backgroundColor: colors.onPrimary }]}>
@@ -132,12 +133,15 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
 
         {validAttributes.length > 0 && (
           <View style={styles.attributeBox}>
-            <Chip icon="radioactive" style={styles.chip}>
+            <Chip icon="radioactive" style={styles.chip} >
               Attributes
             </Chip>
 
             <View style={styles.attributeGrid}>
-              {attributes.map((item, i) => (
+              {attributes.map((item, i) => {
+                const multiline = String(item.Value ?? "").length > 13 ? true : false;
+                const numberofLine = String(item.Value ?? "").length > 13 ? 3 : 2;
+                return(
                 <View
                   key={`${item.Attribute}-${i}`}
                   style={styles.attributeCol}
@@ -147,15 +151,30 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
                     mode="outlined"
                     value={String(item.Value ?? "")}
                     dense
-                    multiline
+                    multiline={multiline}
                     textAlign="left"
                     selection={{ start: 0, end: 0 }}
-                    numberOfLines={2}
+                    numberOfLines={numberofLine}
                     editable={false}
-                    style={styles.attributeInput}
+                    style={[styles.attributeInput,
+                    {
+                      height: multiline ? numberofLine * 24 : 46,
+                      textAlignVertical: multiline ? "top" : "center",
+                    },
+                    ]}
                   />
+                 {/* <RNInput
+                    label={item.Attribute}
+                    value={String(item.Value ?? "")}
+                    multiline
+                    numberOfLines={
+                      String(item.Value ?? "").length > 13 ? 3 : 2
+                    }
+                    disabled
+                    // floatingLabel={false}
+                  /> */}
                 </View>
-              ))}
+              )})}
             </View>
           </View>
         )}
@@ -199,8 +218,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     marginHorizontal: -6,
+    marginTop: 10
   },
   attributeCol: { width: "50%", paddingHorizontal: 6, marginBottom: 10 },
   attributeLabel: { fontSize: 12, color: "#555", marginBottom: 4 },
-  attributeInput: { backgroundColor: "#fff", height: 40 },
+  attributeInput: { backgroundColor: "#fff", height: 40, borderRadius: 12, },
 });
