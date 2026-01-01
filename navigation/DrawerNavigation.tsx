@@ -347,9 +347,14 @@ function CustomDrawer(props: CustomDrawerProps) {
       contentContainerStyle={styles.container}
     >
       <View style={styles.profileContainer}>
-        <Avatar.Text
+        {/* <Avatar.Text
           label={getInitials(currentUser?.email || "")}
           size={64}
+          style={{ backgroundColor: colors.onPrimary }}
+        /> */}
+        <Avatar.Image
+          size={64}
+          source={require("@/assets/images/emamilogo1.jpeg")}
           style={{ backgroundColor: colors.onPrimary }}
         />
         <View style={{ marginLeft: 12 }}>
@@ -361,6 +366,9 @@ function CustomDrawer(props: CustomDrawerProps) {
           </Text>
           <Text variant="bodySmall" style={{ color: colors.onPrimary }}>
             {currentUser?.email}
+          </Text>
+          <Text variant="bodySmall" style={{ color: colors.onPrimary, fontSize: 10, marginTop:4 }}>
+            {currentUser?.roleName}
           </Text>
         </View>
       </View>
