@@ -15,7 +15,7 @@ export type AlertType = "success" | "error" | "warning" | "info";
 
 interface AlertMessageProps {
   visible: boolean;
-  message: string;
+  message: string | { message: string };
   onDismiss: () => void;
   type?: AlertType;
   duration?: number;
@@ -107,6 +107,10 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
 
   if (!visible) return null;
 
+  const resolvedMessage =
+  typeof message === "string" ? message : message.message;
+
+
   return (
     <Animated.View
       style={StyleSheet.flatten([
@@ -136,7 +140,7 @@ const AlertMessage: React.FC<AlertMessageProps> = ({
             size={24}
             style={styles.icon}
           />
-          <Text style={styles.message}>{message}</Text>
+          <Text style={styles.message}>{resolvedMessage}</Text>
           <IconButton
             icon="close"
             size={20}

@@ -130,16 +130,21 @@ const Approval2 = () => {
       showAlert("No item selected", "error");
       return;
     }
+    const now = new Date();
+    const localIso =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, -1);
     const payload: ApprovalMaster = {
       ...selectedItem,
       extensionApproval2Status: actionType === "Accepted" ? 1 : 0,
       extApp2_Remark: remarks,
-      extensionApproval2On: new Date().toISOString(),
+      extensionApproval2On: localIso,
       extensionApproval2: currentUser?.username || "user",
       mode: "E",
     };
     const req = await Approval12Api.post(payload);
-    showAlert(req, "success");
+    showAlert(req, "success", 5000);
     await ApiDataFunc();
     console.log(req, "Response", "Api Fit");
     closeDialog();
@@ -180,9 +185,9 @@ const Approval2 = () => {
             {
               key: "edit-accept",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="thumb-up"
+                  label="A"
                   style={{ backgroundColor: AppMDMThemeColors.approval }}
                 />
               ),
@@ -196,9 +201,9 @@ const Approval2 = () => {
             {
               key: "edit-reject",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="thumb-down"
+                  label="R"
                   style={{ backgroundColor: AppMDMThemeColors.rejected }}
                 />
               ),

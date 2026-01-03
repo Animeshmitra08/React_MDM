@@ -118,16 +118,23 @@ const Approval1 = () => {
       showAlert("No item selected", "error");
       return;
     }
+
+    const now = new Date();
+    const localIso =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, -1);
+
     const req = await Approval12Api.post({
       ...selectedItem,
       isblock: actionType === "Accepted" ? 1 : 0,
       blockApp1Remark: remarks,
-      blockAppr1On: new Date().toISOString(),
+      blockAppr1On: localIso,
       blockAppr1By: currentUser?.username || "user",
       mode: "B",
     });
     console.log(req, "Response", "Api Fit");
-    showAlert(req, "success");
+    showAlert(req, "success", 5000);
     closeDialog();
     await ApiDataFunc();
   };
@@ -141,13 +148,6 @@ const Approval1 = () => {
       ApiDataFunc();
     }
   }, [plantApiData]);
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
-
-  // useEffect(() => {
-  //   ApiDataFunc();
-  // }, [plantApiData]);
 
   return (
     <>

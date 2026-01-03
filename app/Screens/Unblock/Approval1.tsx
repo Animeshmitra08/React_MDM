@@ -125,16 +125,21 @@ const Approval1 = () => {
       showAlert("No item selected", "error");
       return;
     }
+    const now = new Date();
+    const localIso =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, -1);
     const req = await Approval12Api.post({
       ...selectedItem,
       isUnBlock: actionType === "Accepted" ? 1 : 0,
       unBlockApp1Remark: remarks,
-      unBlockApp1On: new Date().toISOString(),
+      unBlockApp1On: localIso,
       unBlockApp1By: currentUser?.username || "user",
       mode: "UB",
     });
     await ApiDataFunc();
-    showAlert(req, "success");
+    showAlert(req, "success", 5000);
     console.log(req, "Response", "Api Fit");
     closeDialog();
   };

@@ -364,9 +364,9 @@ function CustomDrawer(props: CustomDrawerProps) {
           >
             {currentUser?.name}
           </Text>
-          <Text variant="bodySmall" style={{ color: colors.onPrimary }}>
+          {/* <Text variant="bodySmall" style={{ color: colors.onPrimary }}>
             {currentUser?.email}
-          </Text>
+          </Text> */}
           <Text variant="bodySmall" style={{ color: colors.onPrimary, fontSize: 10, marginTop:4 }}>
             {currentUser?.roleName}
           </Text>

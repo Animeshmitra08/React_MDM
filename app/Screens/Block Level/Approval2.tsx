@@ -110,23 +110,24 @@ const Approval2 = () => {
       showAlert("No item selected", "error");
       return;
     }
+    const now = new Date();
+    const localIso =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, -1);
     const req = await Approval12Api.post({
       ...selectedItem,
       isblock: actionType === "Accepted" ? 1 : 0,
       blockApp2Remark: remarks,
-      blockAppr2On: new Date().toISOString(),
+      blockAppr2On: localIso,
       blockAppr2By: currentUser?.username || "user",
       mode: "B",
     });
     console.log(req, "Response", "Api Fit");
-    showAlert(req, "success");
+    showAlert(req, "success", 5000);
     await ApiDataFunc();
     closeDialog();
   };
-
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -138,9 +139,6 @@ const Approval2 = () => {
       ApiDataFunc();
     }
   }, [plantApiData]);
-  // useEffect(() => {
-  //   ApiDataFunc();
-  // }, [plantApiData]);
 
   return (
     <>

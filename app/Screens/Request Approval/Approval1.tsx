@@ -41,6 +41,7 @@ const Approval1 = () => {
   const [remarks, setRemarks] = useState("");
   const [ApiData, setApiData] = useState<MaterialMaster[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const { currentUser, plantApiData } = useData();
 
@@ -129,32 +130,30 @@ const Approval1 = () => {
       showAlert("Enter Remarks", "error");
       return;
     }
-    console.log({
-      item: selectedItem,
-      action: actionType,
-      remarks,
-    });
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
     }
+
+    const now = new Date();
+    const localIso =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, -1);
     const req = await Approval12Api.post({
       ...selectedItem,
       appR1_STATUS: actionType === "Accepted" ? 1 : 0,
       appR1_REMARK: remarks,
-      appR1_ON: new Date().toISOString(),
+      appR1_ON: localIso,
       appR1_BY: currentUser?.username || "user",
       mode: "C",
     });
 
-    showAlert(req, "success");
+    showAlert(req, "success", 5000);
     await ApiDataFunc();
     // console.log(req, "Response", "Api Fit");
     closeDialog();
   };
-  // useEffect(() => {
-  //   ApiDataFunc();
-  // }, [plantApiData]);
 
   return (
     <>
@@ -180,9 +179,9 @@ const Approval1 = () => {
             {
               key: "edit-accept",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="thumb-up"
+                  label="A"
                   style={{ backgroundColor: AppMDMThemeColors.approval }}
                 />
               ),
@@ -196,9 +195,9 @@ const Approval1 = () => {
             {
               key: "edit-reject",
               render: () => (
-                <Avatar.Icon
+                <Avatar.Text
                   size={28}
-                  icon="thumb-down"
+                  label="R"
                   style={{ backgroundColor: AppMDMThemeColors.rejected }}
                 />
               ),
