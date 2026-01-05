@@ -15,7 +15,7 @@ import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -28,6 +28,7 @@ const Approval2 = () => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
   // const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
+      const [refreshing, setRefreshing] = useState(false);
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>();
@@ -100,10 +101,17 @@ const Approval2 = () => {
   }, [today]);
 
   useEffect(() => {
-    if (plantApiData?.length) {
-      ApiDataFunc();
-    }
+    ApiDataFunc();
   }, [plantApiData]);
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiDataFunc();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const closeDialog = () => {
     setDialogStep("NONE");
@@ -155,6 +163,14 @@ const Approval2 = () => {
         style={{
           flex: 1,
         }}
+        refreshControl={
+          <RefreshControl 
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={AppMDMThemeColors.approval}   // iOS
+          colors={[AppMDMThemeColors.approval]}
+          />
+        }
       >
         <Filter1
           today={today}

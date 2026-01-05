@@ -15,6 +15,7 @@ import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -38,6 +39,7 @@ const Approval2 = () => {
   const { currentUser, plantApiData } = useData();
 
   const [navigating, setNavigating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   
   useFocusEffect(
     useCallback(() => {
@@ -134,14 +136,33 @@ const Approval2 = () => {
     setFromDate(firstDay);
     setToDate(today);
   }, [today]);
+
   useEffect(() => {
-    if (plantApiData?.length) {
-      ApiDataFunc();
+    ApiDataFunc();
+  }, []);
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiDataFunc();
+    } finally {
+      setRefreshing(false);
     }
-  }, [plantApiData]);
+  };
 
   return (
     <>
+    <ScrollView
+    style={{ flex: 1 }}
+    refreshControl={
+      <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor={AppMDMThemeColors.approval}   // iOS
+      colors={[AppMDMThemeColors.approval]}
+      />
+    }
+    >
       <Filter1
         today={today}
         fromDate={fromDate}
@@ -341,6 +362,7 @@ const Approval2 = () => {
           <ActivityIndicator size="large" color="#fff" />
         </View>
       )}
+      </ScrollView>
     </>
   );
 };

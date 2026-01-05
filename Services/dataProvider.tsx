@@ -21,6 +21,8 @@ import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
 import { PlantMaster } from "@/src/types/ApprovalType";
 import { lookUpApi, PlantData } from "@/src/services/MdmAPPApi";
 import { DocumentItem } from "@/src/types/LookUp";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/utils/mmkv";
 
 interface DataContextType {
   currentUser: LoginResponse | null;
@@ -37,21 +39,14 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const USER_KEY = "currentUser";
-const MTRNS_KEY = "materialTransData";
+const USER_KEY = "currentUser"; // SecureStore
+
+const MTRNS_KEY = "materialTransData"; // AsyncStorage
 const PLANT_KEY = "plantData";
 const LOOKUP_KEY = "lookUpData";
 
 export const saveUserSecure = async (user: LoginResponse) => {
   await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
-};
-
-const saveMaterialTransData = async (data: MaterialTransactionsTypes) => {
-  await SecureStore.setItemAsync(MTRNS_KEY, JSON.stringify(data));
-};
-
-const savePlantData = async (data: PlantMaster[]) => {
-  await SecureStore.setItemAsync(PLANT_KEY, JSON.stringify(data));
 };
 
 export const getUserSecure = async (): Promise<LoginResponse | null> => {
@@ -63,9 +58,18 @@ export const removeUserSecure = async () => {
   await SecureStore.deleteItemAsync(USER_KEY);
 };
 
-const saveLookUpData = async (data: DocumentItem[]) => {
-  await SecureStore.setItemAsync(LOOKUP_KEY, JSON.stringify(data));
+const saveMaterialTransData = async (data: MaterialTransactionsTypes[]) => {
+  await AsyncStorage.setItem(MTRNS_KEY, JSON.stringify(data));
 };
+
+const savePlantData = async (data: PlantMaster[]) => {
+  await AsyncStorage.setItem(PLANT_KEY, JSON.stringify(data));
+};
+
+const saveLookUpData = async (data: DocumentItem[]) => {
+  await AsyncStorage.setItem(LOOKUP_KEY, JSON.stringify(data));
+};
+
 
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
@@ -103,6 +107,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     Constants.installationId ??
     Device.osBuildId ??
     "unknown";
+
+    storage.set("mmkv_test", "ok");
+    console.log(storage.getString("mmkv_test"));
+
 
   const getIp = async () => {
     const ip = await Network.getIpAddressAsync();
@@ -199,84 +207,38 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const loadMaterialTransFromStorage = async () => {
     try {
-      const stored = await SecureStore.getItemAsync(MTRNS_KEY);
-
+      const stored = await AsyncStorage.getItem(MTRNS_KEY);
       if (stored) {
-        const parsed: MaterialTransactionsTypes[] = JSON.parse(stored);
-        setMaterialTransData(parsed);
+        setMaterialTransData(JSON.parse(stored));
       }
-    } catch (error) {
-      console.log("SecureStore load error", error);
+    } catch (e) {
+      console.log("AsyncStorage material load error", e);
     }
   };
 
   const loadPlantDataFromStorage = async () => {
     try {
-      const stored = await SecureStore.getItemAsync(PLANT_KEY);
+      const stored = await AsyncStorage.getItem(PLANT_KEY);
       if (stored) {
-        const parsed: PlantMaster[] = JSON.parse(stored);
-        setPlantApiData(parsed);
+        setPlantApiData(JSON.parse(stored));
       }
-    } catch (error) {
-      console.log("Secure load error", error);
+    } catch (e) {
+      console.log("AsyncStorage plant load error", e);
     }
   };
 
   const loadLookUpFromStorage = async () => {
     try {
-      const stored = await SecureStore.getItemAsync(LOOKUP_KEY);
+      const stored = await AsyncStorage.getItem(LOOKUP_KEY);
       if (stored) {
-        const parsed: DocumentItem[] = JSON.parse(stored);
-        setLookUpData(parsed);
+        setLookUpData(JSON.parse(stored));
       }
-    } catch (error) {
-      console.log("SecureStore lookup load error", error);
+    } catch (e) {
+      console.log("AsyncStorage lookup load error", e);
     }
   };
 
-  // Validate user from API with localStorage
-  // const validateStoredUser = async () => {
-  //   try {
-  //     const stored = await AsyncStorage.getItem("currentUser");
-  //     if (!stored) return;
-
-  //     const localUser: UserData = JSON.parse(stored);
-
-  //     const res = await axios.get(`${Base_Api}/User/Contact?contactNo=${localUser.contact}`, {
-  //       headers: { Accept: "application/json" }
-  //     });
-
-  //     if (!res.data || res.data.length === 0) {
-  //       console.log("User removed or not found → logging out");
-  //       await logout();
-  //       return;
-  //     }
-
-  //     const freshUser = res.data[0];
-
-  //     if (freshUser.id !== localUser.id) {
-  //       console.log("User ID mismatch → logging out");
-  //       await logout();
-  //       return;
-  //     }
-
-  //     if (freshUser.estatus === 1) {
-  //       console.log("User account deactivated → logging out");
-  //       Alert.alert("User account deactivated → logging out");
-  //       await logout();
-  //       return;
-  //     }
-
-  //     if (JSON.stringify(freshUser) !== JSON.stringify(localUser)) {
-  //       console.log("🔄 User updated → refreshing AsyncStorage");
-  //       setCurrentUser(freshUser);
-  //       await AsyncStorage.setItem("currentUser", JSON.stringify(freshUser));
-  //     }
-
-  //   } catch (err) {
-  //     console.log("Validation error:", err);
-  //   }
-  // };
+  
 
   // ✅ Logout function
   const logout = async () => {
@@ -284,40 +246,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     await removeUserSecure();
   };
 
-  // 🧠 Load current user from storage and validate
-  // useEffect(() => {
-  //   const loadUserAndValidate = async () => {
-  //     const stored = await AsyncStorage.getItem("currentUser");
-  //     if (stored) {
-  //       setCurrentUser(JSON.parse(stored));
-  //       await validateStoredUser();
-  //     }
-  //   };
-
-  //   loadUserAndValidate();
-  // }, []);
-
-  // Periodic user validation
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     validateStoredUser();
-  //   }, 10000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
   // 🔄 Initial data load
   useEffect(() => {
     getIp();
   }, []);
 
   useEffect(() => {
-    getMaterialTrans();
     loadMaterialTransFromStorage();
-    getPlantMaster();
     loadPlantDataFromStorage();
-    getLookUp();
     loadLookUpFromStorage();
+
+    getMaterialTrans();
+    getPlantMaster();
+    getLookUp();
   }, []);
 
   useEffect(() => {

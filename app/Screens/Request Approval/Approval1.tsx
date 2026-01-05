@@ -15,7 +15,7 @@ import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Avatar, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -32,6 +32,7 @@ const Approval1 = () => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
   // const [plantApiData, setPlantApiData] = useState<PlantMaster[]>();
+    const [refreshing, setRefreshing] = useState(false);
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>();
@@ -70,14 +71,17 @@ const Approval1 = () => {
   }, [today]);
 
   useEffect(() => {
-    if (
-      plantApiData?.length &&
-      fromDate &&
-      toDate
-    ) {
       ApiDataFunc();
+  }, [plantApiData]);
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiDataFunc();
+    } finally {
+      setRefreshing(false);
     }
-  }, []);
+  };
 
   const toISODate = (d: Date) =>
     new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -157,7 +161,17 @@ const Approval1 = () => {
 
   return (
     <>
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView 
+      style={{ flex: 1 }}
+      refreshControl={
+        <RefreshControl 
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        tintColor={AppMDMThemeColors.approval}   // iOS
+        colors={[AppMDMThemeColors.approval]}
+        />
+      }
+      >
         <Filter1
           today={today}
           fromDate={fromDate}
