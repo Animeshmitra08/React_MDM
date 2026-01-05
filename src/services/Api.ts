@@ -63,7 +63,7 @@ export const LoginApi = {
     try {
       const response = await axiosCon.postWithHeaders("/Login", data, {
         appid: ApplicationID ?? "",
-        "Content-Type": "application/json-patch+json",
+        'Content-Type': 'application/json-patch+json'
       });
       return response;
     } catch (error) {

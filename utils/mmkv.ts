@@ -1,5 +1,5 @@
-import { MMKV as MMKVClass } from "react-native-mmkv";
+import { createMMKV } from "react-native-mmkv";
 
-export const storage = new MMKVClass({
+export const storage = createMMKV({
   id: "app-storage",
 });

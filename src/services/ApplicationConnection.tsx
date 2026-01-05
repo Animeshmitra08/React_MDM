@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 const API_BASE =
-  process.env.EXPO_PUBLIC_APP_API_URL || "https://aonapps.in:6070/mdm/api";
+  process.env.EXPO_PUBLIC_APP_API_URL || "https://itms.emamiagrotech.com:8082/mdm_api/api";
 
 const appAxiosCon = {
   get: async (endpoint: string) => {

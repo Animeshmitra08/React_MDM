@@ -48,8 +48,6 @@ const axiosCon = {
     data: any,
     headers: Record<string, string> = {}
   ) => {
-    console.log(endpoint, headers, data);
-    
     try {
       const config: AxiosRequestConfig = {
         method: 'post',

@@ -21,7 +21,6 @@ import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
 import { PlantMaster } from "@/src/types/ApprovalType";
 import { lookUpApi, PlantData } from "@/src/services/MdmAPPApi";
 import { DocumentItem } from "@/src/types/LookUp";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storage } from "@/utils/mmkv";
 
 interface DataContextType {
@@ -41,7 +40,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 const USER_KEY = "currentUser"; // SecureStore
 
-const MTRNS_KEY = "materialTransData"; // AsyncStorage
+const MTRNS_KEY = "materialTransData";
 const PLANT_KEY = "plantData";
 const LOOKUP_KEY = "lookUpData";
 
@@ -58,16 +57,16 @@ export const removeUserSecure = async () => {
   await SecureStore.deleteItemAsync(USER_KEY);
 };
 
-const saveMaterialTransData = async (data: MaterialTransactionsTypes[]) => {
-  await AsyncStorage.setItem(MTRNS_KEY, JSON.stringify(data));
+const saveMaterialTransData = (data: MaterialTransactionsTypes[]) => {
+  storage.set(MTRNS_KEY, JSON.stringify(data));
 };
 
-const savePlantData = async (data: PlantMaster[]) => {
-  await AsyncStorage.setItem(PLANT_KEY, JSON.stringify(data));
+const savePlantData = (data: PlantMaster[]) => {
+  storage.set(PLANT_KEY, JSON.stringify(data));
 };
 
-const saveLookUpData = async (data: DocumentItem[]) => {
-  await AsyncStorage.setItem(LOOKUP_KEY, JSON.stringify(data));
+const saveLookUpData = (data: DocumentItem[]) => {
+  storage.set(LOOKUP_KEY, JSON.stringify(data));
 };
 
 
@@ -108,10 +107,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     Device.osBuildId ??
     "unknown";
 
-    storage.set("mmkv_test", "ok");
-    console.log(storage.getString("mmkv_test"));
-
-
   const getIp = async () => {
     const ip = await Network.getIpAddressAsync();
     setIpAdd(ip);
@@ -137,6 +132,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     };
     try {
       const response = await LoginApi.post(payload);
+
+      console.log(response);
+      
       const data: LoginResponse = response;
       if (response) {
         setCurrentUser(response);
@@ -144,7 +142,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
       return data;
     } catch (err: any) {
-      // console.error("❌ Login error:", err);
       handleApiError(err);
       throw err;
     }
@@ -176,10 +173,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await MaterialTransApi.getAll();
       setMaterialTransData(res);
-      await saveMaterialTransData(res);
+      saveMaterialTransData(res);
     } catch (error: any) {
       handleApiError(error);
-      console.log(error);
     }
   };
 
@@ -187,10 +183,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await PlantData.GetAll();
       setPlantApiData(res);
-      await savePlantData(res);
+      savePlantData(res);
     } catch (error) {
       handleApiError(error);
-      console.log(error);
     }
   };
 
@@ -198,43 +193,30 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       const res = await lookUpApi.getAll();
       setLookUpData(res);
-      await saveLookUpData(res);
+      saveLookUpData(res);
     } catch (error) {
       handleApiError(error);
-      console.log(error);
     }
   };
 
-  const loadMaterialTransFromStorage = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(MTRNS_KEY);
-      if (stored) {
-        setMaterialTransData(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.log("AsyncStorage material load error", e);
+  const loadMaterialTransFromStorage = () => {
+    const stored = storage.getString(MTRNS_KEY);
+    if (stored) {
+      setMaterialTransData(JSON.parse(stored));
     }
   };
 
-  const loadPlantDataFromStorage = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(PLANT_KEY);
-      if (stored) {
-        setPlantApiData(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.log("AsyncStorage plant load error", e);
+  const loadPlantDataFromStorage = () => {
+    const stored = storage.getString(PLANT_KEY);
+    if (stored) {
+      setPlantApiData(JSON.parse(stored));
     }
   };
 
-  const loadLookUpFromStorage = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(LOOKUP_KEY);
-      if (stored) {
-        setLookUpData(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.log("AsyncStorage lookup load error", e);
+  const loadLookUpFromStorage = () => {
+    const stored = storage.getString(LOOKUP_KEY);
+    if (stored) {
+      setLookUpData(JSON.parse(stored));
     }
   };
 
@@ -244,6 +226,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const logout = async () => {
     setCurrentUser(null);
     await removeUserSecure();
+
+    // storage.delete(MTRNS_KEY);
+    // storage.delete(PLANT_KEY);
+    // storage.delete(LOOKUP_KEY);
   };
 
   // 🔄 Initial data load
