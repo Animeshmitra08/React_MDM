@@ -319,7 +319,7 @@ const Approval1 = () => {
             />
 
             <RNInput
-              label="Enter Remarks**"
+              label="Enter Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}

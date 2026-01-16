@@ -39,9 +39,6 @@ export default function MatTransPage() {
 
   const d = filteredTransData;
 
-  console.log(d);
-  
-
   return (
     <View style={styles.screenWrapper}>
       <StatusBar style="dark" />

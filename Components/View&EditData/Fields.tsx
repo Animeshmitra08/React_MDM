@@ -18,6 +18,7 @@ const LookupField: React.FC<LookupFieldProps> = ({
   value,
   lookupMap,
 }) => {
+  
   const displayValue = useMemo(() => {
     if (!lookupMap || value === null || value === undefined) {
       return String(value ?? "");
