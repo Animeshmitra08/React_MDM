@@ -16,7 +16,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { ActivityIndicator, Avatar } from "react-native-paper";
+import { ActivityIndicator, Avatar, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -41,6 +41,9 @@ const Approval1 = () => {
 
   const [navigating, setNavigating] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [submitLoading, setSubmitLoading] = useState(false);
+      
+      const { colors } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
@@ -84,20 +87,6 @@ const Approval1 = () => {
     }
   };
 
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   if (plantApiData && Array.isArray(plantApiData)) {
-  //     setPlant(plantApiData?.map((each) => each?.id));
-  //   }
-  // }, [plant]);
-
   const closeDialog = () => {
     setDialogStep("NONE");
     setSelectedItem(null);
@@ -110,11 +99,7 @@ const Approval1 = () => {
       showAlert("Enter Remarks", "error");
       return;
     }
-    console.log({
-      item: selectedItem,
-      action: actionType,
-      remarks,
-    });
+
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
@@ -126,19 +111,33 @@ const Approval1 = () => {
         .toISOString()
         .slice(0, -1);
 
-    const req = await Approval12Api.post({
-      ...selectedItem,
-      isblock: actionType === "Accepted" ? 1 : 0,
-      blockApp1Remark: remarks,
-      blockAppr1On: localIso,
-      blockAppr1By: currentUser?.username || "user",
-      mode: "B",
-    });
-    console.log(req, "Response", "Api Fit");
-    showAlert(req, "success", 5000);
-    closeDialog();
-    await ApiDataFunc();
+    setSubmitLoading(true);
+
+    try {
+      const req = await Approval12Api.post({
+        ...selectedItem,
+        isblock: actionType === "Accepted" ? 1 : 0,
+        blockApp1Remark: remarks,
+        blockAppr1On: localIso,
+        blockAppr1By: currentUser?.username || "user",
+        mode: "B",
+      });
+
+      console.log(req, "Response", "Api Fit");
+      showAlert(req, "success", 5000);
+      closeDialog();
+      await ApiDataFunc();
+    } catch (error: any) {
+      console.error("Submit failed", error);
+      showAlert(
+        error?.message || "Something went wrong while submitting",
+        "error"
+      );
+    } finally {
+      setSubmitLoading(false);
+    }
   };
+  
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
@@ -342,6 +341,12 @@ const Approval1 = () => {
               icon="grease-pencil"
               onChangeText={setRemarks}
             />
+            {
+              submitLoading && 
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            }
           </>
         )}
       </DialogComponent>

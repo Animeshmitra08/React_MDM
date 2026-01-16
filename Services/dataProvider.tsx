@@ -34,6 +34,7 @@ interface DataContextType {
   materialTransData: MaterialTransactionsTypes[];
   plantApiData: PlantMaster[];
   lookUpData: DocumentItem[];
+  refreshMaterialTrans: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -220,6 +221,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     if (data) setLookUpData(data);
   };
 
+  const refreshMaterialTrans = async () => {
+    await getMaterialTrans();
+  };
+
   
 
   // ✅ Logout function
@@ -268,6 +273,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     materialTransData,
     plantApiData,
     lookUpData,
+    refreshMaterialTrans,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

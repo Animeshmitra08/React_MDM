@@ -16,7 +16,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { ActivityIndicator, Avatar } from "react-native-paper";
+import { ActivityIndicator, Avatar, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -43,6 +43,10 @@ const Approval2 = () => {
   const { currentUser, plantApiData } = useData();
 
   const [navigating, setNavigating] = useState(false);
+
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  const { colors } = useTheme();
         
       useFocusEffect(
         useCallback(() => {
@@ -102,32 +106,51 @@ const Approval2 = () => {
   };
 
   const submitAction = async () => {
-    if (remarks === "") {
+    if (!remarks) {
       showAlert("Enter Remarks", "error");
       return;
     }
-    
+
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
     }
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+
+    setSubmitLoading(true);
+
+    try {
+      const now = new Date();
+      const localIso = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      )
         .toISOString()
         .slice(0, -1);
-    const req = await Approval12Api.post({
-      ...selectedItem,
-      appR2_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR2_REMARKS: remarks,
-      appR2_ON: localIso,
-      appR2_BY: currentUser?.username || "user",
-      mode: "C",
-    });
-    await ApiDataFunc();
-    showAlert(req, "success", 5000);
-    // console.log(req, "Response", "Api Fit");
-    closeDialog();
+
+      const payload = {
+        ...selectedItem,
+        appR2_STATUS: actionType === "Accepted" ? 1 : 0,
+        appR2_REMARKS: remarks,
+        appR2_ON: localIso,
+        appR2_BY: currentUser?.username || "user",
+        mode: "C",
+      };
+
+      const response = await Approval12Api.post(payload);
+
+      await ApiDataFunc();
+      showAlert(response, "success", 5000);
+
+      closeDialog();
+    } catch (error: any) {
+      console.error("submitAction (R2) failed:", error);
+
+      showAlert(
+        error?.message || "Failed to submit action. Please try again.",
+        "error"
+      );
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const onRefresh = async () => {
@@ -343,11 +366,17 @@ const Approval2 = () => {
               icon="format-list-numbered"
             />
             <RNInput
-              label="Enter Remarks**"
+              label="Enter Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}
             />
+             {
+                submitLoading && 
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+              }
           </>
         )}
       </DialogComponent>

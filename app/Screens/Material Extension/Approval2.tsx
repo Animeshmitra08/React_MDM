@@ -122,20 +122,18 @@ const Approval2 = () => {
       showAlert("Enter Remarks", "error");
       return;
     }
-    console.log({
-      item: selectedItem,
-      action: actionType,
-      remarks,
-    });
+
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
     }
+
     const now = new Date();
     const localIso =
       new Date(now.getTime() - now.getTimezoneOffset() * 60000)
         .toISOString()
         .slice(0, -1);
+
     const payload: ApprovalMaster = {
       ...selectedItem,
       extensionApproval2Status: actionType === "Accepted" ? 1 : 0,
@@ -144,11 +142,24 @@ const Approval2 = () => {
       extensionApproval2: currentUser?.username || "user",
       mode: "E",
     };
-    const req = await Approval12Api.post(payload);
-    showAlert(req, "success", 5000);
-    await ApiDataFunc();
-    console.log(req, "Response", "Api Fit");
-    closeDialog();
+
+    setLoading(true);
+
+    try {
+      const req = await Approval12Api.post(payload);
+      showAlert(req, "success", 5000);
+      await ApiDataFunc();
+      console.log(req, "Response", "Api Fit");
+      closeDialog();
+    } catch (error: any) {
+      console.error("Submit failed", error);
+      showAlert(
+        error?.message || "Something went wrong while submitting",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onRefresh = async () => {
@@ -339,7 +350,7 @@ const Approval2 = () => {
               icon="format-list-numbered"
             />
             <RNInput
-              label="Enter Remarks**"
+              label="Enter Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}

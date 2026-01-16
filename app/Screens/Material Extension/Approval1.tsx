@@ -122,11 +122,7 @@ const Approval1 = () => {
       showAlert("Enter Remarks", "error");
       return;
     }
-    console.log({
-      item: selectedItem,
-      action: actionType,
-      remarks,
-    });
+
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
@@ -147,11 +143,23 @@ const Approval1 = () => {
       mode: "E",
     };
 
-    const req = await Approval12Api.post(payload);
-    showAlert(req, "success", 5000);
-    await ApiDataFunc();
-    console.log(req, "Response", "Api Fit");
-    closeDialog();
+    setLoading(true);
+
+    try {
+      const req = await Approval12Api.post(payload);
+      showAlert(req, "success", 5000);
+      await ApiDataFunc();
+      console.log(req, "Response", "Api Fit");
+      closeDialog();
+    } catch (error: any) {
+      console.error("Submit failed", error);
+      showAlert(
+        error?.message || "Something went wrong while submitting",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onRefresh = async () => {
@@ -335,7 +343,7 @@ const Approval1 = () => {
             />
 
             <RNInput
-              label="Enter Remarks**"
+              label="Enter Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}

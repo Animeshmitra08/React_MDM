@@ -44,7 +44,7 @@ const Approval1 = () => {
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  const { currentUser, plantApiData } = useData();
+  const { currentUser, plantApiData, refreshMaterialTrans } = useData();
 
   const router = useRouter();
 
@@ -115,6 +115,7 @@ const Approval1 = () => {
       setLoading(true);
       const response = await Approval1Api.post(payload);
       setApiData(response);
+      await refreshMaterialTrans();
     } catch (err) {
       console.error("Error fetching Approval1 data:", err);
     } finally {
@@ -130,33 +131,51 @@ const Approval1 = () => {
   };
 
   const submitAction = async () => {
-    if (remarks === "") {
+    if (!remarks) {
       showAlert("Enter Remarks", "error");
       return;
     }
+
     if (!selectedItem) {
       showAlert("No item selected", "error");
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    setSubmitLoading(true);
+
+    try {
+      const now = new Date();
+      const localIso = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      )
         .toISOString()
         .slice(0, -1);
-    const req = await Approval12Api.post({
-      ...selectedItem,
-      appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-      appR1_REMARK: remarks,
-      appR1_ON: localIso,
-      appR1_BY: currentUser?.username || "user",
-      mode: "C",
-    });
 
-    showAlert(req, "success", 5000);
-    await ApiDataFunc();
-    // console.log(req, "Response", "Api Fit");
-    closeDialog();
+      const payload = {
+        ...selectedItem,
+        appR1_STATUS: actionType === "Accepted" ? 1 : 0,
+        appR1_REMARK: remarks,
+        appR1_ON: localIso,
+        appR1_BY: currentUser?.username || "user",
+        mode: "C",
+      };
+
+      const response = await Approval12Api.post(payload);
+
+      showAlert(response, "success", 5000);
+
+      await ApiDataFunc();
+      closeDialog();
+    } catch (error: any) {
+      console.error("submitAction failed:", error);
+
+      showAlert(
+        error?.message || "Failed to submit action. Please try again.",
+        "error"
+      );
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   return (
@@ -324,6 +343,12 @@ const Approval1 = () => {
               icon="grease-pencil"
               onChangeText={setRemarks}
             />
+            {
+              submitLoading && 
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#fff" />
+              </View>
+            }
           </>
         )}
       </DialogComponent>
