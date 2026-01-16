@@ -21,7 +21,7 @@ import { MaterialTransactionsTypes } from "@/src/types/MaterialTransactions";
 import { PlantMaster } from "@/src/types/ApprovalType";
 import { lookUpApi, PlantData } from "@/src/services/MdmAPPApi";
 import { DocumentItem } from "@/src/types/LookUp";
-import { storage } from "@/utils/mmkv";
+import { loadIfNotEmpty, saveIfNotEmpty, storage } from "@/utils/mmkv";
 
 interface DataContextType {
   currentUser: LoginResponse | null;
@@ -58,15 +58,15 @@ export const removeUserSecure = async () => {
 };
 
 const saveMaterialTransData = (data: MaterialTransactionsTypes[]) => {
-  storage.set(MTRNS_KEY, JSON.stringify(data));
+  saveIfNotEmpty(MTRNS_KEY, data);
 };
 
 const savePlantData = (data: PlantMaster[]) => {
-  storage.set(PLANT_KEY, JSON.stringify(data));
+  saveIfNotEmpty(PLANT_KEY, data);
 };
 
 const saveLookUpData = (data: DocumentItem[]) => {
-  storage.set(LOOKUP_KEY, JSON.stringify(data));
+  saveIfNotEmpty(LOOKUP_KEY, data);
 };
 
 
@@ -132,9 +132,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     };
     try {
       const response = await LoginApi.post(payload);
-
-      console.log(response);
-      
       const data: LoginResponse = response;
       if (response) {
         setCurrentUser(response);
@@ -172,9 +169,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getMaterialTrans = async () => {
     try {
       const res = await MaterialTransApi.getAll();
-      setMaterialTransData(res);
-      saveMaterialTransData(res);
-    } catch (error: any) {
+
+      if (Array.isArray(res)) {
+        setMaterialTransData(res);
+        storage.set(MTRNS_KEY, JSON.stringify(res));
+      }
+    } catch (error) {
       handleApiError(error);
     }
   };
@@ -182,8 +182,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getPlantMaster = async () => {
     try {
       const res = await PlantData.GetAll();
-      setPlantApiData(res);
-      savePlantData(res);
+
+      if (Array.isArray(res)) {
+        setPlantApiData(res);
+        storage.set(PLANT_KEY, JSON.stringify(res));
+      }
     } catch (error) {
       handleApiError(error);
     }
@@ -192,32 +195,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getLookUp = async () => {
     try {
       const res = await lookUpApi.getAll();
-      setLookUpData(res);
-      saveLookUpData(res);
+
+      if (Array.isArray(res)) {
+        setLookUpData(res);
+        storage.set(LOOKUP_KEY, JSON.stringify(res));
+      }
     } catch (error) {
       handleApiError(error);
     }
   };
 
   const loadMaterialTransFromStorage = () => {
-    const stored = storage.getString(MTRNS_KEY);
-    if (stored) {
-      setMaterialTransData(JSON.parse(stored));
-    }
+    const data = loadIfNotEmpty<MaterialTransactionsTypes>(MTRNS_KEY);
+    if (data) setMaterialTransData(data);
   };
 
   const loadPlantDataFromStorage = () => {
-    const stored = storage.getString(PLANT_KEY);
-    if (stored) {
-      setPlantApiData(JSON.parse(stored));
-    }
+    const data = loadIfNotEmpty<PlantMaster>(PLANT_KEY);
+    if (data) setPlantApiData(data);
   };
 
   const loadLookUpFromStorage = () => {
-    const stored = storage.getString(LOOKUP_KEY);
-    if (stored) {
-      setLookUpData(JSON.parse(stored));
-    }
+    const data = loadIfNotEmpty<DocumentItem>(LOOKUP_KEY);
+    if (data) setLookUpData(data);
   };
 
   
@@ -227,9 +227,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setCurrentUser(null);
     await removeUserSecure();
 
-    // storage.delete(MTRNS_KEY);
-    // storage.delete(PLANT_KEY);
-    // storage.delete(LOOKUP_KEY);
+    // storage.remove(MTRNS_KEY);
+    // storage.remove(PLANT_KEY);
+    // storage.remove(LOOKUP_KEY);
   };
 
   // 🔄 Initial data load

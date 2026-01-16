@@ -39,6 +39,9 @@ export default function MatTransPage() {
 
   const d = filteredTransData;
 
+  console.log(d);
+  
+
   return (
     <View style={styles.screenWrapper}>
       <StatusBar style="dark" />
@@ -46,7 +49,7 @@ export default function MatTransPage() {
       {/* STICKY HEADER: Placed outside ScrollView */}
       <View style={[styles.stickyHeader, { backgroundColor: colors.surface }]}>
         <Text style={styles.headerTitle}>MDM Request Number</Text>
-        <Chip icon="identifier" style={styles.headerChip}>{d.reQ_CODE}</Chip>
+        <Chip style={styles.headerChip}>{d.reQ_CODE}</Chip>
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>

@@ -15,6 +15,7 @@ import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -40,6 +41,7 @@ const Approval2 = () => {
 
   const router = useRouter();
   const [navigating, setNavigating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -140,12 +142,34 @@ const Approval2 = () => {
     closeDialog();
   };
 
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiDataFunc();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   // useEffect(() => {
   //   ApiDataFunc();
   // }, [plantApiData]);
 
   return (
     <>
+    <ScrollView
+    style={{
+      flex: 1,
+    }}
+    refreshControl={
+      <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor={AppMDMThemeColors.approval}   // iOS
+      colors={[AppMDMThemeColors.approval]}
+      />
+    }
+    >
       <Filter1
         today={today}
         fromDate={fromDate}
@@ -289,6 +313,7 @@ const Approval2 = () => {
         searchable={true}
         searchKeys={["plant"]}
       />
+      </ScrollView>
       <DialogComponent
         visible={dialogStep !== "NONE"}
         title={`${actionType} Confirmation`}

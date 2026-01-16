@@ -65,7 +65,7 @@ const BasicInfoCard: React.FC<Props> = ({ data }) => {
       <Card.Content style={styles.content}>
         <View style={styles.row}>
           <LookUpFields label="Reference Number" value={data.reQ_CODE} />
-          <LookUpFields label="Material Type" value={data.materialTypeName} />
+          <LookUpFields label="Material Type" value={data.materialTypeName} lookupMap={lookupMap}/>
           <LookUpFields label="Industry Sector" value={data.industrY_SECTOR} lookupMap={lookupMap}/>
           <LookUpFields label="Plant" value={data.plant} lookupMap={lookupMap}/>
           <LookUpFields label="Storage Location" value={data.storagE_LOCATION} lookupMap={lookupMap}/>

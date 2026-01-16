@@ -38,7 +38,6 @@ const LookupField: React.FC<LookupFieldProps> = ({
     // 3️⃣ FINAL fallback
     return String(value);
   }, [label, lookupKey, value, lookupMap]);
-  
 
   return (
     <View style={{ width: "50%", paddingHorizontal: 6, marginBottom: 8 }}>

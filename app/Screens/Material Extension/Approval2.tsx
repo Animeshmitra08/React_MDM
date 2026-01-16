@@ -19,7 +19,7 @@ import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -45,6 +45,7 @@ const Approval2 = () => {
   const router = useRouter();
 
   const [navigating, setNavigating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
           
         useFocusEffect(
           useCallback(() => {
@@ -150,6 +151,15 @@ const Approval2 = () => {
     closeDialog();
   };
 
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await ApiDataFunc();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   // useEffect(() => {
   //   ApiDataFunc();
   // }, [plantApiData]);
@@ -162,6 +172,14 @@ const Approval2 = () => {
         style={{
           flex: 1,
         }}
+        refreshControl={
+          <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={AppMDMThemeColors.approval}   // iOS
+          colors={[AppMDMThemeColors.approval]}
+          />
+        }
       >
         <Filter1
           today={today}

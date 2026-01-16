@@ -156,7 +156,6 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ showCaptcha = true, Log
       const res = await onLogin(user, pass);
 
       if (res.userID != null) {
-        console.log(res);
         setAlert({
           visible: true,
           message: "Login Success",
