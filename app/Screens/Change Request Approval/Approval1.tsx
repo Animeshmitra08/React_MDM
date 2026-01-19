@@ -104,31 +104,49 @@ const Approval1 = () => {
     setRemarks("");
   };
 
-  const submitAction = async () => {
-    if (remarks === "") {
-      showAlert("Enter Remarks", "error");
-      return;
-    }
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
 
-    if (!selectedItem) {
-      showAlert("No item selected", "error");
-      return;
-    }
+  const buildPayload = () => {
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
-    const payload = {
-      ...selectedItem,
-        appR1_STATUS: actionType === "Accepted" ? 1 : 0,
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        appR1_STATUS: 1,
         appR1_REMARK: remarks,
         appR1_ON: localIso,
         appR1_BY: currentUser?.username || "user",
         mode: "CH",
+      };
     }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      changeReqStatus: 1,
+      rejecteD_REMARK: remarks,
+      rejecteD_ON: localIso,
+      rejecteD_BY: currentUser?.username || "user",
+      mode: "CH",
+    };
+  };
+
+  const submitAction = async () => {
+    if (remarks === "") {
+      showAlert("Enter Remarks", "error");
+      return;
+    };
+
+    if (!selectedItem) {
+      showAlert("No item selected", "error");
+      return;
+    };
+
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     setSubmitLoading(true);
 

@@ -111,6 +111,39 @@ const Approval2 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        reQ_NO: selectedItem?.reQ_CODE,
+        extensionApproval2Status: 1,
+        extApp2_Remark: remarks,
+        extensionApproval2On: localIso,
+        extensionApproval2: currentUser?.username || "user",
+        mode: "E",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      reQ_NO: selectedItem?.reQ_CODE,
+      extensionRejectStatus: 1,
+      extApp2_Remark: remarks,
+      extensionRejectOn: localIso,
+      extensionRejectBy: currentUser?.username || "user",
+      mode: "E",
+    };
+  };
+
   const submitAction = async () => {
     if (!remarks.trim()) {
       showAlert("Enter Remarks", "error");
@@ -122,23 +155,9 @@ const Approval2 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso = new Date(
-      now.getTime() - now.getTimezoneOffset() * 60000
-    )
-      .toISOString()
-      .slice(0, -1);
-
     const isAccepted = actionType === "Accepted";
 
-    const payload = {
-      ...selectedItem,
-      extensionApproval2Status: isAccepted ? 1 : 0,
-      extApp2_Remark: remarks,
-      extensionApproval2On: localIso,
-      extensionApproval2: currentUser?.username ?? "user",
-      mode: "E",
-    };
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     // 🔥 Choose API based on action
     const apiCall = isAccepted

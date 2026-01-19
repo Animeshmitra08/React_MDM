@@ -110,6 +110,39 @@ const Approval1 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        reQ_NO: selectedItem?.reQ_CODE,
+        extensionApproval1Status: 1,
+        extApp1_Remark: remarks,
+        extensionApproval1On: localIso,
+        extensionApproval1: currentUser?.username || "user",
+        mode: "E",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      reQ_NO: selectedItem?.reQ_CODE,
+      extensionRejectStatus: 1,
+      extApp1_Remark: remarks,
+      extensionRejectOn: localIso,
+      extensionRejectBy: currentUser?.username || "user",
+      mode: "E",
+    };
+  };
+
   const submitAction = async () => {
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
@@ -121,20 +154,7 @@ const Approval1 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
-    const payload = {
-      ...selectedItem,
-      extensionApproval1Status: actionType === "Accepted" ? 1 : 0,
-      extApp1_Remark: remarks,
-      extensionApproval1On: localIso,
-      extensionApproval1: currentUser?.username || "user",
-      mode: "E",
-    };
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     setSubmitLoading(true);
 

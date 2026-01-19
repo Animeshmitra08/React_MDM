@@ -105,6 +105,37 @@ const Approval2 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        appR2_STATUS: 1,
+        appR2_REMARK: remarks,
+        appR2_ON: localIso,
+        appR2_BY: currentUser?.username || "user",
+        mode: "CH",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      changeReqStatus: 1,
+      rejecteD_REMARK: remarks,
+      rejecteD_ON: localIso,
+      rejecteD_BY: currentUser?.username || "user",
+      mode: "CH",
+    };
+  };
+
   const submitAction = async () => {
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
@@ -116,23 +147,12 @@ const Approval2 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
     setSubmitLoading(true);
 
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
+
     try {
-      const req = await Approval12Api.post({
-        ...selectedItem,
-        appR1_STATUS: actionType === "Accepted" ? 1 : 0,
-        appR1_REMARK: remarks,
-        appR1_ON: localIso,
-        appR1_BY: currentUser?.username || "user",
-        mode: "CH",
-      });
+      const req = await Approval12Api.post(payload);
 
       showAlert(req, "success", 5000);
       console.log(req, "Response", "Api Fit");
