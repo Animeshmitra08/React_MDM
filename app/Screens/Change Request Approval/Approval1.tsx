@@ -86,18 +86,6 @@ const Approval1 = () => {
     }
   };
 
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
-
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
@@ -133,17 +121,19 @@ const Approval1 = () => {
         .toISOString()
         .slice(0, -1);
 
-    setSubmitLoading(true);
-
-    try {
-      const req = await Approval12Api.post({
-        ...selectedItem,
+    const payload = {
+      ...selectedItem,
         appR1_STATUS: actionType === "Accepted" ? 1 : 0,
         appR1_REMARK: remarks,
         appR1_ON: localIso,
         appR1_BY: currentUser?.username || "user",
         mode: "CH",
-      });
+    }
+
+    setSubmitLoading(true);
+
+    try {
+      const req = await Approval12Api.post(payload);
 
       showAlert(req, "success", 5000);
       console.log(req, "Response", "Api Fit");

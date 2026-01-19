@@ -409,3 +409,115 @@ export interface ApprovalMaster {
   production_STLO: string;
   costing_Lot_Size: string;
 }
+
+
+export interface ExtensionPostSap {
+  id: string;
+  trN_ID: string;
+  planT_ID: string;
+  storagE_LOCATION: string;
+  overheaD_GROUP: string;
+  mrP_CONTROLLER: string;
+  productioN_SCHEDULER: string;
+
+  plantName: string;
+  plantCode: string;
+  plantDesc: string;
+
+  reQ_NO: string;
+  reQ_CODE: string;
+  mode: string;
+  maT_CODE: string;
+
+  appR1_BY: string;
+  appR2_BY: string;
+  remark: string;
+
+  blockBy: string;
+  extensionBy: string;
+
+  isexteneded: number;
+  isblock: number;
+  isUnBlock: number;
+  isUnBlockReject: number;
+  isBlockReject: number;
+  isClientLevelBlock: number;
+
+  appR1_STATUS: number;
+  appR2_STATUS: number;
+  changeReqStatus: number;
+
+  extensionApproval1: string;
+  extensionApproval1Status: number;
+  extensionApproval2: string;
+  extensionApproval2Status: number;
+
+  extensionRejectBy: string;
+  extensionRejectStatus: number;
+
+  extensionSapStatus: number;
+  sapPostingStatus: string;
+  sapBlockStatus: string;
+
+  blockRejectBY: string;
+
+  blockAppr1By: string;
+  blockAppr2By: string;
+
+  unBlockBy: string;
+  unBlockApp1By: string;
+  unBlockApp2By: string;
+  unBlockRejectBy: string;
+
+  materialType_Code: string;
+  storage_Code: string;
+
+  materiaL_GROUP1: string;
+  materiaL_GROUP2: string;
+  materiaL_GROUP3: string;
+  materiaL_GROUP4: string;
+  materiaL_GROUP5: string;
+
+  production_STLO: string;
+
+  /* Date fields (ISO strings) */
+  extension_On: string;
+  appR1_ON: string;
+  appR2_ON: string;
+  actioN_ON: string;
+  posteD_ON: string;
+  blockOn: string;
+
+  extensionApproval1On: string;
+  extensionApproval2On: string;
+  extensionRejectOn: string;
+
+  blockRejectOn: string;
+
+  blockAppr1On: string;
+  blockAppr2On: string;
+
+  unBlockOn: string;
+  unBlockApp1On: string;
+  unBlockApp2On: string;
+  unBlockRejectOn: string;
+
+  /* Remarks */
+  appR1_REMARK: string;
+  appR2_REMARK: string;
+  rejecteD_REMARK: string;
+
+  extApp1_Remark: string;
+  extApp2_Remark: string;
+
+  blockUserRemark: string;
+  blockApp1Remark: string;
+  blockApp2Remark: string;
+
+  unBlockUserRemark: string;
+  unBlockApp1Remark: string;
+  unBlockApp2Remark: string;
+
+  blockRejectRemarkApproval: string;
+  unBlockRejectRemarkApproval: string;
+};

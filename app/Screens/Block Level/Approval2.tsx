@@ -7,6 +7,7 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   BlockMaterialApproval2,
+  MaterialBlockSapPost,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -87,19 +88,42 @@ const Approval2 = () => {
     }
   };
 
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
   const closeDialog = () => {
     setDialogStep("NONE");
     setSelectedItem(null);
     setActionType("");
     setRemarks("");
+  };
+
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        isblock: 3,
+        blockApp2Remark: remarks,
+        blockAppr2On: localIso,
+        blockAppr2By: currentUser?.username || "user",
+        mode: "B",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      isBlockReject: 1,
+      blockRejectRemarkApproval: remarks,
+      blockRejectOn: localIso,
+      blockRejectBY: currentUser?.username || "user",
+      mode: "B",
+    };
   };
 
   const submitAction = async () => {
@@ -113,23 +137,12 @@ const Approval2 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
     setSubmitLoading(true);
 
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
+
     try {
-      const req = await Approval12Api.post({
-        ...selectedItem,
-        isblock: actionType === "Accepted" ? 1 : 0,
-        blockApp2Remark: remarks,
-        blockAppr2On: localIso,
-        blockAppr2By: currentUser?.username || "user",
-        mode: "B",
-      });
+      const req = await MaterialBlockSapPost.post(payload);
 
       console.log(req, "Response", "Api Fit");
       showAlert(req, "success", 5000);

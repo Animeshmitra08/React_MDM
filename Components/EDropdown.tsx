@@ -81,6 +81,7 @@ export default function EDropdown({
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
           disable={disabled}
           onChange={(item) => {
             onChange(item.value);

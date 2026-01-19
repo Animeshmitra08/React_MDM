@@ -86,17 +86,6 @@ const Approval1 = () => {
       setLoading(false);
     }
   };
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -125,6 +114,37 @@ const Approval1 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        isUnBlock: 2,
+        unBlockApp1Remark: remarks,
+        unBlockApp1On: localIso,
+        unBlockApp1By: currentUser?.username || "user",
+        mode: "UB",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      isUnBlockReject: 1,
+      unBlockRejectRemarkApproval: remarks,
+      unBlockRejectOn: localIso,
+      unBlockRejectBy: currentUser?.username || "user",
+      mode: "UB",
+    };
+  };
+
   const submitAction = async () => {
     if (!remarks) {
       showAlert("Enter Remarks", "error");
@@ -138,24 +158,9 @@ const Approval1 = () => {
 
     setSubmitLoading(true);
 
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
+
     try {
-      const now = new Date();
-      const localIso = new Date(
-        now.getTime() - now.getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .slice(0, -1);
-
-      const payload = {
-        ...selectedItem,
-        isUnBlock: actionType === "Accepted" ? 1 : 0,
-        unBlockApp1Remark: remarks,
-        unBlockApp1On: localIso,
-        unBlockApp1By: currentUser?.username || "user",
-        mode: "UB",
-      };
-
-      console.log("Submitting payload:", payload);
 
       const response = await Approval12Api.post(payload);
 

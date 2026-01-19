@@ -7,6 +7,8 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   Approval2Extension,
+  MaterialExtension2SapPostApi,
+  MaterialExtensionPostApi,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -20,7 +22,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { ActivityIndicator, Avatar } from "react-native-paper";
+import { ActivityIndicator, Avatar, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -46,6 +48,9 @@ const Approval2 = () => {
 
   const [navigating, setNavigating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+      
+  const { colors } = useTheme();
           
         useFocusEffect(
           useCallback(() => {
@@ -86,17 +91,6 @@ const Approval2 = () => {
       setLoading(false);
     }
   };
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
 
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -118,7 +112,7 @@ const Approval2 = () => {
   };
 
   const submitAction = async () => {
-    if (remarks === "") {
+    if (!remarks.trim()) {
       showAlert("Enter Remarks", "error");
       return;
     }
@@ -129,27 +123,37 @@ const Approval2 = () => {
     }
 
     const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
+    const localIso = new Date(
+      now.getTime() - now.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .slice(0, -1);
 
-    const payload: ApprovalMaster = {
+    const isAccepted = actionType === "Accepted";
+
+    const payload = {
       ...selectedItem,
-      extensionApproval2Status: actionType === "Accepted" ? 1 : 0,
+      extensionApproval2Status: isAccepted ? 1 : 0,
       extApp2_Remark: remarks,
       extensionApproval2On: localIso,
-      extensionApproval2: currentUser?.username || "user",
+      extensionApproval2: currentUser?.username ?? "user",
       mode: "E",
     };
 
-    setLoading(true);
+    // 🔥 Choose API based on action
+    const apiCall = isAccepted
+      ? MaterialExtension2SapPostApi.post
+      : MaterialExtensionPostApi.post; 
+
+    setSubmitLoading(true);
+
+    console.log(payload);
+    
 
     try {
-      const req = await Approval12Api.post(payload);
-      showAlert(req, "success", 5000);
+      const response = await apiCall(payload);
+      showAlert(response, "success", 5000);
       await ApiDataFunc();
-      console.log(req, "Response", "Api Fit");
       closeDialog();
     } catch (error: any) {
       console.error("Submit failed", error);
@@ -158,7 +162,7 @@ const Approval2 = () => {
         "error"
       );
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
@@ -355,6 +359,12 @@ const Approval2 = () => {
               icon="grease-pencil"
               onChangeText={setRemarks}
             />
+            {
+              submitLoading && 
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            }
           </>
         )}
       </DialogComponent>

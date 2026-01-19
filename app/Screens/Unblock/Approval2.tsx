@@ -123,6 +123,37 @@ const Approval2 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        isUnBlock: 3,
+        unBlockApp2Remark: remarks,
+        unBlockApp2On: localIso,
+        unBlockApp2By: currentUser?.username || "user",
+        mode: "UB",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      isUnBlockReject: 1,
+      unBlockRejectRemarkApproval: remarks,
+      unBlockRejectOn: localIso,
+      unBlockRejectBy: currentUser?.username || "user",
+      mode: "UB",
+    };
+  };
+
   const submitAction = async () => {
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
@@ -134,23 +165,12 @@ const Approval2 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
     setSubmitLoading(true);
 
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
+
     try {
-      const req = await Approval12Api.post({
-        ...selectedItem,
-        isUnBlock: actionType === "Accepted" ? 1 : 0,
-        unBlockApp2Remark: remarks,
-        unBlockApp2On: localIso,
-        unBlockApp2By: currentUser?.username || "user",
-        mode: "UB",
-      });
+      const req = await Approval12Api.post(payload);
 
       await ApiDataFunc();
       showAlert(req, "success", 5000);

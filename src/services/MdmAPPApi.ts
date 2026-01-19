@@ -1,4 +1,4 @@
-import { ApprovalMaster, DATAPayload } from "../types/ApprovalType";
+import { ApprovalMaster, DATAPayload, ExtensionPostSap, MaterialMaster } from "../types/ApprovalType";
 import appAxiosCon from "./ApplicationConnection";
 
 const ApplicationID = process.env.EXPO_PUBLIC_APP_ID;
@@ -51,6 +51,7 @@ export const Approval2Api = {
   },
 };
 
+
 export const Approval12Api = {
   post: async (data: ApprovalMaster) => {
     try {
@@ -65,6 +66,55 @@ export const Approval12Api = {
     }
   },
 };
+
+// material extension approval 2 ---------
+export const MaterialExtension2SapPostApi = {
+  post: async (data: MaterialMaster) => {
+    try {
+      const response = await appAxiosCon.post(
+        "/MaterialExtension/ExtensionPostSAP",
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching Material Extension Data:", error);
+      throw error;
+    }
+  },
+};
+
+// material extention approval 1 and 2 reject and approval 1-------
+export const MaterialExtensionPostApi = {
+  post: async (data : MaterialMaster) => {
+    try {
+      const response = await appAxiosCon.post(
+        "/MaterialExtension/ExtensionPost",
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching Material Extension Data:", error);
+      throw error;
+    }
+  },
+};
+
+// material block approval 1-------
+export const MaterialBlockSapPost = {
+  post: async (data : MaterialMaster) => {
+    try {
+      const response = await appAxiosCon.post(
+        "/MaterialExtension/BlockUnBlockPostSap",
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching Material Extension Data:", error);
+      throw error;
+    }
+  },
+};
+
 
 export const Approval1Extension = {
   post: async (data: DATAPayload) => {

@@ -7,20 +7,21 @@ import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   Approval1Extension,
+  MaterialExtensionPostApi,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
 import {
   MaterialMaster,
   PlantMaster,
-  ApprovalMaster,
+  ApprovalMaster
 } from "@/src/types/ApprovalType";
 import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { ActivityIndicator, Avatar } from "react-native-paper";
+import { ActivityIndicator, Avatar, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DialogStep = "NONE" | "CHOOSE" | "REMARKS";
@@ -45,6 +46,10 @@ const Approval1 = () => {
 
   const [navigating, setNavigating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  const { colors } = useTheme();
         
       useFocusEffect(
         useCallback(() => {
@@ -86,18 +91,6 @@ const Approval1 = () => {
     }
   };
 
-  // const ApiDataPlant = async () => {
-  //   try {
-  //     const response = await PlantData.GetAll();
-  //     setPlantApiData(response);
-  //   } catch (error) {
-  //     console.error("Error fetching Approval1 data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   ApiDataPlant();
-  // }, []);
-
   useEffect(() => {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     setFromDate(firstDay);
@@ -134,8 +127,8 @@ const Approval1 = () => {
         .toISOString()
         .slice(0, -1);
 
-    const payload: ApprovalMaster = {
-      ...(selectedItem as unknown as ApprovalMaster),
+    const payload = {
+      ...selectedItem,
       extensionApproval1Status: actionType === "Accepted" ? 1 : 0,
       extApp1_Remark: remarks,
       extensionApproval1On: localIso,
@@ -143,10 +136,10 @@ const Approval1 = () => {
       mode: "E",
     };
 
-    setLoading(true);
+    setSubmitLoading(true);
 
     try {
-      const req = await Approval12Api.post(payload);
+      const req = await MaterialExtensionPostApi.post(payload);
       showAlert(req, "success", 5000);
       await ApiDataFunc();
       console.log(req, "Response", "Api Fit");
@@ -158,7 +151,7 @@ const Approval1 = () => {
         "error"
       );
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
@@ -348,6 +341,12 @@ const Approval1 = () => {
               icon="grease-pencil"
               onChangeText={setRemarks}
             />
+            {
+              submitLoading && 
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            }
           </>
         )}
       </DialogComponent>

@@ -7,6 +7,7 @@ import { DataProvider, useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   BlockMaterialApproval1,
+  MaterialBlockSapPost,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -94,6 +95,37 @@ const Approval1 = () => {
     setRemarks("");
   };
 
+  const now = new Date();
+  const localIso = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, -1);
+
+  const buildPayload = () => {
+
+    if (actionType === "Accepted") {
+      return {
+        ...selectedItem,
+        isblock: 2,
+        blockApp1Remark: remarks,
+        blockAppr1On: localIso,
+        blockAppr1By: currentUser?.username || "user",
+        mode: "B",
+      };
+    }
+
+    // Rejected
+    return {
+      ...selectedItem,
+      isBlockReject: 1,
+      BlockRejectRemarkApproval: remarks,
+      blockRejectOn: localIso,
+      blockRejectBY: currentUser?.username || "user",
+      mode: "B",
+    };
+  };
+
   const submitAction = async () => {
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
@@ -105,23 +137,12 @@ const Approval1 = () => {
       return;
     }
 
-    const now = new Date();
-    const localIso =
-      new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, -1);
-
     setSubmitLoading(true);
 
+    const payload: MaterialMaster = buildPayload() as MaterialMaster;
+
     try {
-      const req = await Approval12Api.post({
-        ...selectedItem,
-        isblock: actionType === "Accepted" ? 1 : 0,
-        blockApp1Remark: remarks,
-        blockAppr1On: localIso,
-        blockAppr1By: currentUser?.username || "user",
-        mode: "B",
-      });
+      const req = await MaterialBlockSapPost.post(payload);
 
       console.log(req, "Response", "Api Fit");
       showAlert(req, "success", 5000);
