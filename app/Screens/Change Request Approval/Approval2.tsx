@@ -350,6 +350,7 @@ const Approval2 = () => {
             label: "Submit",
             mode: "contained",
             onPress: submitAction,
+            disabled: submitLoading,
           },
           {
             label: "Close",

@@ -1,17 +1,20 @@
 import Filter1 from "@/Components/DashboardFilterComponent/Filter1";
 import RDatatable from "@/Components/Datatable/RDatatable";
 import DialogComponent from "@/Components/DialogComponent";
+import EDropdown from "@/Components/EDropdown";
 import RNInput from "@/Components/RNInput";
 import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   BlockMaterialApproval2,
-  MaterialBlockSapPost,
+  lookUpApi,
+  MaterialBlockUnBlockSapPost,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
 import { MaterialMaster, PlantMaster } from "@/src/types/ApprovalType";
+import { DocumentBlockStatus } from "@/src/types/BlockStatus";
 import { handleNullUndefined } from "@/utils/errorHandler";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -28,6 +31,8 @@ const Approval2 = () => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [plant, setPlant] = useState<string | null>(null);
   // const [plantApiData, setPlantApiData] = useState<PlantMaster[] | null>(null);
+  const [blockStatus, setBlockStatus] = useState<DocumentBlockStatus []>([]);
+  const [selectedBlockStatus, setSelectedBlockStatus] = useState<string | null>(null);
 
   const [dialogStep, setDialogStep] = useState<DialogStep>("NONE");
   const [selectedItem, setSelectedItem] = useState<MaterialMaster | null>(null);
@@ -53,6 +58,28 @@ const Approval2 = () => {
   );
 
   const router = useRouter();
+
+  const getBlockStatus = async () => {
+    try {
+      const response = await lookUpApi.getStatus();
+      setBlockStatus(response);
+    } catch (err) {
+      console.error("Error fetching Block Status data:", err);
+    }
+  };
+
+  useEffect(() => {
+    getBlockStatus();
+  }, []);
+
+  const blockStatusOptions = useMemo(
+    () =>
+      blockStatus.map((s) => ({
+        label: s.nameDescription,
+        value: s.name,
+      })),
+    [blockStatus]
+  );
 
   const ApiDataFunc = async () => {
     if (!fromDate || !toDate) return;
@@ -107,10 +134,12 @@ const Approval2 = () => {
     if (actionType === "Accepted") {
       return {
         ...selectedItem,
+        reQ_NO: selectedItem?.reQ_CODE,
         isblock: 3,
         blockApp2Remark: remarks,
         blockAppr2On: localIso,
         blockAppr2By: currentUser?.username || "user",
+        sapBlockStatus: selectedBlockStatus,
         mode: "B",
       };
     }
@@ -118,6 +147,7 @@ const Approval2 = () => {
     // Rejected
     return {
       ...selectedItem,
+      reQ_NO: selectedItem?.reQ_CODE,
       isBlockReject: 1,
       blockRejectRemarkApproval: remarks,
       blockRejectOn: localIso,
@@ -127,6 +157,11 @@ const Approval2 = () => {
   };
 
   const submitAction = async () => {
+    if (selectedBlockStatus === null) {
+      showAlert("Select Block Status", "error");
+      return;
+    }
+
     if (remarks === "") {
       showAlert("Enter Remarks", "error");
       return;
@@ -142,10 +177,12 @@ const Approval2 = () => {
     const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     try {
-      const req = await MaterialBlockSapPost.post(payload);
+      const req = await MaterialBlockUnBlockSapPost.post(payload);
 
       console.log(req, "Response", "Api Fit");
       showAlert(req, "success", 5000);
+      console.log(payload, "Payload Sent");
+      
       await ApiDataFunc();
       closeDialog();
     } catch (error: any) {
@@ -348,6 +385,7 @@ const Approval2 = () => {
             label: "Submit",
             mode: "contained",
             onPress: submitAction,
+            disabled: submitLoading,
           },
           {
             label: "Close",
@@ -357,26 +395,34 @@ const Approval2 = () => {
       >
         {dialogStep === "REMARKS" && selectedItem && (
           <>
-            <RNInput
+            {/* <RNInput
               label="Request Number"
               disabled
               value={selectedItem?.reQ_CODE}
               icon="format-list-numbered"
-            />
+            /> */}
+            <View style={styles.dropCell}>
+              <EDropdown
+              label="Status*"
+              value={selectedBlockStatus}
+              data={blockStatusOptions}
+              onChange={(val) => setSelectedBlockStatus(val)}
+              />
+            </View>
             <RNInput
-              label="Approval Remark 1"
-              disabled
-              value={selectedItem?.blockApp1Remark}
-              icon="format-list-numbered"
-            />
-            <RNInput
-              label="User Approval Remark 1"
+              label="User Block Remark"
               disabled
               value={selectedItem?.blockUserRemark}
               icon="format-list-numbered"
             />
             <RNInput
-              label="Enter Remarks**"
+              label="Approval 1 Block Remark"
+              disabled
+              value={selectedItem?.blockApp1Remark}
+              icon="format-list-numbered"
+            />
+            <RNInput
+              label="Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}
@@ -410,5 +456,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     zIndex: 999,
+  },
+  dropCell: {
+    width: "100%",
+    // paddingHorizontal: 6,
+    marginBottom: 12,
   },
 });

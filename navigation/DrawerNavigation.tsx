@@ -139,6 +139,7 @@ export default function DrawerNavigator() {
     navigationConfigList,
     getNavigationConfig,
     currentUser,
+    logout,
   } = useData();
 
   /* -------------------- Fetch base navigation -------------------- */
@@ -227,7 +228,15 @@ export default function DrawerNavigator() {
           resizeMode="contain"
         />
         <Text style={styles.emptyText}>No accessible menus</Text>
+        <Button
+        onPress={logout}
+        mode="contained"
+        style={{
+          marginTop: 12
+        }}
+        >Logout</Button>
       </Centered>
+      <StatusBar style="dark"/>
       </>
     );
   }

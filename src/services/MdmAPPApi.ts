@@ -3,6 +3,7 @@ import appAxiosCon from "./ApplicationConnection";
 
 const ApplicationID = process.env.EXPO_PUBLIC_APP_ID;
 const CompanyID = process.env.EXPO_PUBLIC_COMPANY_ID;
+const DocType = process.env.EXPO_PUBLIC_DOC_TYPE;
 
 // Approval1 API fetch Data
 
@@ -100,7 +101,7 @@ export const MaterialExtensionPostApi = {
 };
 
 // material block approval 1-------
-export const MaterialBlockSapPost = {
+export const MaterialBlockUnBlockSapPost = {
   post: async (data : MaterialMaster) => {
     try {
       const response = await appAxiosCon.post(
@@ -248,6 +249,14 @@ export const lookUpApi = {
   getAll : async () => {
     try {
       const response = await appAxiosCon.get("/Lookup");
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getStatus : async () => {
+    try {
+      const response = await appAxiosCon.get(`/Lookup/GetBlockStatus/${DocType}`);
       return response;
     } catch (error) {
       throw error;

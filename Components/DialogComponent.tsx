@@ -18,6 +18,7 @@ type DialogAction = {
   onPress: () => void;
   mode?: "text" | "outlined" | "contained";
   color?: string;
+  disabled?: boolean;
 };
 
 interface DialogBoxProps {
@@ -161,6 +162,7 @@ export default function DialogComponent({
                       label: "OK",
                       onPress: onDismiss,
                       mode: "text",
+                      disabled: false,
                     },
                   ]
               ).map((a, idx) => (
@@ -170,6 +172,7 @@ export default function DialogComponent({
                   onPress={a.onPress}
                 //   textColor={a.color}
                   style={styles.actionBtn}
+                  disabled={a.disabled}
                 >
                   {a.label}
                 </Button>

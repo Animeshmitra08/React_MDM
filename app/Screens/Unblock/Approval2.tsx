@@ -6,6 +6,7 @@ import { useAlert } from "@/Services/AlertContext";
 import { useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
+  MaterialBlockUnBlockSapPost,
   PlantData,
   UnBlock2Api,
 } from "@/src/services/MdmAPPApi";
@@ -135,6 +136,7 @@ const Approval2 = () => {
     if (actionType === "Accepted") {
       return {
         ...selectedItem,
+        reQ_NO: selectedItem?.reQ_CODE,
         isUnBlock: 3,
         unBlockApp2Remark: remarks,
         unBlockApp2On: localIso,
@@ -146,6 +148,7 @@ const Approval2 = () => {
     // Rejected
     return {
       ...selectedItem,
+      reQ_NO: selectedItem?.reQ_CODE,
       isUnBlockReject: 1,
       unBlockRejectRemarkApproval: remarks,
       unBlockRejectOn: localIso,
@@ -170,7 +173,7 @@ const Approval2 = () => {
     const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     try {
-      const req = await Approval12Api.post(payload);
+      const req = await MaterialBlockUnBlockSapPost.post(payload);
 
       await ApiDataFunc();
       showAlert(req, "success", 5000);
@@ -357,6 +360,7 @@ const Approval2 = () => {
             label: "Submit",
             mode: "contained",
             onPress: submitAction,
+            disabled: submitLoading,
           },
           {
             label: "Close",
@@ -373,7 +377,13 @@ const Approval2 = () => {
               icon="format-list-numbered"
             />
             <RNInput
-              label="Approval Remark 1"
+              label="User Remark"
+              disabled
+              value={selectedItem.unBlockUserRemark}
+              icon="format-list-numbered"
+            />
+            <RNInput
+              label="Approval 1 Remark"
               disabled
               value={selectedItem.unBlockApp1Remark}
               icon="format-list-numbered"

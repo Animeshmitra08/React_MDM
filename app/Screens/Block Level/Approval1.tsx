@@ -7,7 +7,7 @@ import { DataProvider, useData } from "@/Services/dataProvider";
 import {
   Approval12Api,
   BlockMaterialApproval1,
-  MaterialBlockSapPost,
+  MaterialBlockUnBlockSapPost,
   PlantData,
 } from "@/src/services/MdmAPPApi";
 import { AppMDMThemeColors } from "@/src/theme/color";
@@ -107,6 +107,7 @@ const Approval1 = () => {
     if (actionType === "Accepted") {
       return {
         ...selectedItem,
+        reQ_NO: selectedItem?.reQ_CODE,
         isblock: 2,
         blockApp1Remark: remarks,
         blockAppr1On: localIso,
@@ -118,6 +119,7 @@ const Approval1 = () => {
     // Rejected
     return {
       ...selectedItem,
+      reQ_NO: selectedItem?.reQ_CODE,
       isBlockReject: 1,
       BlockRejectRemarkApproval: remarks,
       blockRejectOn: localIso,
@@ -142,7 +144,7 @@ const Approval1 = () => {
     const payload: MaterialMaster = buildPayload() as MaterialMaster;
 
     try {
-      const req = await MaterialBlockSapPost.post(payload);
+      const req = await MaterialBlockUnBlockSapPost.post(payload);
 
       console.log(req, "Response", "Api Fit");
       showAlert(req, "success", 5000);
@@ -340,6 +342,7 @@ const Approval1 = () => {
             label: "Submit",
             mode: "contained",
             onPress: submitAction,
+            disabled: submitLoading,
           },
           {
             label: "Close",
@@ -357,7 +360,14 @@ const Approval1 = () => {
             />
 
             <RNInput
-              label="Enter Remarks**"
+              label="User Remark"
+              disabled
+              value={selectedItem.blockUserRemark}
+              icon="grease-pencil"
+            />
+
+            <RNInput
+              label="Enter Remark*"
               value={remarks}
               icon="grease-pencil"
               onChangeText={setRemarks}
