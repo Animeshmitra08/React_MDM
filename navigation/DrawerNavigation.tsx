@@ -54,15 +54,15 @@ type CustomDrawerProps = DrawerContentComponentProps & {
 };
 
 const ScreenRegistry: Record<string, React.ComponentType<any>> = {
-  requestapproval: RequestApproval1,
+  requestapproval1: RequestApproval1,
   requestapprovalfinal: RequestApproval2,
   materialextensionapproval1: MaterialExtensionApproval1,
-  extensionapproval2: MaterialExtensionApproval2,
+  extensionfinalapproval: MaterialExtensionApproval2,
   changerequestapproval1: ChangeRequestApproval1,
   changerequestfinalapproval: ChangeRequestApproval2,
-  materialblocklevel1approval: BlockApproval1,
+  materialblockapproval1: BlockApproval1,
   materialblockfinalapproval: BlockApproval2,
-  unblockapproval: UnblockApproval1,
+  unblockapproval1: UnblockApproval1,
   unblockfinalapproval: UnblockApproval2,
 };
 
