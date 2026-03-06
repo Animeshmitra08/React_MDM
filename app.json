@@ -2,7 +2,7 @@
   "expo": {
     "name": "MDM",
     "slug": "MDM",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/emamilogo1.jpeg",
     "scheme": "amsdev",
@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.aonDigicon.MDM"
+      "bundleIdentifier": "com.aonDigicon.MDM",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app requires camera access for optional features like scanning setup codes."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -52,7 +55,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "a3413b67-3398-46f8-9c25-03f752a69307"
+        "projectId": "50cbc699-5ad2-49f9-b682-05dfc30d15cf"
       }
     }
   }
