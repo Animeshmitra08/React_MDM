@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "MDM",
+    "name": "Emami MDM",
     "slug": "MDM",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/emamilogo1.jpeg",
     "scheme": "amsdev",

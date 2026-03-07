@@ -26,6 +26,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="amsdev"/>
         <data android:scheme="exp+mdm"/>
+        <data android:scheme="exp+emamimdm"/>
       </intent-filter>
     </activity>
   </application>

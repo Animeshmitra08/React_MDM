@@ -182,7 +182,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getPlantMaster = async () => {
     try {
-      const res = await PlantData.GetAll();
+      const res = await PlantData.GetAll();      
 
       if (Array.isArray(res)) {
         setPlantApiData(res);
